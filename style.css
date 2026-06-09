@@ -1,0 +1,243 @@
+
+:root {
+    --red: #ff6b6b;
+    --orange: #ff9f43;
+    --green: #48d18e;
+    --bg: #0F172A;
+    --surface: #1E293B;
+    --surface-2: #2d3f55;
+    --text: #F8FAFC;
+    --text-muted: #64748b;
+    --border: #334155;
+}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px;
+    background: #0F172A;
+    color: #F8FAFC;
+    font-family: system-ui, sans-serif;
+    
+}
+#page_container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    display: flex;
+    justify-content: center;
+
+}
+
+#timer-dp {
+    font-size: 6rem;
+    font-weight: 700;
+    color: var(--orange);
+    letter-spacing: 4px;
+    display: flex;
+    justify-content: center;
+    margin: 3rem;
+
+}
+
+#input-container {
+    display: flex;
+    gap: 8px;
+}
+
+#job-id-input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-size: 0.9rem;
+    outline: none;
+}
+
+#job-id-input:focus {
+    border-color: var(--orange);
+}
+
+#add-job-btn {
+    background: var(--green);
+    color: #0f0f0f;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* History */
+#history-container {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+#history-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+#history-header h3 {
+    flex: 1;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+}
+
+#export-btn {
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+#copy-btn {
+    background: var(--orange);
+    color: var(--surface-2);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+#delete-all-btn {
+    background: var(--red);
+    color: var(--text);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+
+/* Table */
+#history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+#history-table th {
+    text-align: left;
+    padding: 10px 12px;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--border);
+}
+
+#history-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+}
+
+#history-table tr:last-child td {
+    border-bottom: none;
+}
+
+#history-table a {
+    color: var(--orange);
+    text-decoration: none;
+}
+
+.status-select {
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+/* Dialog */
+dialog {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    width: 90%;
+    max-width: 400px;
+    margin: auto;
+    flex-direction: column;
+ 
+}
+
+dialog::backdrop {
+    background: rgba(0,0,0,0.6);
+}
+
+dialog h3 {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+dialog input, dialog select {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-size: 0.9rem;
+    outline: none;
+    width: 100%;
+    margin: .5rem;
+}
+
+dialog input:focus {
+    border-color: var(--orange);
+}
+
+#dialog-btns {
+    display: flex;
+    gap: 8px;
+}
+
+#confirm-job-btn {
+    flex: 1;
+    background: var(--green);
+    color: #0f0f0f;
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#cancel-job-btn {
+    flex: 1;
+    background: var(--red);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    font-weight: 600;
+    cursor: pointer;
+}

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Roof Tracker</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="page_container">
+
+    <h1></h1>
+
+    <div id="timer-container">
+   <h1 id="timer-dp">Start</h1>
+    </div>
+
+    <div id="input-container">
+        <input id="job-id-input" placeholder="Paste Job ID here">
+        <button id="add-job-btn">Add</button>
+    </div>
+
+    <dialog id="job-form">
+        <h3>Job Details</h3>
+        <input id="job-link" placeholder="Paste link here">
+        <input id="job-points" type="number" placeholder="Points (1, 2, 3, 4.5...)">
+        <select id="job-status">
+            <option value="Open">Open</option>
+            <option value="Passed">Passed</option>
+            <option value="Rework">Rework</option>
+        </select>
+        <div id="dialog-btns">
+            <button id="confirm-job-btn">Confirm</button>
+            <button id="cancel-job-btn">Cancel</button>
+        </div>
+    </dialog>
+
+    <div id="history-container">
+        <div id="history-header">
+            <h3>Work History</h3>
+            <button id="export-btn">Export CSV</button>
+            <button id="copy-btn">Copy</button>
+            <button id="delete-all-btn">Delete All</button>
+        </div>
+        <table id="history-table">
+            <thead>
+                <tr>
+                    <th>Job ID</th>
+                    <th>Link</th>
+                    <th>Points</th>
+                    <th>Status</th>
+                    <th>Time</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody id="history-body">
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</body>
+</html>
