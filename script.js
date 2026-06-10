@@ -7,6 +7,7 @@ const jobPointsEl = document.getElementById("job-points");
 const jobStatusEl = document.getElementById("job-status");
 const historyBodyEl = document.getElementById("history-body");
 const timerProgressEl = document.getElementById("timer-progress");
+const totalPointsEl = document.getElementById("total-points");
 
 document.getElementById("add-job-btn").addEventListener("click", openJobForm);
 document.getElementById("confirm-job-btn").addEventListener("click", confirmJob);
@@ -19,7 +20,8 @@ document.getElementById("delete-all-btn").addEventListener("click", deleteAllTab
 const appState = {
     jobs: JSON.parse(localStorage.getItem("myJobs")) || [],
     timerInterval: null,
-    currentTime: 0
+    currentTime: 0,
+    totalPoints:0
 };
 
 // 3. TIMER
@@ -30,15 +32,18 @@ function startTimer(){
     appState.currentTime = 0;
     appState.timerInterval = setInterval(() => {
         appState.currentTime++;
+        syncStorage(); 
         timerDpEl.textContent = formatTime(appState.currentTime);
     }, 1000);
+
+  
 }
 
 function formatTime(seconds){
-    let hour = Math.floor(seconds / 3600);
+
     let minutes = Math.floor(seconds / 60) % 60;
     let remainingSeconds = seconds % 60;
-    return `${hour.toString().padStart(2,"0")}:${minutes.toString().padStart(2,"0")}:${remainingSeconds.toString().padStart(2,"0")}`;
+    return `${minutes.toString().padStart(2,"0")}:${remainingSeconds.toString().padStart(2,"0")}`;
 }
 
 // 4. JOB FORM
@@ -71,8 +76,24 @@ function confirmJob(){
     closeJobForm();
     jobIdInputEl.value = "";
     startTimer();
+    jobIdInputEl.focus();
+
 }
-//
+//Update Total Points
+
+function updateTotalPoints(){
+    let sum=0;
+    for(let i=0;i<appState.jobs.length;i++){
+        if(appState.jobs[i].points==0||isNaN(appState.jobs[i].points)){
+            continue;
+        }
+        sum+=appState.jobs[i].points;
+    }
+totalPointsEl.textContent="Total Points:"+sum;
+appState.totalPoints=sum;
+syncStorage();
+}
+
 // Enter key triggers Add
 jobIdInputEl.addEventListener("keyup", (event) => {
     if(event.key === "Enter") openJobForm();
@@ -109,48 +130,63 @@ function updateStatus(event){
         if(jobId === appState.jobs[i].id){
             appState.jobs[i].status = newStatus;
             syncStorage();
+            updateStatusColor(event.target);
             return;
         }
     }
 }
+//5.1 STATUS UPDATE COLOR
+function updateStatusColor(selectEl){
+    {selectEl.className = "status-select " + selectEl.value.toLowerCase();}
+}
+
 
 // 6. RENDER
 function renderUI(){
-    historyBodyEl.innerHTML = "";
+historyBodyEl.innerHTML = "";
     for(let i = 0; i < appState.jobs.length; i++){
         const job = appState.jobs[i];
         const tr = document.createElement("tr");
 
+
+
         tr.innerHTML = `
+        <td><a href="${job.link}" target="_blank">Link</a></td>
             <td>${job.jobId}</td>
-            <td><a href="${job.link}" target="_blank">Link</a></td>
             <td>${job.points}</td>
             <td>
                 <select data-id="${job.id}" class="status-select">
                     <option value="Open" ${job.status==="Open"?"selected":""}>Open</option>
-                    <option value="Passed" ${job.status==="Passed"?"selected":""}>Passed</option>
+                    <option value="Passed" style="" ${job.status==="Passed"?"selected":""}>Passed</option>
                     <option value="Rework" ${job.status==="Rework"?"selected":""}>Rework</option>
                 </select>
             </td>
             <td>${formatTime(job.timeElapsed)}</td>
             <td>${job.date}</td>
+           
         `;
-
-        tr.querySelector(".status-select").addEventListener("change", updateStatus);
+ const select = tr.querySelector(".status-select");
+ select.addEventListener("change", updateStatus);
+   
         historyBodyEl.appendChild(tr);
+       
+        updateStatusColor(select);
+        
+        
     }
+    updateTotalPoints();
 }
 
 // 7. EXPORT
 function exportToCSV(){
-    const headers = ["Job ID", "Link", "Points", "Status", "Time Taken", "Date"];
-    const rows = appState.jobs.map(j => [j.jobId, j.link, j.points, j.status, formatTime(j.timeElapsed), j.date]);
+    const headers = ["Link", "Job ID", "Points", "Status", "Time Taken", "Date"];
+    const rows = appState.jobs.map(j => [j.link, j.jobId, j.points, j.status, formatTime(j.timeElapsed), j.date]);
     const csv = [headers, ...rows].map(row => row.join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "roof-tracker.csv";
+    a.download = "roof-tracker/"+new Date().toLocaleDateString()+".csv";
     a.click();
     URL.revokeObjectURL(url);
 }
@@ -158,7 +194,7 @@ function exportToCSV(){
 // 8. COPY
 function copyToClipboard(){
     const rows = appState.jobs.map(j => 
-        [j.jobId, j.link, j.points, j.status, formatTime(j.timeElapsed), j.date].join("\t")
+        [j.link, j.jobId, j.points, j.status, formatTime(j.timeElapsed), j.date].join("\t")
     );
     navigator.clipboard.writeText(rows.join("\n"));
     alert("Copied to clipboard — paste directly into sheets.");
@@ -166,7 +202,7 @@ function copyToClipboard(){
 
 // Delete
 function deleteAllTable(){
-appState.jobs="";
+appState.jobs=[];
 syncStorage();
 renderUI();
 };
@@ -174,9 +210,9 @@ renderUI();
 // 8. STORAGE
 function syncStorage(){
     localStorage.setItem("myJobs", JSON.stringify(appState.jobs));
+    localStorage.setItem("myPoints", JSON.stringify(appState.totalPoints));
 }
 
 // INIT
 renderUI();
 
-window.addEventListener("beforeunload", syncStorage);

@@ -241,3 +241,25 @@ dialog input:focus {
     font-weight: 600;
     cursor: pointer;
 }
+
+/*Status Styles*/
+.status-select.open {
+    background: var(--surface-2);
+    color: var(--text);
+}
+
+.status-select.passed {
+    background: var(--green);
+    color: var(--surface-2);
+  text-shadow: 
+    0 0 5px var(--text),
+    0 0 10px var(--text),
+    0 0 20px #0073e6,
+    0 0 40px #0073e6,
+    0 0 80px #0073e6;
+}
+
+.status-select.rework {
+    background: var(--red);
+    color: #fff;
+}

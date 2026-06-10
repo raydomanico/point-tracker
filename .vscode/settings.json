@@ -1,3 +1,4 @@
 {
-  "liveServer.settings.multiRootWorkspaceName": "PointTracker"
+  "liveServer.settings.multiRootWorkspaceName": "PointTracker",
+  "liveServer.settings.port": 5501
 }
