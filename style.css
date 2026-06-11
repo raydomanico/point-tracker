@@ -229,6 +229,19 @@ dialog input:focus {
     font-weight: 600;
     margin-top: .5rem;
 }
+.point-btn:hover {
+  background-color:var(--text-muted);
+  border-color: var(--green);
+}
+
+/* Active state when a button is selected */
+.point-btn.active {
+  background-color: var(--orange); /* Bright blue highlight */
+  color: #ffffff;
+  border-color: #0056b3;
+}
+
+
 #confirm-job-btn {
     flex: 1;
     background: var(--green);

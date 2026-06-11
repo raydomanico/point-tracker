@@ -93,6 +93,11 @@ pointsContainer.addEventListener('click', (event) => {
     const button= event.target.closest('.point-btn');
 
     if(button){
+        // 1. Remove the active color class from whichever button currently has it
+    pointsContainer.querySelectorAll('.point-btn').forEach(btn => btn.classList.remove('active'));
+    
+    // 2. Add the active color class to the button that was just clicked
+    button.classList.add('active');
         const pointValue=button.dataset.category;
         pointsInput.value=pointValue;
     }
