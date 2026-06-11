@@ -215,11 +215,20 @@ dialog input:focus {
     border-color: var(--orange);
 }
 
-#dialog-btns {
+#dialog-btns , #dialog-pts-btn{
     display: flex;
     gap: 8px;
 }
-
+.point-btn{
+    height: 2.3rem;
+    color: #0f0f0f;
+    border: none;
+    gap:1px;
+    border-radius: 8px;
+    padding: 10px;
+    font-weight: 600;
+    margin-top: .5rem;
+}
 #confirm-job-btn {
     flex: 1;
     background: var(--green);

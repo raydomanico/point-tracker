@@ -16,6 +16,11 @@ document.getElementById("export-btn").addEventListener("click", exportToCSV);
 document.getElementById("copy-btn").addEventListener("click", copyToClipboard);
 document.getElementById("delete-all-btn").addEventListener("click", deleteAllTable);
 
+
+//Modal Int
+const pointsContainer = document.querySelector('#dialog-pts-btn');
+const pointsInput = document.querySelector('#job-points');
+
 // 2. STATE
 const appState = {
     jobs: JSON.parse(localStorage.getItem("myJobs")) || [],
@@ -50,6 +55,10 @@ function formatTime(seconds){
 function openJobForm(){
     if(jobIdInputEl.value.trim() === "") return;
     jobFormEl.showModal();
+    jobFormEl.addEventListener("keyup", (event) => {
+    if(event.key === "Enter") confirmJob();
+});
+
 }
 
 function closeJobForm(){
@@ -76,9 +85,21 @@ function confirmJob(){
     closeJobForm();
     jobIdInputEl.value = "";
     startTimer();
-    jobIdInputEl.focus();
-
+    
 }
+//Add Points from Button
+
+pointsContainer.addEventListener('click', (event) => {
+    const button= event.target.closest('.point-btn');
+
+    if(button){
+        const pointValue=button.dataset.category;
+        pointsInput.value=pointValue;
+    }
+}
+)
+
+
 //Update Total Points
 
 function updateTotalPoints(){
@@ -87,13 +108,18 @@ function updateTotalPoints(){
         if(appState.jobs[i].points==0||isNaN(appState.jobs[i].points)){
             continue;
         }
+        if(appState.jobs[i].status=="Rework"){
+            continue;
+        }
         sum+=appState.jobs[i].points;
     }
 totalPointsEl.textContent="Total Points:"+sum;
 appState.totalPoints=sum;
 syncStorage();
 }
-
+    jobFormEl.addEventListener("keyup", (event) => {
+    if(event.key === "Enter") confirmJob();
+});
 // Enter key triggers Add
 jobIdInputEl.addEventListener("keyup", (event) => {
     if(event.key === "Enter") openJobForm();
@@ -131,9 +157,11 @@ function updateStatus(event){
             appState.jobs[i].status = newStatus;
             syncStorage();
             updateStatusColor(event.target);
+            renderUI();
             return;
         }
     }
+    
 }
 //5.1 STATUS UPDATE COLOR
 function updateStatusColor(selectEl){
@@ -171,6 +199,8 @@ historyBodyEl.innerHTML = "";
         historyBodyEl.appendChild(tr);
        
         updateStatusColor(select);
+        jobIdInputEl.focus();
+
         
         
     }
@@ -194,7 +224,7 @@ function exportToCSV(){
 // 8. COPY
 function copyToClipboard(){
     const rows = appState.jobs.map(j => 
-        [j.link, j.jobId, j.points, j.status, formatTime(j.timeElapsed), j.date].join("\t")
+        [j.jobId, ,j.points, j.status].join("\t")
     );
     navigator.clipboard.writeText(rows.join("\n"));
     alert("Copied to clipboard — paste directly into sheets.");
