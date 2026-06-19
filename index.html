@@ -14,7 +14,13 @@
 
     <div id="timer-container">
    <h1 id="timer-dp">Start</h1>
+   <h1 id="show-timer">Show Timer ⏱️</h1>
     </div>
+
+<div id="shortcut-header">
+
+    
+</div>
 
     <div id="input-container">
         <input id="job-id-input" placeholder="Paste Job ID here">
@@ -23,14 +29,15 @@
 
     <dialog id="job-form">
         <h3>Job Details</h3>
-        <input id="job-link" placeholder="Paste link here">
-<div id="dialog-pts-btn">
+        <div id="dialog-pts-btn">
+            
         <input id="job-points" type="number" placeholder="Points (1, 2, 3, 4.5...)">
                 <button class="point-btn" data-category="1">1</button>
            <button class="point-btn" data-category="2">2</button>
               <button class="point-btn" data-category="3">3</button>
                  <button class="point-btn" data-category="4.5">4.5</button>
                 </div>
+        <input id="job-link" placeholder="Paste link here">
         <select id="job-status">
             <option value="Open">Open</option>
             <option value="Passed">Passed</option>
@@ -39,6 +46,25 @@
         <div id="dialog-btns">
             <button id="confirm-job-btn">Confirm</button>
             <button id="cancel-job-btn">Cancel</button>
+        </div>
+    </dialog>
+
+    <dialog id="edit-job-form">
+        <h3>Job Details</h3>
+        <div id="edit-dialog-pts-btn">
+        <input id="edit-job-id-input" placeholder="Job ID ">
+        <input id="edit-job-points" type="number" placeholder="Points">
+               
+                </div>
+        <input id="edit-job-link" placeholder="Measurement Link">
+        <select id="edit-job-status">
+            <option value="Open">Open</option>
+            <option value="Passed">Passed</option>
+            <option value="Rework">Rework</option>
+        </select>
+        <div id="edit-dialog-btns">
+            <button id="edit-confirm-job-btn">Confirm</button>
+            <button id="edit-cancel-job-btn">Cancel</button>
         </div>
     </dialog>
 

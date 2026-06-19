@@ -285,3 +285,9 @@ dialog input:focus {
     background: var(--red);
     color: #fff;
 }
+    #show-timer{
+    border-radius: 8px;
+    background: var(--surface);
+    color:var(--orange)
+
+}
