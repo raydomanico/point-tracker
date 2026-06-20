@@ -242,7 +242,7 @@ dialog input:focus {
 }
 
 
-#confirm-job-btn {
+.confirm-job-btn {
     flex: 1;
     background: var(--green);
     color: #0f0f0f;
@@ -253,7 +253,7 @@ dialog input:focus {
     cursor: pointer;
 }
 
-#cancel-job-btn {
+.cancel-job-btn {
     flex: 1;
     background: var(--red);
     color: #fff;

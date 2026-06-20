@@ -3,6 +3,11 @@ const timerDpEl = document.getElementById("timer-dp");
 const jobIdInputEl = document.getElementById("job-id-input");
 const jobFormEl = document.getElementById("job-form");
 const eJobFormEl = document.getElementById("edit-job-form");
+const eJobIdInputEl = document.getElementById('edit-job-id-input');
+const eJobLinkEl = document.getElementById("edit-job-link");
+const eJobPointsEl = document.getElementById("edit-job-points");
+const eJobStatusEl = document.getElementById("edit-job-status");
+
 const jobLinkEl = document.getElementById("job-link");
 const jobPointsEl = document.getElementById("job-points");
 const jobStatusEl = document.getElementById("job-status");
@@ -11,13 +16,15 @@ const timerProgressEl = document.getElementById("timer-progress");
 const totalPointsEl = document.getElementById("total-points");
 const showTimerEl =document.getElementById("show-timer");
 
+
 const appState = {
     jobs: JSON.parse(localStorage.getItem("myJobs")) || [],
     timerInterval: null,
     currentTime: 0,
     totalPoints:0,
     startTime:null,
-    isRunning:true               
+    isRunning:true,
+    currentEditId:0               
 };
 
 document.getElementById("add-job-btn").addEventListener("click", openJobForm);
@@ -26,7 +33,8 @@ document.getElementById("cancel-job-btn").addEventListener("click", closeJobForm
 document.getElementById("export-btn").addEventListener("click", exportToCSV);
 document.getElementById("copy-btn").addEventListener("click", copyToClipboard);
 document.getElementById("delete-all-btn").addEventListener("click", deleteAllTable);
-
+document.getElementById("edit-confirm-job-btn").addEventListener("click", confirmEditJob);
+document.getElementById("edit-cancel-job-btn").addEventListener("click", closeEditJobForm);
 
 //Modal Int
 const pointsContainer = document.querySelector('#dialog-pts-btn');
@@ -144,12 +152,14 @@ function confirmJob(){
 }
 function editJob(event){
  const targetId= event.target.dataset.id;
- for(i=0;i<appState.jobs.length;i++)
+ appState.currentEditId=targetId;
+ for(let i=0;i<appState.jobs.length;i++)
     if(appState.jobs[i].id==targetId){
             eJobFormEl.showModal();
-            jobPointsEl.value=appState.jobs[i].points;
-            jobLinkEl.value=appState.jobs[i].link;
-            jobStatusEl.value=appState.jobs[i].status;
+            eJobIdInputEl.value=appState.jobs[i].jobId;
+            eJobPointsEl.value=appState.jobs[i].points;
+            eJobLinkEl.value=appState.jobs[i].link;
+            eJobStatusEl.value=appState.jobs[i].status;
 
     }
 }
@@ -159,6 +169,30 @@ function deleteJob(event){
     syncStorage();
     renderUI();
 
+}
+function closeEditJobForm(){
+    eJobFormEl.close();
+}
+
+function confirmEditJob(){
+    appState.jobs = appState.jobs.map(
+        job => {
+            if(job.id ===appState.currentEditId){
+                return {
+                    ...job,
+                    jobId:  eJobIdInputEl.value.trim(),
+                    link: eJobLinkEl.value.trim(),
+                points: parseFloat(eJobPointsEl.value),
+                status: eJobStatusEl.value
+
+                };
+            }
+            return job;
+        });
+        syncStorage();
+        renderUI();
+        eJobFormEl.close();
+        appState.currentEditId = null;
 }
 //Add Points from Button
 
