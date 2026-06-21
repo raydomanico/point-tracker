@@ -20,6 +20,7 @@
     const timerProgressEl = document.getElementById("timer-progress");
     const totalPointsEl = document.getElementById("total-points");
     const showTimerEl =document.getElementById("show-timer");
+    const deleteUserEl = document.getElementById("delete-user");
 
 
     const appState = {
@@ -44,6 +45,7 @@
     document.getElementById("copy-tsc-btn").addEventListener("click", copyTSC);
     document.getElementById("confirm-user-btn").addEventListener("click", confirmAddUser);
     document.getElementById("cancel-user-btn").addEventListener("click", closeUserForm);
+    document.getElementById("delete-user").addEventListener("click",deleteUser);
 
     //Modal Int
     const pointsContainer = document.querySelector('#dialog-pts-btn');
@@ -286,7 +288,14 @@
             timerDpEl.style.display="none";
                 showTimerEl.style.display="flex";
     }})
-
+ 
+    window.addEventListener("keyup", (event)=> {
+        const pressedkey = event.key.toLowerCase();
+        if((event.ctrlKey ||event.metaKey )|| pressedkey==="d"){
+            event.preventDefault();
+            deleteUserEl.style.display="block";
+        }
+    })
 
 
     // 5. STATUS UPDATE
@@ -482,10 +491,17 @@ slot => {
     // Delete
     function deleteAllTable(){
     appState.jobs=[];
-    appState.user=null;
     syncStorage();
     renderUI();
     };
+
+    function deleteUser(){
+    appState.user=null;
+    syncStorage();
+    renderUI();
+    window.location.reload();
+    };
+
 
     // 8. STORAGE
     function syncStorage(){
