@@ -18,7 +18,7 @@
     </div>
 
 <div id="shortcut-header">
-
+<button id="copy-tsc-btn" class="copy-btn">Copy TSC 📋</button>
     
 </div>
 
@@ -52,7 +52,7 @@
     <dialog id="edit-job-form">
         <h3>Edit Job Details</h3>
         <div id="edit-dialog-pts-btn">
-        <input id="edit-job-id-input" placeholder="Job ID ">
+        <input id="edit-job-id-input" placeholder="Job ID " name="dsa">
         <input id="edit-job-points" type="number" placeholder="Points">
                
                 </div>
@@ -68,12 +68,29 @@
         </div>
     </dialog>
 
+      <dialog id="user-form">
+        <h3>Account Information</h3>
+        <div id="dialog-pts-btn">
+         <input id="tech-no" type="number" placeholder="Tech Number"> 
+         <input id="user-name" placeholder="User Name">
+        <select id="user-shift">
+            <option value="Day">Day Shift</option>
+            <option value="Night">Night Shift</option>
+        </select>
+    </div>
+        <div id="dialog-btns">
+            <button id="confirm-user-btn" class="confirm-job-btn">Confirm</button>
+            <button id="cancel-user-btn" class="cancel-job-btn">Cancel</button>
+        </div>
+    </dialog>
+
+
     <div id="history-container">
         <div id="history-header">
             <h3>Work History</h3>
             <h4 id="total-points">Total Points:</h4>
             <button id="export-btn">Export CSV</button>
-            <button id="copy-btn">Copy</button>
+            <button id="copy-btn" class="copy-btn">Copy</button>
             <button id="delete-all-btn">Delete All</button>
         </div>
         <table id="history-table">

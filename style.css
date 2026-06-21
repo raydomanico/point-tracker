@@ -112,7 +112,7 @@ h1 {
     cursor: pointer;
 }
 
-#copy-btn {
+.copy-btn {
     background: var(--orange);
     color: var(--surface-2);
     border: none;

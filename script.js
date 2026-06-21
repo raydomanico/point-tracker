@@ -1,380 +1,503 @@
-// 1. DOM
-const timerDpEl = document.getElementById("timer-dp");
-const jobIdInputEl = document.getElementById("job-id-input");
-const jobFormEl = document.getElementById("job-form");
-const eJobFormEl = document.getElementById("edit-job-form");
-const eJobIdInputEl = document.getElementById('edit-job-id-input');
-const eJobLinkEl = document.getElementById("edit-job-link");
-const eJobPointsEl = document.getElementById("edit-job-points");
-const eJobStatusEl = document.getElementById("edit-job-status");
+    // 1. DOM
+    const timerDpEl = document.getElementById("timer-dp");
+    const jobIdInputEl = document.getElementById("job-id-input");
+    const jobFormEl = document.getElementById("job-form");
+    const eJobFormEl = document.getElementById("edit-job-form");
+    const eJobIdInputEl = document.getElementById('edit-job-id-input');
+    const eJobLinkEl = document.getElementById("edit-job-link");
+    const eJobPointsEl = document.getElementById("edit-job-points");
+    const eJobStatusEl = document.getElementById("edit-job-status");
+    const userFormEl = document.getElementById("user-form");
 
-const jobLinkEl = document.getElementById("job-link");
-const jobPointsEl = document.getElementById("job-points");
-const jobStatusEl = document.getElementById("job-status");
-const historyBodyEl = document.getElementById("history-body");
-const timerProgressEl = document.getElementById("timer-progress");
-const totalPointsEl = document.getElementById("total-points");
-const showTimerEl =document.getElementById("show-timer");
+    const techNoEl = document.getElementById("tech-no");
+    const userNameEl = document.getElementById("user-name");
+    const userShiftEl = document.getElementById("user-shift");
 
-
-const appState = {
-    jobs: JSON.parse(localStorage.getItem("myJobs")) || [],
-    timerInterval: null,
-    currentTime: 0,
-    totalPoints:0,
-    startTime:null,
-    isRunning:true,
-    currentEditId:0               
-};
-
-document.getElementById("add-job-btn").addEventListener("click", openJobForm);
-document.getElementById("confirm-job-btn").addEventListener("click", confirmJob);
-document.getElementById("cancel-job-btn").addEventListener("click", closeJobForm);
-document.getElementById("export-btn").addEventListener("click", exportToCSV);
-document.getElementById("copy-btn").addEventListener("click", copyToClipboard);
-document.getElementById("delete-all-btn").addEventListener("click", deleteAllTable);
-document.getElementById("edit-confirm-job-btn").addEventListener("click", confirmEditJob);
-document.getElementById("edit-cancel-job-btn").addEventListener("click", closeEditJobForm);
-
-//Modal Int
-const pointsContainer = document.querySelector('#dialog-pts-btn');
-const pointsInput = document.querySelector('#job-points');
-
-//Event Listeners
-timerDpEl.addEventListener("click", toggleTimer);
-showTimerEl.addEventListener("click", showTimer);
+    const jobLinkEl = document.getElementById("job-link");
+    const jobPointsEl = document.getElementById("job-points");
+    const jobStatusEl = document.getElementById("job-status");
+    const historyBodyEl = document.getElementById("history-body");
+    const timerProgressEl = document.getElementById("timer-progress");
+    const totalPointsEl = document.getElementById("total-points");
+    const showTimerEl =document.getElementById("show-timer");
 
 
-
-
-// 3. TIMER
-function showTimer(){
-    timerDpEl.style.display="flex";
-    showTimerEl.style.display="none";
-} 
-function startTimer(){
-    if(appState.timerInterval){
-        clearInterval(appState.timerInterval);
-    }
-    appState.currentTime = 0;
-    playTimer();   
-
-    console.log("starttime:"+appState.startTime);
-     
-
-  
-}
-
-
-
-function playTimer(){
-    let totalTime=0;
-    timerDpEl.style.opacity = "1";
-appState.startTime=Date.now();
-appState.isRunning = true;
-appState.timerInterval = setInterval(() => { 
-       const now=Date.now();
-       appState.accumulatedTime=now-appState.startTime;
-       appState.currentTime+=appState.accumulatedTime;
-       appState.startTime=now;
-       totalTime=Math.floor(appState.currentTime/1000);
-        timerDpEl.textContent = formatTime(totalTime);
-
-        console.log(totalTime);
-    }, 1000);
-}
-
-function formatTime(seconds){
-
-    let minutes = Math.floor(seconds / 60) % 60;
-    let remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes.toString().padStart(2,"0")}:${remainingSeconds.toString().padStart(2,"0")}`;
-}
-function pauseTimer(){
-    appState.isRunning=false;
-                clearInterval(appState.timerInterval);
-            console.log(appState.accumulatedTime)
-            appState.timerInterval = 0;
-            appState.startTime= 0;
-            timerDpEl.style.opacity = "0.4";        
-
-}
-function toggleTimer(){
-if(appState.isRunning){
-
-    pauseTimer();
-}
-else{
-
-    playTimer();
-}
-};
-
-
-// 4. JOB FORM
-function openJobForm(){
-    if(jobIdInputEl.value.trim() === "") return;
-    jobFormEl.showModal();
-    timerDpEl.style.color="#48d18e";
-    pauseTimer();
-}
-
-function closeJobForm(){
-    jobFormEl.close();
-    jobLinkEl.value = "";
-    jobPointsEl.value = "";
-    jobStatusEl.value = "Open";
-
-playTimer();
-    timerDpEl.style.color="#ff9f43";
-}
-
-function confirmJob(){
-    const newJob = {
-        id: crypto.randomUUID(),
-        jobId: jobIdInputEl.value.trim(),
-        link: jobLinkEl.value.trim(),
-        points: parseFloat(jobPointsEl.value),
-        status: jobStatusEl.value,
-        timeElapsed: appState.currentTime/1000,
-        date: new Date().toLocaleDateString(),
+    const appState = {
+        user:  JSON.parse(localStorage.getItem("myUser")) || null,
+        jobs: JSON.parse(localStorage.getItem("myJobs")) || [],
+        timerInterval: null,
+        currentTime: 0,
+        totalPoints:0,
+        startTime:null,
+        isRunning:false,
+        currentEditId:0               
     };
 
-    appState.jobs.push(newJob);
-    closeJobForm();
-    jobIdInputEl.value = "";
-    appState.currentTime=0;
-    startTimer();
-    syncStorage();
-    renderUI();
-    timerDpEl.style.color="#ff9f43";
+    document.getElementById("add-job-btn").addEventListener("click", openJobForm);
+    document.getElementById("confirm-job-btn").addEventListener("click", confirmJob);
+    document.getElementById("cancel-job-btn").addEventListener("click", closeJobForm);
+    document.getElementById("export-btn").addEventListener("click", exportToCSV);
+    document.getElementById("copy-btn").addEventListener("click", copyToClipboard);
+    document.getElementById("delete-all-btn").addEventListener("click", deleteAllTable);
+    document.getElementById("edit-confirm-job-btn").addEventListener("click", confirmEditJob);
+    document.getElementById("edit-cancel-job-btn").addEventListener("click", closeEditJobForm);
+    document.getElementById("copy-tsc-btn").addEventListener("click", copyTSC);
+    document.getElementById("confirm-user-btn").addEventListener("click", confirmAddUser);
+    document.getElementById("cancel-user-btn").addEventListener("click", closeUserForm);
+
+    //Modal Int
+    const pointsContainer = document.querySelector('#dialog-pts-btn');
+    const pointsInput = document.querySelector('#job-points');
+
+    //Event Listeners
+    timerDpEl.addEventListener("click", toggleTimer);
+    showTimerEl.addEventListener("click", showTimer);
+
+
+
+
+    // 3. TIMER
+    function showTimer(){
+        timerDpEl.style.display="flex";
+        showTimerEl.style.display="none";
+    } 
+    function startTimer(){
+        if(appState.timerInterval){
+            clearInterval(appState.timerInterval);
+        }
+        appState.currentTime = 0;
+        playTimer();   
+
+        console.log("starttime:"+appState.startTime);
+        
+
     
-}
-function editJob(event){
- const targetId= event.target.dataset.id;
- appState.currentEditId=targetId;
- for(let i=0;i<appState.jobs.length;i++)
-    if(appState.jobs[i].id==targetId){
-            eJobFormEl.showModal();
-            eJobIdInputEl.value=appState.jobs[i].jobId;
-            eJobPointsEl.value=appState.jobs[i].points;
-            eJobLinkEl.value=appState.jobs[i].link;
-            eJobStatusEl.value=appState.jobs[i].status;
+    }
+
+
+
+    function playTimer(){
+        let totalTime=0;
+        timerDpEl.style.opacity = "1";
+    appState.startTime=Date.now();
+    appState.isRunning = true;
+    appState.timerInterval = setInterval(() => { 
+        const now=Date.now();
+        appState.accumulatedTime=now-appState.startTime;
+        appState.currentTime+=appState.accumulatedTime;
+        appState.startTime=now;
+        totalTime=Math.floor(appState.currentTime/1000);
+            timerDpEl.textContent = formatTime(totalTime);
+
+            console.log(totalTime);
+        }, 1000);
+    }
+
+    function formatTime(seconds){
+
+        let minutes = Math.floor(seconds / 60) % 60;
+        let remainingSeconds = Math.floor(seconds % 60);
+        return `${minutes.toString().padStart(2,"0")}:${remainingSeconds.toString().padStart(2,"0")}`;
+    }
+    function pauseTimer(){
+        appState.isRunning=false;
+                    clearInterval(appState.timerInterval);
+                console.log(appState.accumulatedTime)
+                appState.timerInterval = 0;
+                appState.startTime= 0;
+                timerDpEl.style.opacity = "0.4";        
 
     }
-}
-function deleteJob(event){
-    const targetId= event.target.dataset.id;
-    appState.jobs= appState.jobs.filter(job => job.id !== targetId);
-    syncStorage();
-    renderUI();
+    function toggleTimer(){
+    if(appState.isRunning){
 
-}
-function closeEditJobForm(){
-    eJobFormEl.close();
-}
+        pauseTimer();
+    }
+    else{
 
-function confirmEditJob(){
-    appState.jobs = appState.jobs.map(
-        job => {
-            if(job.id ===appState.currentEditId){
-                return {
-                    ...job,
-                    jobId:  eJobIdInputEl.value.trim(),
-                    link: eJobLinkEl.value.trim(),
-                points: parseFloat(eJobPointsEl.value),
-                status: eJobStatusEl.value
+        playTimer();
+    }
+    };
 
-                };
-            }
-            return job;
-        });
+
+    // 4. JOB FORM
+    window.addEventListener("DOMContentLoaded",  () =>{
+
+        if(!appState.user){
+            userFormEl.showModal();
+            return;
+        };
+
+    })
+
+    function confirmAddUser(){
+        const newUser = {
+            id: crypto.randomUUID(),
+            userName: userNameEl.value.trim(),
+            techNo: parseFloat(techNoEl.value),
+            userShift: userShiftEl.value,
+            date: new Date().toLocaleDateString(),
+        }
+ appState.user=newUser;
+
+        syncStorage();
+        closeUserForm();
+        renderUI();
+    };
+
+    function closeUserForm(){
+        userFormEl.close();
+    }
+
+    function openJobForm(){
+        if(jobIdInputEl.value.trim() === "") return;
+        jobFormEl.showModal();
+        timerDpEl.style.color="#48d18e";
+        pauseTimer();
+         console.log(appState.user)
+    }
+
+    function closeJobForm(){
+        jobFormEl.close();
+        jobLinkEl.value = "";
+        jobPointsEl.value = "";
+        jobStatusEl.value = "Open";
+
+    playTimer();
+        timerDpEl.style.color="#ff9f43";
+    }
+
+    function confirmJob(){
+        const newJob = {
+            id: crypto.randomUUID(),
+            jobId: jobIdInputEl.value.trim(),
+            link: jobLinkEl.value.trim(),
+            points: parseFloat(jobPointsEl.value),
+            status: jobStatusEl.value,
+            timeElapsed: appState.currentTime/1000,
+            date: new Date().toLocaleDateString(),
+        };
+
+        appState.jobs.push(newJob);
+        closeJobForm();
+        jobIdInputEl.value = "";
+        appState.currentTime=0;
+        startTimer();
         syncStorage();
         renderUI();
+        timerDpEl.style.color="#ff9f43";
+        
+    }
+    function editJob(event){
+    const targetId= event.target.dataset.id;
+    appState.currentEditId=targetId;
+    for(let i=0;i<appState.jobs.length;i++)
+        if(appState.jobs[i].id==targetId){
+                eJobFormEl.showModal();
+                eJobIdInputEl.value=appState.jobs[i].jobId;
+                eJobPointsEl.value=appState.jobs[i].points;
+                eJobLinkEl.value=appState.jobs[i].link;
+                eJobStatusEl.value=appState.jobs[i].status;
+
+        }
+    }
+    function deleteJob(event){
+        const targetId= event.target.dataset.id;
+        appState.jobs= appState.jobs.filter(job => job.id !== targetId);
+        syncStorage();
+        renderUI();
+
+    }
+    function closeEditJobForm(){
         eJobFormEl.close();
-        appState.currentEditId = null;
-}
-//Add Points from Button
-
-pointsContainer.addEventListener('click', (event) => {
-    const button= event.target.closest('.point-btn');
-
-    if(button){
-        // 1. Remove the active color class from whichever button currently has it
-    pointsContainer.querySelectorAll('.point-btn').forEach(btn => btn.classList.remove('active'));
-    
-    // 2. Add the active color class to the button that was just clicked
-    button.classList.add('active');
-        const pointValue=button.dataset.category;
-        pointsInput.value=pointValue;
+        console.log();
     }
-}
-)
 
+    function confirmEditJob(){
+        appState.jobs = appState.jobs.map(
+            job => {
+                if(job.id ===appState.currentEditId){
+                    return {
+                        ...job,
+                        jobId:  eJobIdInputEl.value.trim(),
+                        link: eJobLinkEl.value.trim(),
+                    points: parseFloat(eJobPointsEl.value),
+                    status: eJobStatusEl.value
 
-//Update Total Points
-
-function updateTotalPoints(){
-    let sum=0;
-    for(let i=0;i<appState.jobs.length;i++){
-        if(appState.jobs[i].points==0||isNaN(appState.jobs[i].points)){
-            continue;
-        }
-        if(appState.jobs[i].status=="Rework"){
-            continue;
-        }
-        sum+=appState.jobs[i].points;
-    }
-totalPointsEl.textContent="Total Points:"+sum;
-appState.totalPoints=sum;
-syncStorage();
-}
-    jobFormEl.addEventListener("keyup", (event) => {
-    if(event.key === "Enter") confirmJob();
-});
-// Enter key triggers Add
-jobIdInputEl.addEventListener("keyup", (event) => {
-    if(event.key === "Enter") openJobForm();
-});
-
-
-
-
-
-window.addEventListener("keyup", (event) => {
-    if(event.key === "Escape" && document.activeElement.tagName !== "INPUT" || document.activeElement.tagName !== "TEXTAREA"){
-        event.preventDefault();
-        timerDpEl.style.display="none";
-            showTimerEl.style.display="flex";
-}})
-
-
-
-// 5. STATUS UPDATE
-function updateStatus(event){
-    const jobId = event.target.dataset.id;
-    const newStatus = event.target.value;
-    for(let i = 0; i < appState.jobs.length; i++){
-        if(jobId === appState.jobs[i].id){
-            appState.jobs[i].status = newStatus;
+                    };
+                }
+                return job;
+            });
             syncStorage();
-            updateStatusColor(event.target);
             renderUI();
-            return;
+            eJobFormEl.close();
+            appState.currentEditId = null;
+    }
+    //Add Points from Button
+
+    pointsContainer.addEventListener('click', (event) => {
+        const button= event.target.closest('.point-btn');
+
+        if(button){
+            // 1. Remove the active color class from whichever button currently has it
+        pointsContainer.querySelectorAll('.point-btn').forEach(btn => btn.classList.remove('active'));
+        
+        // 2. Add the active color class to the button that was just clicked
+        button.classList.add('active');
+            const pointValue=button.dataset.category;
+            pointsInput.value=pointValue;
         }
-    }  
-    
-}
-//5.1 STATUS UPDATE COLOR
-function updateStatusColor(selectEl){
-    {selectEl.className = "status-select " + selectEl.value.toLowerCase();}
-}
+    }
+    )
 
 
-// 6. RENDER
-function renderUI(){
+    //Update Total Points
+
+    function updateTotalPoints(){
+        let sum=0;
+        for(let i=0;i<appState.jobs.length;i++){
+            if(appState.jobs[i].points==0||isNaN(appState.jobs[i].points)){
+                continue;
+            }
+            if(appState.jobs[i].status=="Rework"){
+                continue;
+            }
+            sum+=appState.jobs[i].points;
+        }
+    totalPointsEl.textContent="Total Points:"+sum;
+    appState.totalPoints=sum;
+    syncStorage();
+    }
+        jobFormEl.addEventListener("keyup", (event) => {
+        if(event.key === "Enter") confirmJob();
+    });
+    // Enter key triggers Add
+    jobIdInputEl.addEventListener("keyup", (event) => {
+        if(event.key === "Enter") openJobForm();
+    });
+    eJobFormEl.addEventListener("keyup", (event) => {
+        if(event.key === "Enter") confirmEditJob();
+    });
 
 
-historyBodyEl.innerHTML = "";
-    for(let i = 0; i < appState.jobs.length; i++){
-        const job = appState.jobs[i];
-        const tr = document.createElement("tr");
-        const btnEdit = document.createElement("button");
-        const btnDelete = document.createElement("button");
-
-btnEdit.innerText="Edit";
-btnDelete.innerText="Delete";
-
-btnEdit.dataset.id= job.id;
-btnDelete.dataset.id =job.id;
-           
-btnDelete.addEventListener("click", deleteJob);
-btnEdit.addEventListener("click", editJob);
-        tr.innerHTML = `
-        <td class="cell-link"></td>
-            <td class="cell-id"></td>
-            <td class="cell-points"></td>
-            <td>
-                <select data-id="${job.id}" class="status-select">
-                    <option value="Open" ${job.status==="Open"?"selected":""}>Open</option>
-                    <option value="Passed" style="" ${job.status==="Passed"?"selected":""}>Passed</option>
-                    <option value="Rework" ${job.status==="Rework"?"selected":""}>Rework</option>
-                </select>
-            </td>
-            <td>${formatTime(job.timeElapsed)}</td>
-            <td>${job.date}</td>
-            <td class="cell-edit"></td>
-            <td class="cell-delete"></td>
-           
-        `;
-        //XSS Prevention
-        tr.querySelector(".cell-delete").appendChild(btnDelete);
-        tr.querySelector(".cell-edit").appendChild(btnEdit);
-        tr.querySelector(".cell-id").textContent = job.jobId;
-        tr.querySelector(".cell-points").textContent = job.points;
-
-        const anchor= document.createElement("a");
-        anchor.href = job.link;
-        anchor.target = "_blank";
-        anchor.textContent = "Link";
-        tr.querySelector(".cell-link").appendChild(anchor);
+    window.addEventListener("keyup", (event) => {
+        if(event.key === "Escape" && document.activeElement.tagName !== "INPUT" && document.activeElement.tagName !== "TEXTAREA"){
+            event.preventDefault();
+            timerDpEl.style.display="none";
+                showTimerEl.style.display="flex";
+    }})
 
 
 
-
- const select = tr.querySelector(".status-select");
- select.addEventListener("change", updateStatus);
-   
-        historyBodyEl.appendChild(tr);
-       
-        updateStatusColor(select);
-        
-
-        
+    // 5. STATUS UPDATE
+    function updateStatus(event){
+        const jobId = event.target.dataset.id;
+        const newStatus = event.target.value;
+        for(let i = 0; i < appState.jobs.length; i++){
+            if(jobId === appState.jobs[i].id){
+                appState.jobs[i].status = newStatus;
+                syncStorage();
+                updateStatusColor(event.target);
+                renderUI();
+                return;
+            }
+        }  
         
     }
-jobIdInputEl.focus();
-    updateTotalPoints();
-}
+    //5.1 STATUS UPDATE COLOR
+    function updateStatusColor(selectEl){
+        {selectEl.className = "status-select " + selectEl.value.toLowerCase();}
+    }
 
-// 7. EXPORT
-function exportToCSV(){
-    const headers = ["Link", "Job ID", "Points", "Status", "Time Taken", "Date"];
-    const rows = appState.jobs.map(j => [j.link, j.jobId, j.points, j.status, formatTime(j.timeElapsed), j.date]);
-    const csv = [headers, ...rows].map(row => row.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "roof-tracker/"+new Date().toLocaleDateString()+".csv";
-    a.click();
-    URL.revokeObjectURL(url);
-}
 
-// 8. COPY
-function copyToClipboard(){
-    const rows = appState.jobs.map(j => 
-        [j.jobId, ,j.points, j.status].join("\t")
-    );
-    navigator.clipboard.writeText(rows.join("\n"));
-    alert("Copied to clipboard — paste directly into sheets.");
-}
+    // 6. RENDER
+    function renderUI(){
 
-// Delete
-function deleteAllTable(){
-appState.jobs=[];
-syncStorage();
-renderUI();
-};
 
-// 8. STORAGE
-function syncStorage(){
-    localStorage.setItem("myJobs", JSON.stringify(appState.jobs));
-    localStorage.setItem("myPoints", JSON.stringify(appState.totalPoints));
-}
+    historyBodyEl.innerHTML = "";
+        for(let i = 0; i < appState.jobs.length; i++){
+            const job = appState.jobs[i];
+            const tr = document.createElement("tr");
+            const btnEdit = document.createElement("button");
+            const btnDelete = document.createElement("button");
 
-// INIT
-renderUI();
-showTimerEl.style.display="none";
+    btnEdit.innerText="Edit";
+    btnDelete.innerText="Delete";
+
+    btnEdit.dataset.id= job.id;
+    btnDelete.dataset.id =job.id;
+            
+    btnDelete.addEventListener("click", deleteJob);
+    btnEdit.addEventListener("click", editJob);
+            tr.innerHTML = `
+            <td class="cell-link"></td>
+                <td class="cell-id"></td>
+                <td class="cell-points"></td>
+                <td>
+                    <select data-id="${job.id}" class="status-select">
+                        <option value="Open" ${job.status==="Open"?"selected":""}>Open</option>
+                        <option value="Passed" style="" ${job.status==="Passed"?"selected":""}>Passed</option>
+                        <option value="Rework" ${job.status==="Rework"?"selected":""}>Rework</option>
+                    </select>
+                </td>
+                <td>${formatTime(job.timeElapsed)}</td>
+                <td>${job.date}</td>
+                <td class="cell-edit"></td>
+                <td class="cell-delete"></td>
+            
+            `;
+            //XSS Prevention
+            tr.querySelector(".cell-delete").appendChild(btnDelete);
+            tr.querySelector(".cell-edit").appendChild(btnEdit);
+            tr.querySelector(".cell-id").textContent = job.jobId;
+            tr.querySelector(".cell-points").textContent = job.points;
+
+            const anchor= document.createElement("a");
+            anchor.href = job.link;
+            anchor.target = "_blank";
+            anchor.textContent = "Link";
+            tr.querySelector(".cell-link").appendChild(anchor);
+
+
+
+
+    const select = tr.querySelector(".status-select");
+    select.addEventListener("change", updateStatus);
+
+    
+    
+            historyBodyEl.appendChild(tr);
+        
+            updateStatusColor(select);
+            
+
+            
+            
+        }
+    jobIdInputEl.focus();
+        updateTotalPoints();
+    }
+
+    // 7. EXPORT
+    function exportToCSV(){
+        const headers = ["Link", "Job ID", "Points", "Status", "Time Taken", "Date"];
+        const rows = appState.jobs.map(j => [j.link, j.jobId, j.points, j.status, formatTime(j.timeElapsed), j.date]);
+        const csv = [headers, ...rows].map(row => row.join(",")).join("\n");
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "roof-tracker/"+new Date().toLocaleDateString()+".csv";
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+
+
+    // 8. COPY
+    function copyToClipboard(){
+        const rows = appState.jobs.map(j => 
+            [j.jobId, ,j.points, j.status].join("\t")
+        );
+        navigator.clipboard.writeText(rows.join("\n"));
+        alert("Copied to clipboard — paste directly into sheets.");
+    }
+    function copyTSC(){
+        if(!appState.user)return;
+        if(appState.user.userShift=="Day"){
+        const todayStr= new Date().toLocaleDateString();
+
+        const shiftSchedule=[
+       { start: "13:45:00", end: "15:30:00", duration: "1:45:00", task: "TWISTER", cat: "Hipster" },
+        { start: "13:30:00", end: "13:45:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
+        { start: "12:00:00", end: "13:30:00", duration: "1:30:00", task: "TWISTER", cat: "Hipster" },
+        { start: "11:00:00", end: "12:00:00", duration: "1:00:00", task: "BREAK",   cat: "BREAK" },
+        { start: "09:15:00", end: "11:00:00", duration: "1:45:00", task: "TWISTER", cat: "Hipster" },
+        { start: "09:00:00", end: "09:15:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
+        { start: "06:30:00", end: "09:00:00", duration: "2:30:00", task: "TWISTER", cat: "Hipster" }
+        ];
+
+        const rows = shiftSchedule.map(
+            slot => {
+                return[
+                    appState.user.techNo,
+                    appState.user.userName,
+                    appState.user.userShift,
+                    todayStr,
+                    slot.start,
+                    slot.end,
+                    slot.duration,
+                    slot.task,
+                    slot.cat,
+                    "NO"
+                ].join("\t");
+            }
+        );
+        const pastePayLoad = rows.join("\n");
+        navigator.clipboard.writeText(pastePayLoad);
+        alert("Copied to clipboard — paste directly into sheets.");
+    }
+else
+    {
+        const baseDate =new Date();
+        const nextdate = new Date(baseDate);
+        nextdate.setDate(baseDate.getDate()+1);
+
+        const day1str= baseDate.toLocaleDateString();
+        const day2str= nextdate.toLocaleDateString();
+
+      const shiftSchedule = [
+    { start: "03:30:00", end: "06:00:00", duration: "2:30:00", task: "TWISTER", cat: "Hipster" },
+    { start: "03:15:00", end: "03:30:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
+    { start: "02:00:00", end: "03:15:00", duration: "1:15:00", task: "TWISTER", cat: "Hipster" },
+    { start: "01:00:00", end: "02:00:00", duration: "1:00:00", task: "BREAK",   cat: "BREAK" }, 
+    { start: "23:45:00", end: "01:00:00", duration: "1:15:00", task: "TWISTER", cat: "Hipster" },
+    { start: "23:30:00", end: "23:45:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
+    { start: "21:00:00", end: "23:30:00", duration: "2:30:00", task: "TWISTER", cat: "Hipster" }
+];
+
+        const rows = shiftSchedule.map(
+slot => {
+    const startHour = parseInt(slot.start.split(":")[0],10);
+    const targetdateStr = (startHour == 0 || startHour<12) ? day2str:day1str;
+                return[
+                    appState.user.techNo,
+                    appState.user.userName,
+                    appState.user.userShift,
+                    targetdateStr,
+                    slot.start, 
+                    slot.end,
+                    slot.duration,
+                    slot.task,
+                    slot.cat,
+                    "NO"
+                ].join("\t");
+            }
+        );
+        const pastePayLoad = rows.join("\n");
+        navigator.clipboard.writeText(pastePayLoad);
+        alert("Copied to clipboard — paste directly into sheets.");
+    }}
+
+    // Delete
+    function deleteAllTable(){
+    appState.jobs=[];
+    appState.user=null;
+    syncStorage();
+    renderUI();
+    };
+
+    // 8. STORAGE
+    function syncStorage(){
+        localStorage.setItem("myJobs", JSON.stringify(appState.jobs));
+        localStorage.setItem("myPoints", JSON.stringify(appState.totalPoints));
+        localStorage.setItem("myUser", JSON.stringify(appState.user));
+    }
+
+    // INIT
+    renderUI();
+    showTimerEl.style.display="none";
     pauseTimer();
+ 
+
 
