@@ -270,26 +270,26 @@
     appState.totalPoints=sum;
     syncStorage();
     }
-        jobFormEl.addEventListener("keyup", (event) => {
+        jobFormEl.addEventListener("keydown", (event) => {
         if(event.key === "Enter") confirmJob();
     });
     // Enter key triggers Add
-    jobIdInputEl.addEventListener("keyup", (event) => {
+    jobIdInputEl.addEventListener("keydown", (event) => {
         if(event.key === "Enter") openJobForm();
     });
-    eJobFormEl.addEventListener("keyup", (event) => {
+    eJobFormEl.addEventListener("keydown", (event) => {
         if(event.key === "Enter") confirmEditJob();
     });
 
 
-    window.addEventListener("keyup", (event) => {
+    window.addEventListener("keydown", (event) => {
         if(event.key === "Escape" && document.activeElement.tagName !== "INPUT" && document.activeElement.tagName !== "TEXTAREA"){
             event.preventDefault();
             timerDpEl.style.display="none";
                 showTimerEl.style.display="flex";
     }})
  
-    window.addEventListener("keyup", (event)=> {
+    window.addEventListener("keydown", (event)=> {
         const pressedkey = event.key.toLowerCase();
         if((event.ctrlKey ||event.metaKey )|| pressedkey==="d"){
             event.preventDefault();
