@@ -291,7 +291,7 @@
  
     window.addEventListener("keydown", (event)=> {
         const pressedkey = event.key.toLowerCase();
-        if((event.ctrlKey ||event.metaKey )|| pressedkey==="d"){
+        if((event.ctrlKey ||event.metaKey )&& pressedkey==="d"){
             event.preventDefault();
             deleteUserEl.style.display="block";
         }
