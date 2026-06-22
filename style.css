@@ -25,6 +25,36 @@ body {
     font-family: system-ui, sans-serif;
     
 }
+.web-title{
+    display: none;
+}
+/* Triggers automatically when the window width drops below 500px */
+@media screen and (max-width: 500px) {
+    .cell-link, 
+    .cell-date,
+    .cell-time-taken,
+    #timer-dp,
+    #show-timer{
+        display: none !important;
+    }
+    
+    table {
+        width: 100%;
+        table-layout: fixed;
+
+    }
+    body {
+    width: 450px;
+    max-height: 600px;
+    margin: 0;
+    padding: 10px;
+    overflow-x:scroll;
+    overflow-y: auto;
+}
+ .web-title{
+    display: flex;
+ }
+}
 #page_container {
     display: flex;
     flex-direction: column;
@@ -115,6 +145,16 @@ h1 {
 .copy-btn {
     background: var(--orange);
     color: var(--surface-2);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+.overtime-btn {
+    background: var(--red);
+    color: var(--text);
     border: none;
     border-radius: 8px;
     padding: 8px 12px;
@@ -292,4 +332,83 @@ dialog input:focus {
     background: var(--surface);
     color:var(--orange)
 
+}
+.btn-download {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background-color: #48d18e; /* Accent green matching your timer startup color */
+    color: #ffffff;
+    padding: 12px 24px;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+}
+
+.btn-download:hover {
+    background-color: #3cb879;
+}
+
+.btn-download:active {
+    transform: scale(0.98); /* Tactile click feedback */
+}
+/* ==========================================================================
+   HISTORY TABLE ACTION BUTTONS
+   ========================================================================== */
+
+/* Target the container cells to center the buttons vertically and horizontally */
+#history-body td.cell-edit,
+#history-body td.cell-delete {
+    text-align: center;
+    vertical-align: middle;
+    padding: 6px;
+}
+
+/* Core shared reset and button properties */
+#history-body .action-btn {
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    padding: 5px 10px;
+    border: none;
+    margin: .75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 65px; /* Fixed width keeps columns perfectly uniform across rows */
+    text-align: center;
+    transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+/* Micro-interaction on click */
+#history-body .action-btn:active {
+    transform: scale(0.95);
+}
+
+/* --- Edit Button Variation --- */
+#history-body .edit-btn {
+    background-color: rgba(255, 159, 67, 0.15); /* Light orange tint */
+    color: #ff9f43;
+    border: 1px solid rgba(255, 159, 67, 0.3);
+}
+
+#history-body .edit-btn:hover {
+    background-color: #ff9f43;
+    color: #1e1e24; /* High contrast dark text on hover */
+}
+
+/* --- Delete Button Variation --- */
+#history-body .delete-btn {
+    background-color: rgba(238, 90, 36, 0.15); /* Light red/orange tint */
+    color: #ee5a24;
+    border: 1px solid rgba(238, 90, 36, 0.3);
+}
+
+#history-body .delete-btn:hover {
+    background-color: #ee5a24;
+    color: #ffffff; /* High contrast white text on hover */
 }

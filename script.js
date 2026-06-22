@@ -8,6 +8,9 @@
     const eJobPointsEl = document.getElementById("edit-job-points");
     const eJobStatusEl = document.getElementById("edit-job-status");
     const userFormEl = document.getElementById("user-form");
+    const overtimeFormEl = document.getElementById("overtime-form");
+    const overtimeInputEl = document.getElementById("overtime-input");
+
 
     const techNoEl = document.getElementById("tech-no");
     const userNameEl = document.getElementById("user-name");
@@ -21,6 +24,8 @@
     const totalPointsEl = document.getElementById("total-points");
     const showTimerEl =document.getElementById("show-timer");
     const deleteUserEl = document.getElementById("delete-user");
+    const downloadBtnEl = document.getElementById("download-btn");
+    const closeOvertimeBtnEl = document.getElementById("close-overtime-btn");
 
 
     const appState = {
@@ -46,6 +51,11 @@
     document.getElementById("confirm-user-btn").addEventListener("click", confirmAddUser);
     document.getElementById("cancel-user-btn").addEventListener("click", closeUserForm);
     document.getElementById("delete-user").addEventListener("click",deleteUser);
+    document.getElementById("overtime-btn").addEventListener("click", openOvertimeForm);
+    document.getElementById("copy-overtime-btn").addEventListener("click", confirmCopyOvertime);
+    document.getElementById("close-overtime-btn").addEventListener("click", closeCopyOvertime);
+
+
 
     //Modal Int
     const pointsContainer = document.querySelector('#dialog-pts-btn');
@@ -235,6 +245,20 @@
             eJobFormEl.close();
             appState.currentEditId = null;
     }
+    //OVERTIME form
+function openOvertimeForm(){
+    overtimeFormEl.showModal();
+}
+function confirmCopyOvertime(){
+ if(!appState.user)return;
+ copyTSC();
+ closeCopyOvertime();
+}
+function closeCopyOvertime(){
+    overtimeInputEl.value="";
+    overtimeFormEl.close();
+}
+    
     //Add Points from Button
 
     pointsContainer.addEventListener('click', (event) => {
@@ -294,6 +318,8 @@
         if((event.ctrlKey ||event.metaKey )&& pressedkey==="d"){
             event.preventDefault();
             deleteUserEl.style.display="block";
+            downloadBtnEl.style.display="block";
+
         }
     })
 
@@ -330,14 +356,17 @@
             const btnEdit = document.createElement("button");
             const btnDelete = document.createElement("button");
 
-    btnEdit.innerText="Edit";
-    btnDelete.innerText="Delete";
+    btnEdit.innerText="✏️";
+    btnDelete.innerText="❌ ";
 
     btnEdit.dataset.id= job.id;
-    btnDelete.dataset.id =job.id;
+    btnDelete.dataset.id =job.id;   
             
     btnDelete.addEventListener("click", deleteJob);
     btnEdit.addEventListener("click", editJob);
+
+    btnEdit.className = "action-btn edit-btn";
+    btnDelete.className = "action-btn delete-btn";
             tr.innerHTML = `
             <td class="cell-link"></td>
                 <td class="cell-id"></td>
@@ -349,8 +378,8 @@
                         <option value="Rework" ${job.status==="Rework"?"selected":""}>Rework</option>
                     </select>
                 </td>
-                <td>${formatTime(job.timeElapsed)}</td>
-                <td>${job.date}</td>
+                <td class="cell-time-taken">${formatTime(job.timeElapsed)}</td>
+                <td class="cell-date">${job.date}</td>
                 <td class="cell-edit"></td>
                 <td class="cell-delete"></td>
             
@@ -404,6 +433,34 @@
 
 
     // 8. COPY
+ // 8. COPY
+    function compileTscPayload(shiftScheduleArray, dateHandlerCb){
+        const liveOvertimeValue = parseFloat(overtimeInputEl.value)||0;
+
+        // Keep index 0 matching your standard output formatting logic requirements
+        const eotMarker = liveOvertimeValue > 0 ? "YES":"NO";
+        return shiftScheduleArray.map((slot,index) =>   {
+        const rowDate=dateHandlerCb ? dateHandlerCb(slot.start): new Date().toLocaleDateString();
+        
+        const baseColumns = [
+            appState.user.techNo,
+            appState.user.userName,
+            appState.user.userShift,
+            rowDate,
+            slot.start,
+            slot.end,
+            slot.duration,
+            slot.task,
+            slot.cat
+        ];
+
+        const eotField = index === 0 ? eotMarker : "NO";
+        baseColumns.push(eotField);
+
+        return baseColumns.join("\t");
+    }).join("\n"); 
+    };
+
     function copyToClipboard(){
         const rows = appState.jobs.map(j => 
             [j.jobId, ,j.points, j.status].join("\t")
@@ -413,82 +470,70 @@
     }
     function copyTSC(){
         if(!appState.user)return;
+        let pastePayLoad="";        
+        const liveOvertimeValue = parseFloat(overtimeInputEl.value)||0;
+
         if(appState.user.userShift=="Day"){
-        const todayStr= new Date().toLocaleDateString();
+            const shiftSchedule=[
+                { start: "13:45:00", end: "15:30:00", duration: "1:45:00", task: "TWISTER", cat: "Hipster" },
+                { start: "13:30:00", end: "13:45:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
+                { start: "12:00:00", end: "13:30:00", duration: "1:30:00", task: "TWISTER", cat: "Hipster" },
+                { start: "11:00:00", end: "12:00:00", duration: "1:00:00", task: "BREAK",   cat: "BREAK" },
+                { start: "09:15:00", end: "11:00:00", duration: "1:45:00", task: "TWISTER", cat: "Hipster" },
+                { start: "09:00:00", end: "09:15:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
+                { start: "06:30:00", end: "09:00:00", duration: "2:30:00", task: "TWISTER", cat: "Hipster" }
+            ];
 
-        const shiftSchedule=[
-       { start: "13:45:00", end: "15:30:00", duration: "1:45:00", task: "TWISTER", cat: "Hipster" },
-        { start: "13:30:00", end: "13:45:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
-        { start: "12:00:00", end: "13:30:00", duration: "1:30:00", task: "TWISTER", cat: "Hipster" },
-        { start: "11:00:00", end: "12:00:00", duration: "1:00:00", task: "BREAK",   cat: "BREAK" },
-        { start: "09:15:00", end: "11:00:00", duration: "1:45:00", task: "TWISTER", cat: "Hipster" },
-        { start: "09:00:00", end: "09:15:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
-        { start: "06:30:00", end: "09:00:00", duration: "2:30:00", task: "TWISTER", cat: "Hipster" }
-        ];
+            if (liveOvertimeValue > 0) {
+                const hours = Math.floor(liveOvertimeValue);
+                const minutes = Math.floor((liveOvertimeValue % 1) * 60);
+                
+                // Formats the duration explicitly to match your time taken column structure
+                const durationStr = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:00`;
 
-        const rows = shiftSchedule.map(
-            slot => {
-                return[
-                    appState.user.techNo,
-                    appState.user.userName,
-                    appState.user.userShift,
-                    todayStr,
-                    slot.start,
-                    slot.end,
-                    slot.duration,
-                    slot.task,
-                    slot.cat,
-                    "NO"
-                ].join("\t");
+                const calculatedEndHour = 15 + hours;
+                const calculatedEndMin = 30 + minutes;
+                const endStr = `${calculatedEndHour.toString().padStart(2, "0")}:${calculatedEndMin.toString().padStart(2, "0")}:00`;
+
+                shiftSchedule.unshift({
+                    start: "15:30:00", 
+                    end: endStr, 
+                    duration: durationStr, 
+                    task: "TWISTER", 
+                    cat: "Hipster"
+                });
             }
-        );
-        const pastePayLoad = rows.join("\n");
-        navigator.clipboard.writeText(pastePayLoad);
-        alert("Copied to clipboard — paste directly into sheets.");
-    }
-else
-    {
-        const baseDate =new Date();
-        const nextdate = new Date(baseDate);
-        nextdate.setDate(baseDate.getDate()+1);
 
-        const day1str= baseDate.toLocaleDateString();
-        const day2str= nextdate.toLocaleDateString();
+            pastePayLoad = compileTscPayload(shiftSchedule);
+            navigator.clipboard.writeText(pastePayLoad);
+            alert("Copied to clipboard — paste directly into sheets.");
+        }
+        else {
+            const baseDate =new Date();
+            const nextdate = new Date(baseDate);
+            nextdate.setDate(baseDate.getDate()+1);
 
-      const shiftSchedule = [
-    { start: "03:30:00", end: "06:00:00", duration: "2:30:00", task: "TWISTER", cat: "Hipster" },
-    { start: "03:15:00", end: "03:30:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
-    { start: "02:00:00", end: "03:15:00", duration: "1:15:00", task: "TWISTER", cat: "Hipster" },
-    { start: "01:00:00", end: "02:00:00", duration: "1:00:00", task: "BREAK",   cat: "BREAK" }, 
-    { start: "23:45:00", end: "01:00:00", duration: "1:15:00", task: "TWISTER", cat: "Hipster" },
-    { start: "23:30:00", end: "23:45:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
-    { start: "21:00:00", end: "23:30:00", duration: "2:30:00", task: "TWISTER", cat: "Hipster" }
-];
+            const day1str= baseDate.toLocaleDateString();
+            const day2str= nextdate.toLocaleDateString();
 
-        const rows = shiftSchedule.map(
-slot => {
-    const startHour = parseInt(slot.start.split(":")[0],10);
-    const targetdateStr = (startHour == 0 || startHour<12) ? day2str:day1str;
-                return[
-                    appState.user.techNo,
-                    appState.user.userName,
-                    appState.user.userShift,
-                    targetdateStr,
-                    slot.start, 
-                    slot.end,
-                    slot.duration,
-                    slot.task,
-                    slot.cat,
-                    "NO"
-                ].join("\t");
-            }
-        );
-        const pastePayLoad = rows.join("\n");
-        navigator.clipboard.writeText(pastePayLoad);
-        alert("Copied to clipboard — paste directly into sheets.");
-    }}
+            const shiftSchedule = [
+                { start: "03:30:00", end: "06:00:00", duration: "2:30:00", task: "TWISTER", cat: "Hipster" },
+                { start: "03:15:00", end: "03:30:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
+                { start: "02:00:00", end: "03:15:00", duration: "1:15:00", task: "TWISTER", cat: "Hipster" },
+                { start: "01:00:00", end: "02:00:00", duration: "1:00:00", task: "BREAK",   cat: "BREAK" }, 
+                { start: "23:45:00", end: "01:00:00", duration: "1:15:00", task: "TWISTER", cat: "Hipster" },
+                { start: "23:30:00", end: "23:45:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
+                { start: "21:00:00", end: "23:30:00", duration: "2:30:00", task: "TWISTER", cat: "Hipster" }
+            ];
 
-    // Delete
+            pastePayLoad = compileTscPayload(shiftSchedule, (startHourStr) => {
+                const startHour = parseInt(startHourStr.split(":")[0],10);
+                return (startHour == 0 || startHour<12) ? day2str:day1str;
+            });
+            navigator.clipboard.writeText(pastePayLoad);
+            alert("Copied to clipboard — paste directly into sheets.");
+        }
+    }e
     function deleteAllTable(){
     appState.jobs=[];
     syncStorage();
@@ -501,7 +546,6 @@ slot => {
     renderUI();
     window.location.reload();
     };
-
 
     // 8. STORAGE
     function syncStorage(){

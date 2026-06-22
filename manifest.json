@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Roof Task & Time Tracker",
+  "version": "1.0.0",
+  "description": "Tracks production tasks, points, and generates TSC shift copy data.",
+  "permissions": [
+    "storage",
+    "clipboardWrite"
+  ],
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": "icon.png"
+  }
+}   

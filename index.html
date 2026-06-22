@@ -9,16 +9,25 @@
 </head>
 <body>
 <div id="page_container">
-
+<a href="roof-tracker-extension.zip" download="roof-tracker-extension-v1.0.0.zip" class="btn-download" id="download-btn">
+    Download Browser Extension
+</a>
     <h1></h1>
 
     <div id="timer-container">
    <h1 id="timer-dp">Start</h1>
+   <h1 class="web-title">Point Tracker</h1>
    <h1 id="show-timer">Show Timer ⏱️</h1>
     </div>
 
 <div id="shortcut-header">
 <button id="copy-tsc-btn" class="copy-btn">Copy TSC 📋</button>
+<button id="overtime-btn" class="overtime-btn">Overtime?</button>
+<dialog id="overtime-form">
+    <input id="overtime-input" type="number" placeholder="Input EOT Hours(e.g .5,1,2.5)">
+    <button id="copy-overtime-btn" class="copy-btn">Copy TSC 📋</button>
+    <button id="close-overtime-btn" class="copy-btn">Cancel</button>
+</dialog>
 <button id="delete-user" class="delete-all-btn">Delete User Account</button>
 </div>
 
@@ -96,12 +105,14 @@
         <table id="history-table">
             <thead>
                 <tr>
-                    <th>Link</th>
-                    <th>Job ID</th>
-                    <th>Points</th>
-                    <th>Status</th>
-                    <th>Time</th>
-                    <th>Date</th>
+        <th class="cell-link">Link</th>
+        <th class="cell-id">Job ID</th>
+        <th class="cell-points">Points</th>
+        <th>Status</th>
+        <th class="cell-time-taken">Time Taken</th>
+        <th class="cell-date">Date</th> 
+        <th class="cell-edit">Edit</th>
+        <th class="cell-delete">Delete</th>     
                 </tr>
             </thead>
             <tbody id="history-body">
