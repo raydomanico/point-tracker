@@ -198,6 +198,8 @@
         syncStorage();
         renderUI();
         timerDpEl.style.color="#ff9f43";
+
+            jobIdInputEl.focus();
         
     }
     function editJob(event){
@@ -333,7 +335,6 @@ function closeCopyOvertime(){
                 appState.jobs[i].status = newStatus;
                 syncStorage();
                 updateStatusColor(event.target);
-                renderUI();
                 return;
             }
         }  
@@ -412,7 +413,7 @@ function closeCopyOvertime(){
             
             
         }
-    jobIdInputEl.focus();
+
         updateTotalPoints();
     }
 
@@ -533,7 +534,7 @@ function closeCopyOvertime(){
             navigator.clipboard.writeText(pastePayLoad);
             alert("Copied to clipboard — paste directly into sheets.");
         }
-    }e
+    }
     function deleteAllTable(){
     appState.jobs=[];
     syncStorage();
@@ -552,12 +553,15 @@ function closeCopyOvertime(){
         localStorage.setItem("myJobs", JSON.stringify(appState.jobs));
         localStorage.setItem("myPoints", JSON.stringify(appState.totalPoints));
         localStorage.setItem("myUser", JSON.stringify(appState.user));
+        console.log("Saved Jobs Count:", appState.jobs.length);
+        
     }
 
     // INIT
-    renderUI();
+  
     showTimerEl.style.display="none";
     pauseTimer();
- 
+      renderUI();
+ jobIdInputEl.focus();
 
 
