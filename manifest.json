@@ -5,7 +5,8 @@
   "description": "Tracks production tasks, points, and generates TSC shift copy data.",
   "permissions": [
     "storage",
-    "clipboardWrite"
+    "clipboardWrite",
+    "clipboardRead"
   ],
   "action": {
     "default_popup": "index.html",
