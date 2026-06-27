@@ -162,6 +162,17 @@ h1 {
     font-weight: 600;
     cursor: pointer;
 }
+.sitemap-btn {
+    background: var(--green);
+    color: var(--text);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
 .delete-all-btn {
     background: var(--red);
     color: var(--text);
@@ -229,6 +240,7 @@ dialog {
     max-width: 400px;
     margin: auto;
     flex-direction: column;
+    overflow-x: scroll;
  
 }
 
@@ -260,6 +272,7 @@ dialog input:focus {
 #dialog-btns , #dialog-pts-btn{
     display: flex;
     gap: 8px;
+
 }
 .point-btn{
     height: 2.3rem;
@@ -298,6 +311,19 @@ dialog input:focus {
 .cancel-job-btn {
     flex: 1;
     background: var(--red);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.reject-job-btn {
+    flex: 3;
+    overflow: scroll;
+    width: 100%;
+    background: var(--orange);
     color: #fff;
     border: none;
     border-radius: 8px;
@@ -411,4 +437,41 @@ dialog input:focus {
 #history-body .delete-btn:hover {
     background-color: #ee5a24;
     color: #ffffff; /* High contrast white text on hover */
+}
+#job-form .dialog-points{
+ border: 2px solid var(--border);
+  border-radius: .75rem;
+  padding: 1px 10px;
+color: var(--green);}
+
+#job-form .dialog-pts-btn input{
+ border: none; /* Removes default inner input border */
+  outline: none;
+  width: 100%;
+}
+.dialog-reject-cat{
+    display:none;
+}
+.dialog-pts, .dialog-link, .dialog-status, .dialog-reject-cat{
+     border: 2px solid var(--border);
+  border-radius: .75rem;
+  padding: 1px 10px;
+color: var(--green);}
+
+.dialog-pts:active, .dialog-link:active, .dialog-status:active{
+     border: 2px solid var(--border);
+  border-radius: .75rem;
+  padding: 1px 10px;
+color: var(--orange)}
+
+/*Duplicate Job ID */
+@keyframes pulse-red {
+    0%   { color: var(--orange); }
+    50%  { color: #fc5151; }
+    100% { color: var(--red); }
+}
+
+.duplicate-id {
+    animation: pulse-red 3s infinite;
+    font-weight: 700;
 }

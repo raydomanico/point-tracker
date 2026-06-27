@@ -11,10 +11,14 @@
     const overtimeFormEl = document.getElementById("overtime-form");
     const overtimeInputEl = document.getElementById("overtime-input");
     const addJobBtnEl =document.getElementById("add-job-btn");
+    const dialogRejectCatEl =document.querySelector('.dialog-reject-cat');
+    const dialogRejectCat =document.getElementById('dialog-reject-cat');
+    const rejectJobCategoryEl = document.getElementById("reject-job-category");
 
     const techNoEl = document.getElementById("tech-no");
     const userNameEl = document.getElementById("user-name");
     const userShiftEl = document.getElementById("user-shift");
+    const dialogSatusEl = document.querySelector('.dialog-status');
 
     const jobLinkEl = document.getElementById("job-link");
     const jobPointsEl = document.getElementById("job-points");
@@ -41,10 +45,14 @@
     document.getElementById("overtime-btn").addEventListener("click", openOvertimeForm);
     document.getElementById("copy-overtime-btn").addEventListener("click", confirmCopyOvertime);
     document.getElementById("close-overtime-btn").addEventListener("click", closeCopyOvertime);
+    document.getElementById("reject-job-btn").addEventListener("click", rejectJobForm);
+    document.getElementById("sitemap-btn").addEventListener("click", openSiteMap);
+
 
 
 const TrackerState =
      {
+        id:0,
         user:  JSON.parse(localStorage.getItem("myUser")) || null,
         jobs: JSON.parse(localStorage.getItem("myJobs")) || [],
         timerInterval: null,
@@ -53,6 +61,7 @@ const TrackerState =
         startTime:null,
         isRunning:false,
         currentEditId:0,
+        isReject:false,
 
     syncStorage(){
         localStorage.setItem("myJobs", JSON.stringify(TrackerState.jobs));
@@ -69,7 +78,56 @@ const TrackerState =
     {
         this.user=null;
         this.syncStorage();
-    }}
+    },
+    summateTotalPoints(totalSum){
+                 let sum=0;
+        for(let i=0;i<this.jobs.length;i++){
+            if(this.jobs[i].points==0||isNaN(this.jobs[i].points)){
+                continue;
+            }
+            if(this.jobs[i].status=="Rework"){
+                continue;
+            }
+            sum+=this.jobs[i].points;
+        }
+    this.totalPoints=sum;
+    totalSum=sum;
+    return totalSum;
+    },
+
+ async getJobInputDetails() {
+        // 1. Query Chrome for the active tab in the currently focused window
+        const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        
+        // 2. Fallback gracefully if permissions fail or running outside of tab context
+        const currentTabUrl = activeTab ? activeTab.url : "";
+
+        const newJob = await{
+            id: crypto.randomUUID(),
+            jobId: jobIdInputEl.value.trim(),
+            link: currentTabUrl, // Injects the active page URL automatically
+            points: parseFloat(jobPointsEl.value),
+            status: jobStatusEl.value,
+            timeElapsed: TrackerState.currentTime / 1000,
+            date: new Date().toLocaleDateString()
+        };
+
+        return newJob;
+    },
+    getNewUserInfo(){
+    const newUser = {
+            id: crypto.randomUUID(),
+            userName: userNameEl.value.trim(),
+            techNo: parseFloat(techNoEl.value),
+            userShift: userShiftEl.value,
+            date: new Date().toLocaleDateString(),
+        }
+     const createdUser=newUser;
+     return createdUser
+    }
+
+    
+}
 
 
     //Modal Int
@@ -117,8 +175,6 @@ const TrackerState =
         TrackerState.startTime=now;
         totalTime=Math.floor(TrackerState.currentTime/1000);
             timerDpEl.textContent = formatTime(totalTime);
-
-            console.log(totalTime);
         }, 1000);
     }
 
@@ -137,18 +193,10 @@ const TrackerState =
                 timerDpEl.style.opacity = "0.4";        
 
     }
-    function toggleTimer(){
-    if(TrackerState.isRunning){
 
-        pauseTimer();
-    }
-    else{
-
-        playTimer();
-    }
-    };
-
-
+function openSiteMap(){
+    window.open('https://www.https://sitemapsearch.cmh.reportsprod.evinternal.net/google.com', '_blank').focus();
+}
     // 4. JOB FORM
     window.addEventListener("DOMContentLoaded",  () =>{
 
@@ -160,14 +208,9 @@ const TrackerState =
     })
 
     function confirmAddUser(){
-        const newUser = {
-            id: crypto.randomUUID(),
-            userName: userNameEl.value.trim(),
-            techNo: parseFloat(techNoEl.value),
-            userShift: userShiftEl.value,
-            date: new Date().toLocaleDateString(),
-        }
- TrackerState.user=newUser;
+ const createdUser=TrackerState.getNewUserInfo();
+ if(!createdUser.userName)return;
+ TrackerState.user=createdUser;
 
         TrackerState.syncStorage();
         closeUserForm();
@@ -196,29 +239,52 @@ const TrackerState =
         timerDpEl.style.color="#ff9f43";
     }
 
-    function confirmJob(){
-        const newJob = {
-            id: crypto.randomUUID(),
-            jobId: jobIdInputEl.value.trim(),
-            link: jobLinkEl.value.trim(),
-            points: parseFloat(jobPointsEl.value),
-            status: jobStatusEl.value,
-            timeElapsed: TrackerState.currentTime/1000,
-            date: new Date().toLocaleDateString()
-        };
-
-        TrackerState.jobs.push(newJob);
-        closeJobForm();
-        jobIdInputEl.value = "";
-        TrackerState.currentTime=0;
-        startTimer();
-        TrackerState.syncStorage();
-        renderUI();
-        timerDpEl.style.color="#ff9f43";
-
-            jobIdInputEl.focus();
-        
+async function confirmJob() {
+    if(!TrackerState.isReject){
+    const rawJobId = jobIdInputEl.value.trim();
+    const rawLink = jobLinkEl.value.trim();
+    // Continue synchronous state mutations
+    const newJob = await TrackerState.getJobInputDetails();
+    TrackerState.jobs.push(newJob);
+    
+    closeJobForm();
+    jobIdInputEl.value = "";
+    TrackerState.currentTime = 0;
+    startTimer();
+    TrackerState.syncStorage();
+    renderUI();
+    timerDpEl.style.color = "#ff9f43";
+    jobIdInputEl.focus();
     }
+    else{
+    // 1. Target the exact values present in the form fields right now
+    const rawJobId = jobIdInputEl.value.trim();
+    const rawLink = jobLinkEl.value.trim();
+    const rejectReason = rejectJobCategoryEl.value || "Not Specified";
+
+    if (!rawJobId) {
+        alert("Please enter a valid Job ID before rejecting.");
+        return;
+    }
+
+    // 2. Generate the plain text copy format layout (for basic text inputs/Teams markdown text)
+    const plainTextData = `${rawJobId}\nLink: ${rawLink}\nReason: ${rejectReason}`;
+
+    // 3. Generate the rich HTML layout string configuration
+    const htmlData = `<strong>${rawJobId}</strong><br>Link: <a href="${rawLink}">${rawLink}</a><br>Reason: ${rejectReason}`;
+
+    // 4. Fire the screenshot pipeline and pass both text payloads down the stream
+    await captureActiveTabAndTextToClipboard(plainTextData, htmlData);
+
+    // 5. Clean up form interfaces and reset UI state cleanly
+
+    closeJobForm(); 
+    resetRejectionFormState();
+    window.location.href = "msteams://teams.microsoft.com/l/launch";
+
+
+    }
+}
     function editJob(event){
     const targetId= event.target.dataset.id;
     TrackerState.currentEditId=targetId;
@@ -244,6 +310,7 @@ const TrackerState =
         console.log();
     }
 
+
     function confirmEditJob(){
         TrackerState.jobs = TrackerState.jobs.map(
             job => {
@@ -264,6 +331,61 @@ const TrackerState =
             eJobFormEl.close();
             TrackerState.currentEditId = null;
     }
+    async function captureActiveTabAndTextToClipboard(plainTextPayload, htmlPayload) {
+    if (typeof chrome === "undefined" || !chrome.tabs) {
+        console.error("Context Error: Run within extension environment.");
+        return;
+    }
+
+    try {
+        // 1. Capture screenshot
+        const dataUrl = await new Promise((resolve, reject) => {
+            chrome.tabs.captureVisibleTab(null, { format: "png" }, (result) => {
+                if (chrome.runtime.lastError) {
+                    return reject(new Error(chrome.runtime.lastError.message));
+                }
+                resolve(result);
+            });
+        });
+
+        // 2. Embed screenshot directly inside the HTML payload
+        const htmlWithImage = `
+            ${htmlPayload}
+            <br>
+            <img src="${dataUrl}" style="max-width:800px; width:100%;">
+        `;
+
+        // 3. Write HTML + plain text only — no separate image blob needed
+        const textBlob = new Blob([plainTextPayload], { type: "text/plain" });
+        const htmlBlob = new Blob([htmlWithImage], { type: "text/html" });
+
+        await navigator.clipboard.write([
+            new ClipboardItem({
+                "text/plain": textBlob,
+                "text/html": htmlBlob
+            })
+        ]);
+
+        alert("Copied! Enable rich text in Teams (click A icon) then paste.");
+
+    } catch (err) {
+        console.error("Clipboard Pipeline Fault:", err.message);
+        alert("Clipboard update failed: " + err.message);
+    }
+}
+//Reject JOb
+
+
+function rejectJobForm(){
+TrackerState.isReject=true;
+    dialogSatusEl.style.display="none"
+pointsContainer.style.display="none";
+dialogRejectCatEl.style.display= 'block';
+
+};
+
+ 
+
     //OVERTIME form
 function openOvertimeForm(){
     overtimeFormEl.showModal();
@@ -272,10 +394,14 @@ function confirmCopyOvertime(){
  if(!TrackerState.user)return;
  copyTSC();
  closeCopyOvertime();
+ window.open(
+    'https://eagleviewcloud-my.sharepoint.com/:x:/r/personal/reynier_simagala_mnl_eagleview_com/_layouts/15/Doc.aspx?sourcedoc=%7B4F1BE068-E7DD-4B38-8E15-81F7AC22E13C%7D&file=Tsc%20Team%20142.xlsx&openShare=true&fromShare=true&action=default&mobileredirect=true', 'popupWindow', 'width=800,height=600,scrollbars=yes')
+
 }
 function closeCopyOvertime(){
     overtimeInputEl.value="";
     overtimeFormEl.close();
+    
 }
     
     //Add Points from Button
@@ -299,20 +425,14 @@ function closeCopyOvertime(){
     //Update Total Points
 
     function updateTotalPoints(){
-        let sum=0;
-        for(let i=0;i<TrackerState.jobs.length;i++){
-            if(TrackerState.jobs[i].points==0||isNaN(TrackerState.jobs[i].points)){
-                continue;
-            }
-            if(TrackerState.jobs[i].status=="Rework"){
-                continue;
-            }
-            sum+=TrackerState.jobs[i].points;
-        }
-    totalPointsEl.textContent="Total Points:"+sum;
-    TrackerState.totalPoints=sum;
+
+     totalPointsEl.textContent="Total Points:"+TrackerState.summateTotalPoints();
     TrackerState.syncStorage();
-    }
+    };
+
+
+
+
         jobFormEl.addEventListener("keydown", (event) => {
         if(event.key === "Enter") confirmJob();
     });
@@ -358,14 +478,32 @@ function closeCopyOvertime(){
         }  
         
     }
+
+function resetRejectionFormState() {
+    // Return form panels back to standard default visibility settings
+    dialogSatusEl.style.display = "block";
+    pointsContainer.style.display = "block";
+    dialogRejectCatEl.style.display = 'none';
+    
+    // Clear field entries
+    jobIdInputEl.value = "";
+    dialogRejectCatEl.value = "";
+}
+
+
+
+
+
+
     //5.1 STATUS UPDATE COLOR
     function updateStatusColor(selectEl){
         {selectEl.className = "status-select " + selectEl.value.toLowerCase();}
     }
 
 
+
     // 6. RENDER
-    function renderUI(){
+   function renderUI(){
 
 
     historyBodyEl.innerHTML = "";
@@ -378,7 +516,7 @@ function closeCopyOvertime(){
     btnEdit.innerText="✏️";
     btnDelete.innerText="❌ ";
 
-    btnEdit.dataset.id= job.id;
+    btnEdit.dataset.id = job.id;
     btnDelete.dataset.id =job.id;   
             
     btnDelete.addEventListener("click", deleteJob);
@@ -427,13 +565,35 @@ function closeCopyOvertime(){
         
             updateStatusColor(select);
             
+            
 
             
             
         }
+        function highlightDuplicates(){
+    const allIdCells = historyBodyEl.querySelectorAll(".cell-id");
+    const seen = {};
+
+    // First pass — count occurrences
+    allIdCells.forEach(cell => {
+        const id = cell.textContent.trim();
+        seen[id] = (seen[id] || 0) + 1;
+    });
+
+    // Second pass — apply class to duplicates
+    allIdCells.forEach(cell => {
+        const id = cell.textContent.trim();
+        if(seen[id] > 1){
+            cell.classList.add("duplicate-id");
+        } else {
+            cell.classList.remove("duplicate-id");
+        }
+    });
+}
 
         updateTotalPoints();
-    }
+        highlightDuplicates();
+        }
 
     // 7. EXPORT
     function exportToCSV(){
@@ -486,6 +646,7 @@ function closeCopyOvertime(){
         );
         navigator.clipboard.writeText(rows.join("\n"));
         alert("Copied to clipboard — paste directly into sheets.");
+        
     }
     function copyTSC(){
         if(!TrackerState.user)return;
@@ -552,6 +713,9 @@ function closeCopyOvertime(){
             navigator.clipboard.writeText(pastePayLoad);
             alert("Copied to clipboard — paste directly into sheets.");
         }
+         window.open(
+    'https://eagleviewcloud-my.sharepoint.com/:x:/r/personal/reynier_simagala_mnl_eagleview_com/_layouts/15/Doc.aspx?sourcedoc=%7B4F1BE068-E7DD-4B38-8E15-81F7AC22E13C%7D&file=Tsc%20Team%20142.xlsx&openShare=true&fromShare=true&action=default&mobileredirect=true', 'popupWindow', 'width=800,height=600,scrollbars=yes')
+    
     }
     function deleteAllTable(){
     TrackerState.clearAllJobs();
@@ -564,6 +728,18 @@ function closeCopyOvertime(){
     window.location.reload();
     };
 
+    function toggleTimer(){
+    if(TrackerState.isRunning){
+
+        pauseTimer();
+    }
+    else{
+
+        playTimer();
+    }
+    }
+
+
     // 8. STORAGE
 
 addJobBtnEl.addEventListener("click", async () => {
@@ -572,11 +748,14 @@ addJobBtnEl.addEventListener("click", async () => {
     try {
         // 1. Read directly from the clipboard on click
         const clipboardText = await navigator.clipboard.readText();
+         let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  let currentUrl = tab?.url;
+  console.log(currentUrl);
         
         if (clipboardText) {
             // 2. Assign the value to the input field
             jobIdInputEl.value = clipboardText.trim();
-        
+        jobLinkEl.value = currentUrl;
             
         }
     } catch (err) {
@@ -591,6 +770,9 @@ addJobBtnEl.addEventListener("click", async () => {
     pauseTimer();
       renderUI();
 
- jobIdInputEl.focus();
+ jobIdInputEl.focus()
+
+
+
 
 

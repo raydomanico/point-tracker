@@ -16,13 +16,14 @@
 
     <div id="timer-container">
    <h1 id="timer-dp">Start</h1>
-   <h1 class="web-title">Point Tracker</h1>
+   <h1 class="web-title">TEAM-142 </h1>
    <h1 id="show-timer">Show Timer ⏱️</h1>
     </div>
 
 <div id="shortcut-header">
 <button id="copy-tsc-btn" class="copy-btn">Copy TSC 📋</button>
 <button id="overtime-btn" class="overtime-btn">Overtime?</button>
+<button id="sitemap-btn" class="sitemap-btn">Sitemap🗺️</button>
 <dialog id="overtime-form">
     <input id="overtime-input" type="number" placeholder="Input EOT Hours(e.g .5,1,2.5)">
 <label for="lunch-ot-input">
@@ -35,30 +36,58 @@
 </div>
 
     <div id="input-container">
-        <input id="job-id-input" placeholder="Paste Job ID here">
+        
+        <input id="job-id-input" placeholder="Press 'Enter' or Click 'Add' ">
         <button id="add-job-btn">Add</button>
     </div>
 
     <dialog id="job-form">
         <h3>Job Details</h3>
         <div id="dialog-pts-btn">
-            
+            <fieldset class="dialog-pts">
+                <legend>Points</legend>
         <input id="job-points" type="number" placeholder="Points (1, 2, 3, 4.5...)">
+        </fieldset>
                 <button class="point-btn" data-category="1">1</button>
            <button class="point-btn" data-category="2">2</button>
               <button class="point-btn" data-category="3">3</button>
                  <button class="point-btn" data-category="4.5">4.5</button>
                 </div>
-        <input id="job-link" placeholder="Paste link here">
-        <select id="job-status">
+                <fieldset class="dialog-link">
+                <legend>Link</legend>
+          <input id="job-link" placeholder="Paste link here">
+        </fieldset>
+
+
+     <fieldset class="dialog-status">
+                <legend>Status</legend>
+         <select id="job-status">
             <option value="Open">Open</option>
             <option value="Passed">Passed</option>
             <option value="Rework">Rework</option>
         </select>
+        </fieldset>
+  <fieldset id="dialog-reject-cat" class="dialog-reject-cat">
+            <legend>Reject-Reason</legend>
+         <select id="reject-job-category">
+            <option value="None">None</option>
+            <option value="Imagery Issues">Imagery Issues</option>
+            <option value="Commercial Structure">Commercial Structure</option>
+            <option value="Poor Imagery: Tree Coverage">Poor Imagery: Tree Coverage</option>
+            <option value="Other">Other</option>
+            <option value="Steep Pitch">Steep Pitch</option>
+            <option value="Complex Measurement">Complex Measurement</option>
+            <option value="Imagery Misaligned">Imagery Misaligned</option>
+            <option value="Needs Sitemap/Split">Needs Sitemap/Split</option>
+        </select>
+    </fieldset>
+        
         <div id="dialog-btns">
             <button id="confirm-job-btn" class="confirm-job-btn">Confirm</button>
             <button id="cancel-job-btn" class="cancel-job-btn">Cancel</button>
+            <button id="reject-job-btn" class="reject-job-btn">Reject </button>
         </div>
+      
     </dialog>
 
     <dialog id="edit-job-form">
