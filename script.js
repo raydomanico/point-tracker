@@ -749,23 +749,52 @@ function resetRejectionFormState() {
 
     // 8. STORAGE
 
+// --- 1. RICH TEXT CLIPBOARD UTILITY ---
+// This function handles the complex HTML data formatting Teams looks for
+async function writeRichLinkToClipboard(url) {
+    if (!url || !url.startsWith('http')) return;
+    try {
+        const htmlString = `<a href="${url}">${url}</a>`;
+        const textBlob = new Blob([url], { type: "text/plain" });
+        const htmlBlob = new Blob([htmlString], { type: "text/html" });
+
+        await navigator.clipboard.write([
+            new ClipboardItem({
+                "text/plain": textBlob,
+                "text/html": htmlBlob
+            })
+        ]);
+        console.log("Teams-compatible link copied to clipboard automatically!");
+    } catch (err) {
+        console.error("Failed to automatically write rich text link:", err);
+    }
+}
+
+// --- 2. STORAGE & CORE ACTION ---
 addJobBtnEl.addEventListener("click", async () => {
     window.focus();
     
     try {
-        // 1. Fetch data completely in-memory first
+        // Fetch data completely in-memory first
         const clipboardText = await navigator.clipboard.readText();
         let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
         let currentUrl = tab?.url;
 
-        // 2. Open the form container to paint the UI
+        // Open the form container to paint the UI
         openJobForm(); 
 
-        // 3. Only populate the input if the clipboard actually had valid data
+        // Update the form link input field
+        jobLinkEl.value = currentUrl || "";
+
+        // --- NEW: Automatically overwrite clipboard with rich HTML link ---
+        if (currentUrl) {
+            await writeRichLinkToClipboard(currentUrl);
+        }
+
+        // Only populate the job ID input if the clipboard originally had valid numeric data
         if (clipboardText) {
             const cleanJobId = clipboardText.replace(/[^0-9]/g, "");
             jobIdInputEl.value = cleanJobId;
-            jobLinkEl.value = currentUrl || "";
             
             // Explicitly hand focus back to the input so it's ready for typing
             jobIdInputEl.focus();
@@ -775,6 +804,15 @@ addJobBtnEl.addEventListener("click", async () => {
         openJobForm(); // Fallback to ensure form opens even if clipboard fails
     }
 });
+
+// --- 3. INIT & APP STARTUP ---
+showTimerEl.style.display = "none";
+pauseTimer();
+renderUI();
+
+// Primary application startup focus
+jobIdInputEl.focus();
+
     // INIT
   
     showTimerEl.style.display="none";
