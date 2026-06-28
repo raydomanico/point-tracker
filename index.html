@@ -9,7 +9,7 @@
 </head>
 <body>
 <div id="page_container">
-<a href="roof-tracker-extension.zip" download="roof-tracker-extension-v1.0.0.zip" class="btn-download" id="download-btn">
+<a href="roof-tracker-extension.zip" rel="noopener noreferrer"download="roof-tracker-extension-v1.0.0.zip" class="btn-download" id="download-btn">
     Download Browser Extension
 </a>
     <h1></h1>
@@ -36,9 +36,11 @@
 </div>
 
     <div id="input-container">
+        <fieldset class="dialog-id">
+            <legend>Job ID</legend>
+        <input id="job-id-input" inputmode="numeric" placeholder="Press 'Enter' or Click 'Add' " readonly>
         
-        <input id="job-id-input" placeholder="Press 'Enter' or Click 'Add' ">
-        <button id="add-job-btn">Add</button>
+        </fieldset><button id="add-job-btn">Add</button>
     </div>
 
     <dialog id="job-form">
@@ -46,7 +48,7 @@
         <div id="dialog-pts-btn">
             <fieldset class="dialog-pts">
                 <legend>Points</legend>
-        <input id="job-points" type="number" placeholder="Points (1, 2, 3, 4.5...)">
+        <input id="job-points" inputmode="numeric" placeholder="Points (1, 2, 3, 4.5...)">
         </fieldset>
                 <button class="point-btn" data-category="1">1</button>
            <button class="point-btn" data-category="2">2</button>
@@ -94,7 +96,7 @@
         <h3>Edit Job Details</h3>
         <div id="edit-dialog-pts-btn">
         <input id="edit-job-id-input" placeholder="Job ID " name="dsa">
-        <input id="edit-job-points" type="number" placeholder="Points">
+        <input id="edit-job-points" inputmode="numeric" placeholder="Points">
                
                 </div>
         <input id="edit-job-link" placeholder="Measurement Link">
@@ -153,5 +155,6 @@
     </div>
 
 </div>
+  <script src="sidepanel-logic.js"></script>
 </body>
 </html>

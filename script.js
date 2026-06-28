@@ -195,7 +195,7 @@ const TrackerState =
     }
 
 function openSiteMap(){
-    window.open('https://www.https://sitemapsearch.cmh.reportsprod.evinternal.net/google.com', '_blank').focus();
+    window.open('https://www.sitemapsearch.cmh.reportsprod.evinternal.net/google.com', '_blank').focus();
 }
     // 4. JOB FORM
     window.addEventListener("DOMContentLoaded",  () =>{
@@ -434,13 +434,20 @@ function closeCopyOvertime(){
 
 
         jobFormEl.addEventListener("keydown", (event) => {
-        if(event.key === "Enter") confirmJob();
+        if(event.key === "Enter")
+          
+             confirmJob();
     });
     // Enter key triggers Add
+
+ 
     jobIdInputEl.addEventListener("keydown", (event) => {
-        event.preventDefault();
-        if(event.key === "Enter") addJobBtnEl.click();
-    });
+     
+        if(event.key === "Enter") {
+           event.preventDefault();
+        addJobBtnEl.click();}
+
+        });
     eJobFormEl.addEventListener("keydown", (event) => {
         if(event.key === "Enter") confirmEditJob();
     });
@@ -726,7 +733,7 @@ function resetRejectionFormState() {
     TrackerState.clearUser();
     renderUI();
     window.location.reload();
-    };
+    };  
 
     function toggleTimer(){
     if(TrackerState.isRunning){
@@ -743,26 +750,30 @@ function resetRejectionFormState() {
     // 8. STORAGE
 
 addJobBtnEl.addEventListener("click", async () => {
-    
     window.focus();
+    
     try {
-        // 1. Read directly from the clipboard on click
+        // 1. Fetch data completely in-memory first
         const clipboardText = await navigator.clipboard.readText();
-         let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  let currentUrl = tab?.url;
-  console.log(currentUrl);
-        
+        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        let currentUrl = tab?.url;
+
+        // 2. Open the form container to paint the UI
+        openJobForm(); 
+
+        // 3. Only populate the input if the clipboard actually had valid data
         if (clipboardText) {
-            // 2. Assign the value to the input field
-            jobIdInputEl.value = clipboardText.trim();
-        jobLinkEl.value = currentUrl;
+            const cleanJobId = clipboardText.replace(/[^0-9]/g, "");
+            jobIdInputEl.value = cleanJobId;
+            jobLinkEl.value = currentUrl || "";
             
+            // Explicitly hand focus back to the input so it's ready for typing
+            jobIdInputEl.focus();
         }
     } catch (err) {
         console.error("Extension Clipboard Engine Failed:", err);
-        alert("Click inside the popup first, or paste manually using Ctrl+V.");
+        openJobForm(); // Fallback to ensure form opens even if clipboard fails
     }
-        openJobForm();
 });
     // INIT
   

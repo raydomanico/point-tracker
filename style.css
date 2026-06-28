@@ -88,16 +88,13 @@ h1 {
 #job-id-input {
     flex: 1;
     background: var(--surface);
-    border: 1px solid var(--border);
+    border: none;
     border-radius: 8px;
     padding: 10px 12px;
     color: var(--text);
     font-size: 0.9rem;
     outline: none;
-}
-
-#job-id-input:focus {
-    border-color: var(--orange);
+    width: 300px;
 }
 
 #add-job-btn {
@@ -460,9 +457,29 @@ color: var(--green);}
 
 .dialog-pts:active, .dialog-link:active, .dialog-status:active{
      border: 2px solid var(--border);
+     border-color: #48d18e;
   border-radius: .75rem;
   padding: 1px 10px;
 color: var(--orange)}
+
+.dialog-id{
+  border: 2px solid var(--border);
+  border-radius: .75rem;
+  padding: 1px 10px;
+color: var(--green);
+
+
+}
+.dialog-id:has(#job-id-input:focus) {
+  border: 2px solid var(--border);
+  border-color: var(--orange);
+  border-radius: .75rem;
+  padding: 1px 10px;
+color: var(--green);
+
+}
+
+
 
 /*Duplicate Job ID */
 @keyframes pulse-red {

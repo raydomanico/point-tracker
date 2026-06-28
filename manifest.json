@@ -7,14 +7,27 @@
     "storage",
     "clipboardWrite",
     "clipboardRead",
-    "activeTab"
+    "activeTab",
+    "side_panel"
   ],
   "action": {
     "default_popup": "index.html",
-    "default_icon": "icon.png"
+    "default_icon": "icon.png",
+        "default_title": "Click to open side panel"
   },
   "host_permissions": [
     "<all_urls>"
+  ],
+    "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+ "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["script.js"]
+    }
   ]
-  
 }   
