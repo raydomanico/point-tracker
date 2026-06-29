@@ -1,5 +1,4 @@
+// background.js - Clean slate for standard action popup
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.sidePanel
-    .setPanelBehavior({ openPanelOnActionClick: true })
-    .catch((error) => console.error("Side panel configuration error:", error));
+  console.log("Roof Tracker Extension initialized in popup mode.");
 });

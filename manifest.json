@@ -7,8 +7,7 @@
     "storage",
     "clipboardWrite",
     "clipboardRead",
-    "activeTab",
-    "side_panel"
+    "activeTab"
   ],
   "action": {
     "default_popup": "index.html",
@@ -20,9 +19,6 @@
   ],
     "background": {
     "service_worker": "background.js"
-  },
-  "side_panel": {
-    "default_path": "sidepanel.html"
   },
  "content_scripts": [
     {
