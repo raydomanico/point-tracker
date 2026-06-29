@@ -62,6 +62,7 @@ const TrackerState =
         isRunning:false,
         currentEditId:0,
         isReject:false,
+        isWindowOpen:false,
 
     syncStorage(){
         localStorage.setItem("myJobs", JSON.stringify(TrackerState.jobs));
@@ -196,6 +197,7 @@ const TrackerState =
     }
 
 async function openSiteMap() {
+    if(!TrackerState.isWindowOpen )
     try {
         // 1. Asynchronously capture unverified clipboard content
         const rawClipboard = await navigator.clipboard.readText();
@@ -212,7 +214,7 @@ async function openSiteMap() {
         // 3. Assemble the explicit destination path
         const targetUrl = `https://www.google.com/maps/place/${sanitizedComponent}`;
         
-        // 4. Define window mechanics to force a popup frame over a browser tab
+        // 4. Define indow mechanics to force a popup frame over a browser tab
         const windowFeatures = "width=800,height=600,scrollbars=yes,resizable=yes";
         
         // 5. Execute window allocation
@@ -842,6 +844,7 @@ jobIdInputEl.focus();
     // INIT
   
     showTimerEl.style.display="none";
+    
     pauseTimer();
       renderUI();
 

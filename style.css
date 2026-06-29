@@ -188,7 +188,7 @@ h1 {
     cursor: pointer;
 }
 #delete-user{
-    display: none;
+    display:none;
 }
 
 /* Table */
@@ -364,7 +364,7 @@ dialog input:focus {
 
 }
 .btn-download {
-    display: none;
+    display: blocknone;
     align-items: center;
     justify-content: center;
     background-color: #48d18e; /* Accent green matching your timer startup color */
