@@ -194,9 +194,36 @@ const TrackerState =
 
     }
 
-function openSiteMap(){
-    window.open('https://www.sitemapsearch.cmh.reportsprod.evinternal.net/google.com', '_blank').focus();
+async function openSiteMap() {
+    try {
+        // 1. Asynchronously capture unverified clipboard content
+        const rawClipboard = await navigator.clipboard.readText();
+        const cleanData = rawClipboard.trim();
+        
+        if (!cleanData) {
+            alert("Clipboard is empty. Cannot generate map window.");
+            return;
+        }
+
+        // 2. Sanitize and transform the data into a safe URL component
+        const sanitizedComponent = encodeURIComponent(cleanData);
+        
+        // 3. Assemble the explicit destination path
+        const targetUrl = `https://www.google.com/maps/place/${sanitizedComponent}`;
+        
+        // 4. Define window mechanics to force a popup frame over a browser tab
+        const windowFeatures = "width=800,height=600,scrollbars=yes,resizable=yes";
+        
+        // 5. Execute window allocation
+        window.open(targetUrl, "MapPopupWindow", windowFeatures);
+
+    } catch (err) {
+        console.error("Failed to open map window via clipboard engine:", err);
+    }
 }
+
+
+
     // 4. JOB FORM
     window.addEventListener("DOMContentLoaded",  () =>{
 
