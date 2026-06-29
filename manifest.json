@@ -9,11 +9,6 @@
     "clipboardRead",
     "activeTab"
   ],
-  "action": {
-    "default_popup": "index.html",
-    "default_icon": "icon.png",
-        "default_title": "Click to open side panel"
-  },
   "host_permissions": [
     "<all_urls>"
   ],

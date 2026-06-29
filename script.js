@@ -138,7 +138,8 @@ const TrackerState =
     timerDpEl.addEventListener("click", toggleTimer);
     showTimerEl.addEventListener("click", showTimer);
 
-    
+    //UI
+    cons
 
 
 
@@ -287,7 +288,8 @@ async function confirmJob() {
     // 1. Target the exact values present in the form fields right now
     const rawJobId = jobIdInputEl.value.trim();
     const rawLink = jobLinkEl.value.trim();
-    const rejectReason = rejectJobCategoryEl.value || "Not Specified";
+    const rejectReason = rejectJobCategoryEl.value;
+
 
     if (!rawJobId) {
         alert("Please enter a valid Job ID before rejecting.");
@@ -295,10 +297,10 @@ async function confirmJob() {
     }
 
     // 2. Generate the plain text copy format layout (for basic text inputs/Teams markdown text)
-    const plainTextData = `${rawJobId}\nLink: ${rawLink}\nReason: ${rejectReason}`;
+    const plainTextData = `${rawJobId}\nLink: ${rawLink}\n${rejectReason}`;
 
     // 3. Generate the rich HTML layout string configuration
-    const htmlData = `<strong>${rawJobId}</strong><br>Link: <a href="${rawLink}">${rawLink}</a><br>Reason: ${rejectReason}`;
+    const htmlData = `<strong>${rawJobId}</strong><br>Link: <a href="${rawLink}">${rawLink}</a><br>${rejectReason}`;
 
     // 4. Fire the screenshot pipeline and pass both text payloads down the stream
     await captureActiveTabAndTextToClipboard(plainTextData, htmlData);
@@ -379,7 +381,7 @@ async function confirmJob() {
         const htmlWithImage = `
             ${htmlPayload}
             <br>
-            <img src="${dataUrl}" style="max-width:800px; width:100%;">
+            <img src="${dataUrl}" style="max-width: 100%; height: auto; display: block; margin-top: 3px; border-radius: 4px;">
         `;
 
         // 3. Write HTML + plain text only — no separate image blob needed
@@ -813,10 +815,7 @@ addJobBtnEl.addEventListener("click", async () => {
         // Update the form link input field
         jobLinkEl.value = currentUrl || "";
 
-        // --- NEW: Automatically overwrite clipboard with rich HTML link ---
-        if (currentUrl) {
-            await writeRichLinkToClipboard(currentUrl);
-        }
+
 
         // Only populate the job ID input if the clipboard originally had valid numeric data
         if (clipboardText) {

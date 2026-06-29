@@ -1,14 +1,20 @@
-
 :root {
-    --red: #ff6b6b;
-    --orange: #ff9f43;
-    --green: #48d18e;
-    --bg: #0F172A;
-    --surface: #1E293B;
-    --surface-2: #2d3f55;
-    --text: #F8FAFC;
-    --text-muted: #64748b;
-    --border: #334155;
+    /* Main Accent Vibrancy (BetterBugs Signature Neon Mint) */
+    --green: #00E699;         /* High-visibility active state green */
+    --orange: #2EB6FF;        /* Replaced warm orange with the clean electric cyan accent */
+    --red: #FF4D6D;           /* Crisp, high-contrast ruby red for errors/rejections */
+    
+    /* Layered Canvas Depth Architecture */
+    --bg: #0B0F17;            /* Deep obsidian/slate base workspace */
+    --surface: #141B27;       /* Primary UI Card Panels (History, Input Dock) */
+    --surface-2: #1E2635;     /* Dropdowns, Inner Input Fields, Active Buttons */
+    
+    /* Refined Dashboard Typography */
+    --text: #F1F5F9;          /* High contrast clean off-white */
+    --text-muted: #64748B;    /* Neutral steel gray for headers and metadata */
+    
+    /* Structural Framing Borders */
+    --border: #242F41;        /* Low-intensity layout lines to prevent visual noise */
 }
 * {
     box-sizing: border-box;
@@ -22,7 +28,8 @@ body {
     padding: 24px;
     background: #0F172A;
     color: #F8FAFC;
-    font-family: system-ui, sans-serif;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    letter-spacing: -0.02em;
     
 }
 .web-title{
