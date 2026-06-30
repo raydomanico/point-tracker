@@ -212,7 +212,7 @@ async function openSiteMap() {
         const sanitizedComponent = encodeURIComponent(cleanData);
         
         // 3. Assemble the explicit destination path
-        const targetUrl = `https://www.google.com/maps/place/${sanitizedComponent}`;
+        const targetUrl = `maps:?q=${sanitizedComponent}`;
         
         // 4. Define indow mechanics to force a popup frame over a browser tab
         const windowFeatures = "width=800,height=600,scrollbars=yes,resizable=yes";
