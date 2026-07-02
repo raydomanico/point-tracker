@@ -139,11 +139,7 @@ const TrackerState =
     timerDpEl.addEventListener("click", toggleTimer);
     showTimerEl.addEventListener("click", showTimer);
 
-    //UI
-    cons
-
-
-
+  
 
     // 3. TIMER
     function showTimer(){

@@ -9,6 +9,10 @@
     "clipboardRead",
     "activeTab"
   ],
+   "action": {
+    "default_popup": "index.html",
+    "default_icon": "icon.png"
+  },
   "host_permissions": [
     "<all_urls>"
   ],
