@@ -14,6 +14,8 @@
     const dialogRejectCatEl =document.querySelector('.dialog-reject-cat');
     const dialogRejectCat =document.getElementById('dialog-reject-cat');
     const rejectJobCategoryEl = document.getElementById("reject-job-category");
+    const rejectJobBtnEl = document.getElementById("reject-job-btn");
+    const gMapsBtnEl= document.getElementById("gMaps-btn");
 
     const techNoEl = document.getElementById("tech-no");
     const userNameEl = document.getElementById("user-name");
@@ -46,7 +48,7 @@
     document.getElementById("copy-overtime-btn").addEventListener("click", confirmCopyOvertime);
     document.getElementById("close-overtime-btn").addEventListener("click", closeCopyOvertime);
     document.getElementById("reject-job-btn").addEventListener("click", rejectJobForm);
-    document.getElementById("sitemap-btn").addEventListener("click", openSiteMap);
+    document.getElementById("gMaps-btn").addEventListener("click", openGMaps);
 
 
 
@@ -63,6 +65,7 @@ const TrackerState =
         currentEditId:0,
         isReject:false,
         isWindowOpen:false,
+        myTab:null,
 
     syncStorage(){
         localStorage.setItem("myJobs", JSON.stringify(TrackerState.jobs));
@@ -153,7 +156,6 @@ const TrackerState =
         TrackerState.currentTime = 0;
         playTimer();   
 
-        console.log("starttime:"+TrackerState.startTime);
         
 
     
@@ -185,44 +187,50 @@ const TrackerState =
     function pauseTimer(){
         TrackerState.isRunning=false;
                     clearInterval(TrackerState.timerInterval);
-                console.log(TrackerState.accumulatedTime)
                 TrackerState.timerInterval = 0;
                 TrackerState.startTime= 0;
                 timerDpEl.style.opacity = "0.4";        
 
     }
-
-async function openSiteMap() {
-    if(!TrackerState.isWindowOpen )
+async function openGMaps() {
     try {
-        // 1. Asynchronously capture unverified clipboard content
         const rawClipboard = await navigator.clipboard.readText();
         const cleanData = rawClipboard.trim();
         
         if (!cleanData) {
-            alert("Clipboard is empty. Cannot generate map window.");
+            alert("Clipboard context is empty.");
             return;
         }
 
-        // 2. Sanitize and transform the data into a safe URL component
         const sanitizedComponent = encodeURIComponent(cleanData);
+        const targetUrl = `https://www.google.com/maps/place/${sanitizedComponent}`;
         
-        // 3. Assemble the explicit destination path
-        const targetUrl = `maps:?q=${sanitizedComponent}`;
-        
-        // 4. Define indow mechanics to force a popup frame over a browser tab
-        const windowFeatures = "width=800,height=600,scrollbars=yes,resizable=yes";
-        
-        // 5. Execute window allocation
-        window.open(targetUrl, "MapPopupWindow", windowFeatures);
+        // 1. Search all open tabs in the browser for our specific target URL pattern
+        const queryOptions = { url: "https://www.google.com/maps/*" };
+        const existingTabs = await chrome.tabs.query(queryOptions);
 
+        if (existingTabs.length > 0) {
+            // 2. Found an existing Maps tab! Target the first one available
+            const targetTab = existingTabs[0];
+
+            // 3. Update its destination URL and pull it into immediate focus context
+            await chrome.tabs.update(targetTab.id, { url: targetUrl, active: true });
+            
+            // 4. Ensure the parent window containing this tab is also focused
+            await chrome.windows.update(targetTab.windowId, { focused: true });
+            
+            console.log("Existing Google Maps tab reused and updated successfully.");
+        } else {
+            // 5. No active Google Maps tab found anywhere. Spawn a clean one
+            const newTab = await chrome.tabs.create({ url: targetUrl, active: true });
+            console.log("New Google Maps tab instantiated with ID:", newTab.id);
+        }
+
+        TrackerState.isWindowOpen = true;
     } catch (err) {
-        console.error("Failed to open map window via clipboard engine:", err);
+        console.error("Extension Chrome Tabs API Fault:", err);
     }
 }
-
-
-
     // 4. JOB FORM
     window.addEventListener("DOMContentLoaded",  () =>{
 
@@ -251,8 +259,8 @@ async function openSiteMap() {
         if(jobIdInputEl.value.trim() === "") return;
         jobFormEl.showModal();
         timerDpEl.style.color="#48d18e";
+        rejectJobBtnEl.style.display="block";
         pauseTimer();
-         console.log(TrackerState.user)
     }
 
     function closeJobForm(){
@@ -264,21 +272,43 @@ async function openSiteMap() {
     playTimer();
         timerDpEl.style.color="#ff9f43";
     }
+function validateJobId(jobIdValue)
+{
+    const regex=/^\d{8,9}$/;
 
+
+    if(regex.test(jobIdValue)){
+return true;
+    }
+    else{
+        return false;
+    }
+}
 async function confirmJob() {
     if(!TrackerState.isReject){
     const rawJobId = jobIdInputEl.value.trim();
-    const rawLink = jobLinkEl.value.trim();
+    if(!validateJobId(rawJobId)){
+        alert("Invalid job Id. Please try again")
+        return;
+    };
     // Continue synchronous state mutations
     const newJob = await TrackerState.getJobInputDetails();
+    const parsedPoints = parseFloat(jobPointsEl.value);
+if(isNaN(parsedPoints)||parsedPoints<=0){
+    alert("Invalid Point Value, Please try again");
+    return;
+}
     TrackerState.jobs.push(newJob);
+    TrackerState.syncStorage();
+    renderUI();
+
     
+
+
     closeJobForm();
     jobIdInputEl.value = "";
     TrackerState.currentTime = 0;
-    startTimer();
-    TrackerState.syncStorage();
-    renderUI();
+    startTimer();   
     timerDpEl.style.color = "#ff9f43";
     jobIdInputEl.focus();
     }
@@ -288,11 +318,10 @@ async function confirmJob() {
     const rawLink = jobLinkEl.value.trim();
     const rejectReason = rejectJobCategoryEl.value;
 
-
-    if (!rawJobId) {
-        alert("Please enter a valid Job ID before rejecting.");
+  if(!validateJobId(rawJobId)){
+        alert("Invalid job Id. Please try again")
         return;
-    }
+    };
 
     // 2. Generate the plain text copy format layout (for basic text inputs/Teams markdown text)
     const plainTextData = `${rawJobId}\nLink: ${rawLink}\n${rejectReason}`;
@@ -304,7 +333,6 @@ async function confirmJob() {
     await captureActiveTabAndTextToClipboard(plainTextData, htmlData);
 
     // 5. Clean up form interfaces and reset UI state cleanly
-
     closeJobForm(); 
     resetRejectionFormState();
     window.location.href = "msteams://teams.microsoft.com/l/launch";
@@ -324,6 +352,7 @@ async function confirmJob() {
                 eJobStatusEl.value=TrackerState.jobs[i].status;
 
         }
+
     }
     function deleteJob(event){
         const targetId= event.target.dataset.id;
@@ -334,11 +363,20 @@ async function confirmJob() {
     }
     function closeEditJobForm(){
         eJobFormEl.close();
-        console.log();
     }
 
 
     function confirmEditJob(){
+        validateJobId(eJobIdInputEl.value);
+if(!validateJobId(parseFloat(eJobIdInputEl.value))){
+    alert("Invalid Job Id. Please Try Again")
+    return;
+}
+if(isNaN(parseFloat(eJobPointsEl.value))){
+    alert("Invalid Points. Please Try Again");
+    return;
+}
+
         TrackerState.jobs = TrackerState.jobs.map(
             job => {
                 if(job.id ===TrackerState.currentEditId){
@@ -405,7 +443,8 @@ async function confirmJob() {
 
 function rejectJobForm(){
 TrackerState.isReject=true;
-    dialogSatusEl.style.display="none"
+    dialogSatusEl.style.display="none";
+    rejectJobBtnEl.style.display="none";
 pointsContainer.style.display="none";
 dialogRejectCatEl.style.display= 'block';
 
@@ -486,7 +525,14 @@ function closeCopyOvertime(){
             timerDpEl.style.display="none";
                 showTimerEl.style.display="flex";
     }})
- 
+ window.addEventListener("keydown", (event) => {
+   const pressedkey = event.key.toLowerCase();
+     if((event.ctrlKey ||event.metaKey )&& pressedkey==="m"){
+        
+        event.preventDefault();
+        gMapsBtnEl.click();
+
+}});
     window.addEventListener("keydown", (event)=> {
         const pressedkey = event.key.toLowerCase();
         if((event.ctrlKey ||event.metaKey )&& pressedkey==="d"){
@@ -495,8 +541,8 @@ function closeCopyOvertime(){
             downloadBtnEl.style.display="block";
 
         }
-    })
-
+    });
+    //Ctrl + M directly opens existing Maps 
 
     // 5. STATUS UPDATE
     function updateStatus(event){
@@ -836,15 +882,6 @@ renderUI();
 
 // Primary application startup focus
 jobIdInputEl.focus();
-
-    // INIT
-  
-    showTimerEl.style.display="none";
-    
-    pauseTimer();
-      renderUI();
-
- jobIdInputEl.focus()
 
 
 

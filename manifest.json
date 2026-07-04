@@ -2,13 +2,15 @@
   "manifest_version": 3,
   "name": "Roof Task & Time Tracker",
   "version": "1.0.0",
-  "description": "Tracks production tasks, points, and generates TSC shift copy data.",
+  "description": "Productivity Tool to boost workflows: Automating reports,generating TSC and manually tracking job's points,time taken to complete and it's status. Helping Workers to focus on more complex and revenue-generating tasks ",
   "permissions": [
     "storage",
     "clipboardWrite",
     "clipboardRead",
-    "activeTab"
+    "activeTab" ,
+    "tabs"
   ],
+ 
    "action": {
     "default_popup": "index.html",
     "default_icon": "icon.png"
@@ -16,9 +18,6 @@
   "host_permissions": [
     "<all_urls>"
   ],
-    "background": {
-    "service_worker": "background.js"
-  },
  "content_scripts": [
     {
       "matches": ["<all_urls>"],

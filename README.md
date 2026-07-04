@@ -1,7 +1,31 @@
-# Roof Tracker 🏠
+# Roof Tracker
 
-A productivity tool built to track roofing job assignments from EagleView.
-Designed for personal use to monitor points, time per job, and work history.
+Built for EagleView roof measurement tracking.
+
+## How to install
+
+1. Open Chrome → Extensions → Developer Mode
+2. Load unpacked → select this folder
+
+## How to use
+
+1. Copy a Job ID from EagleView
+2. Click Add or just press Enter — it auto-fills from clipboard
+3. Fill in points and status
+4. Click Confirm — timer resets automatically.
+   Click Reject - this will auto-generate your report for you to paste in MS Teams.
+5. Use Copy button to paste history into Google Sheets
+
+## Keyboard shortcuts
+
+- Enter — submit job ID
+- Click timer — pause/resume(Availabe on WebSite Only)
+- Ctrl + M - directly opens Google Maps with copied Address
+
+## Data storage
+
+All data stored locally in your browser.
+No data is sent to any server.
 
 ## Features
 
@@ -10,23 +34,12 @@ Designed for personal use to monitor points, time per job, and work history.
 - 📊 Work history table with status tracking (Open, Passed, Rework)
 - 💾 Persistent data via localStorage
 - 📤 Export to CSV or copy tab-separated for Google Sheets
-- ⌨️ Keyboard shortcuts — Enter to add, Spacebar to pause/resume
 
 ## Built With
 
 - Vanilla JavaScript
 - HTML5 / CSS3
 - localStorage API
-
-## How to Use
-
-1. Open the app
-2. Paste a Job ID into the input field
-3. Press Enter or click Add
-4. Fill in job details in the dialog
-5. Click Confirm — timer resets automatically
-6. Change status via dropdown as jobs progress
-7. Export or copy history to paste into Google Sheets
 
 ## Live Demo
 
