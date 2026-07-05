@@ -1,4 +1,46 @@
-    // 1. DOM
+ //CONFIG
+
+ // TABLE OF CONTENTS
+// CONFIGURATION & DOM ELEMENTS
+// TRACKER STATE MANAGEMENT
+// STORAGE ENGINE
+// 1. TIMER FUNCTIONS
+// 2. JOB FORM ACTIONS & VALIDATION
+// 3. UPDATE & DELETE JOB UTILITIES
+// 4. REJECT JOB PIPELINE
+// 5. CLIPBOARD & SCREENSHOT PIPELINES
+// 6. OVERTIME AUTOMATION
+// 7. USER INITIALIZATION & SESSIONS
+// 8. EVENT LISTENERS
+// 9. UI RENDERING & DOM MUTATIONS
+// 10. CSV EXPORT ENGINE
+// 11. GOOGLE MAPS INTEGRATION
+// 12. INITIALIZATION BOOTSTRAP
+
+ const CONFIG = {
+    version: "1.0.0",
+    validJobIdRegex: /^\d{8,9}$/,
+    dayShiftSchedule:[
+                { start: "03:30:00", end: "06:00:00", duration: "2:30:00", task: "TWISTER", cat: "Hipster" },
+                { start: "03:15:00", end: "03:30:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
+                { start: "02:00:00", end: "03:15:00", duration: "1:15:00", task: "TWISTER", cat: "Hipster" },
+                { start: "01:00:00", end: "02:00:00", duration: "1:00:00", task: "BREAK",   cat: "BREAK" }, 
+                { start: "23:45:00", end: "01:00:00", duration: "1:15:00", task: "TWISTER", cat: "Hipster" },
+                { start: "23:30:00", end: "23:45:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
+                { start: "21:00:00", end: "23:30:00", duration: "2:30:00", task: "TWISTER", cat: "Hipster" }
+            ],
+
+    nightShiftSchedule: [
+                { start: "03:30:00", end: "06:00:00", duration: "2:30:00", task: "TWISTER", cat: "Hipster" },
+                { start: "03:15:00", end: "03:30:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
+                { start: "02:00:00", end: "03:15:00", duration: "1:15:00", task: "TWISTER", cat: "Hipster" },
+                { start: "01:00:00", end: "02:00:00", duration: "1:00:00", task: "BREAK",   cat: "BREAK" }, 
+                { start: "23:45:00", end: "01:00:00", duration: "1:15:00", task: "TWISTER", cat: "Hipster" },
+                { start: "23:30:00", end: "23:45:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
+                { start: "21:00:00", end: "23:30:00", duration: "2:30:00", task: "TWISTER", cat: "Hipster" }
+            ]};
+
+//DOMS
     const timerDpEl = document.getElementById("timer-dp");
     const jobIdInputEl = document.getElementById("job-id-input");
     const jobFormEl = document.getElementById("job-form");
@@ -16,11 +58,25 @@
     const rejectJobCategoryEl = document.getElementById("reject-job-category");
     const rejectJobBtnEl = document.getElementById("reject-job-btn");
     const gMapsBtnEl= document.getElementById("gMaps-btn");
+    const tscLinkInputEl= document.getElementById("tsc-link");
+    const pointsheetLinkInputEl= document.getElementById("pointsheet-link");
+  
+
+
+
+    const openEditUserFormEl= document.getElementById("edit-user-form");
+    const eTechNoEl = document.getElementById("e-tech-no")
+    const eTscLinkInputEl= document.getElementById("e-tsc-link");
+    const eUserNameEl = document.getElementById("e-username")
+     const eUserShiftEl = document.getElementById("user-shift");
+    const ePointsheetLinkInputEl= document.getElementById("e-pointsheet-link");
+
 
     const techNoEl = document.getElementById("tech-no");
     const userNameEl = document.getElementById("user-name");
     const userShiftEl = document.getElementById("user-shift");
     const dialogSatusEl = document.querySelector('.dialog-status');
+
 
     const jobLinkEl = document.getElementById("job-link");
     const jobPointsEl = document.getElementById("job-points");
@@ -29,7 +85,7 @@
     const timerProgressEl = document.getElementById("timer-progress");
     const totalPointsEl = document.getElementById("total-points");
     const showTimerEl =document.getElementById("show-timer");
-    const deleteUserEl = document.getElementById("delete-user");
+    const editUserform = document.getElementById("edit-user");
     const downloadBtnEl = document.getElementById("download-btn");
     const closeOvertimeBtnEl = document.getElementById("close-overtime-btn");
 
@@ -41,9 +97,8 @@
     document.getElementById("edit-confirm-job-btn").addEventListener("click", confirmEditJob);
     document.getElementById("edit-cancel-job-btn").addEventListener("click", closeEditJobForm);
     document.getElementById("copy-tsc-btn").addEventListener("click", copyTSC);
-    document.getElementById("confirm-user-btn").addEventListener("click", confirmAddUser);
     document.getElementById("cancel-user-btn").addEventListener("click", closeUserForm);
-    document.getElementById("delete-user").addEventListener("click",deleteUser);
+    document.getElementById("edit-user").addEventListener("click",openEditUserForm);
     document.getElementById("overtime-btn").addEventListener("click", openOvertimeForm);
     document.getElementById("copy-overtime-btn").addEventListener("click", confirmCopyOvertime);
     document.getElementById("close-overtime-btn").addEventListener("click", closeCopyOvertime);
@@ -51,12 +106,27 @@
     document.getElementById("gMaps-btn").addEventListener("click", openGMaps);
 
 
+    document.getElementById("confirm-user-btn").addEventListener("click", confirmAddUser);
+    document.getElementById("e-confirm-user-btn").addEventListener("click", confirmEditAddUser);
+     document.getElementById("e-delete-user-btn").addEventListener("click", deleteUser);
+     document.getElementById("e-cancel-user-btn").addEventListener("click", closeEditUserForm);
 
+
+
+    const pointsContainer = document.querySelector('#dialog-pts-btn');
+    const pointsInput = document.querySelector('#job-points');
+
+    //Event Listeners
+    timerDpEl.addEventListener("click", toggleTimer);
+    showTimerEl.addEventListener("click", showTimer);
+
+
+//TRACKERSTATE
 const TrackerState =
      {
         id:0,
-        user:  JSON.parse(localStorage.getItem("myUser")) || null,
-        jobs: JSON.parse(localStorage.getItem("myJobs")) || [],
+        user: null,
+        jobs: [],
         timerInterval: null,
         currentTime: 0,
         totalPoints:0,
@@ -67,22 +137,7 @@ const TrackerState =
         isWindowOpen:false,
         myTab:null,
 
-    syncStorage(){
-        localStorage.setItem("myJobs", JSON.stringify(TrackerState.jobs));
-        localStorage.setItem("myPoints", JSON.stringify(TrackerState.totalPoints));
-        localStorage.setItem("myUser", JSON.stringify(TrackerState.user));
-        
-    },
-//Deleting Storages
-    clearAllJobs(){
-        this.jobs=[];
-        this.syncStorage();
-    },
-    clearUser()
-    {
-        this.user=null;
-        this.syncStorage();
-    },
+  
     summateTotalPoints(totalSum){
                  let sum=0;
         for(let i=0;i<this.jobs.length;i++){
@@ -117,53 +172,44 @@ const TrackerState =
         };
 
         return newJob;
+    }}
+//STORAGE 
+const Storage = {
+    save(){
+        localStorage.setItem("myJobs", JSON.stringify(TrackerState.jobs));
+        localStorage.setItem("myPoints", JSON.stringify(TrackerState.totalPoints));
+        localStorage.setItem("myUser", JSON.stringify(TrackerState.user));
     },
-    getNewUserInfo(){
-    const newUser = {
-            id: crypto.randomUUID(),
-            userName: userNameEl.value.trim(),
-            techNo: parseFloat(techNoEl.value),
-            userShift: userShiftEl.value,
-            date: new Date().toLocaleDateString(),
-        }
-     const createdUser=newUser;
-     return createdUser
-    }
-
-    
+    load(){
+        return {
+        user:  JSON.parse(localStorage.getItem("myUser")) || null,
+        jobs: JSON.parse(localStorage.getItem("myJobs")) || [],
+    }},
+    clear(){
+        localStorage.clear();
+    },
+      clearAllJobs(){
+        TrackerState.jobs=[];
+        Storage.save();
+    },
+    clearUser()
+    {
+        TrackerState.user=null;
+        Storage.save();
+    },
 }
+const savedData=Storage.load();
 
-
-    //Modal Int
-    const pointsContainer = document.querySelector('#dialog-pts-btn');
-    const pointsInput = document.querySelector('#job-points');
-
-    //Event Listeners
-    timerDpEl.addEventListener("click", toggleTimer);
-    showTimerEl.addEventListener("click", showTimer);
-
-  
-
-    // 3. TIMER
-    function showTimer(){
-        timerDpEl.style.display="flex";
-        showTimerEl.style.display="none";
-    } 
-    function startTimer(){
+// 1. TIMER FUNCTIONS
+function startTimer(){
         if(TrackerState.timerInterval){
             clearInterval(TrackerState.timerInterval);
         }
         TrackerState.currentTime = 0;
-        playTimer();   
+         playTimer();   
+         }
 
-        
-
-    
-    }
-
-
-
-    function playTimer(){
+function playTimer(){
         let totalTime=0;
         timerDpEl.style.opacity = "1";
     TrackerState.startTime=Date.now();
@@ -177,85 +223,32 @@ const TrackerState =
             timerDpEl.textContent = formatTime(totalTime);
         }, 1000);
     }
-
-    function formatTime(seconds){
+function showTimer(){
+        timerDpEl.style.display="flex";
+        showTimerEl.style.display="none";
+    } 
+function formatTime(seconds){
 
         let minutes = Math.floor(seconds / 60) % 60;
         let remainingSeconds = Math.floor(seconds % 60);
         return `${minutes.toString().padStart(2,"0")}:${remainingSeconds.toString().padStart(2,"0")}`;
     }
-    function pauseTimer(){
+function pauseTimer(){
         TrackerState.isRunning=false;
                     clearInterval(TrackerState.timerInterval);
                 TrackerState.timerInterval = 0;
                 TrackerState.startTime= 0;
                 timerDpEl.style.opacity = "0.4";        
-
     }
-async function openGMaps() {
-    try {
-        const rawClipboard = await navigator.clipboard.readText();
-        const cleanData = rawClipboard.trim();
-        
-        if (!cleanData) {
-            alert("Clipboard context is empty.");
-            return;
-        }
-
-        const sanitizedComponent = encodeURIComponent(cleanData);
-        const targetUrl = `https://www.google.com/maps/place/${sanitizedComponent}`;
-        
-        // 1. Search all open tabs in the browser for our specific target URL pattern
-        const queryOptions = { url: "https://www.google.com/maps/*" };
-        const existingTabs = await chrome.tabs.query(queryOptions);
-
-        if (existingTabs.length > 0) {
-            // 2. Found an existing Maps tab! Target the first one available
-            const targetTab = existingTabs[0];
-
-            // 3. Update its destination URL and pull it into immediate focus context
-            await chrome.tabs.update(targetTab.id, { url: targetUrl, active: true });
-            
-            // 4. Ensure the parent window containing this tab is also focused
-            await chrome.windows.update(targetTab.windowId, { focused: true });
-            
-            console.log("Existing Google Maps tab reused and updated successfully.");
-        } else {
-            // 5. No active Google Maps tab found anywhere. Spawn a clean one
-            const newTab = await chrome.tabs.create({ url: targetUrl, active: true });
-            console.log("New Google Maps tab instantiated with ID:", newTab.id);
-        }
-
-        TrackerState.isWindowOpen = true;
-    } catch (err) {
-        console.error("Extension Chrome Tabs API Fault:", err);
+ function toggleTimer(){
+    if(TrackerState.isRunning){
+         pauseTimer();
     }
-}
-    // 4. JOB FORM
-    window.addEventListener("DOMContentLoaded",  () =>{
+    else{ playTimer();
+    }};
 
-        if(!TrackerState.user){
-            userFormEl.showModal();
-            return;
-        };
-
-    })
-
-    function confirmAddUser(){
- const createdUser=TrackerState.getNewUserInfo();
- if(!createdUser.userName)return;
- TrackerState.user=createdUser;
-
-        TrackerState.syncStorage();
-        closeUserForm();
-        renderUI();
-    };
-
-    function closeUserForm(){
-        userFormEl.close();
-    }
-
-    function openJobForm(){
+// 2. JOB FORM
+function openJobForm(){
         if(jobIdInputEl.value.trim() === "") return;
         jobFormEl.showModal();
         timerDpEl.style.color="#48d18e";
@@ -263,20 +256,19 @@ async function openGMaps() {
         pauseTimer();
     }
 
-    function closeJobForm(){
+function closeJobForm(){
         jobFormEl.close();
         jobLinkEl.value = "";
         jobPointsEl.value = "";
         jobStatusEl.value = "Open";
 
-    playTimer();
+         playTimer();
         timerDpEl.style.color="#ff9f43";
     }
+   
 function validateJobId(jobIdValue)
 {
-    const regex=/^\d{8,9}$/;
-
-
+    const regex=CONFIG.validJobIdRegex;
     if(regex.test(jobIdValue)){
 return true;
     }
@@ -284,6 +276,7 @@ return true;
         return false;
     }
 }
+
 async function confirmJob() {
     if(!TrackerState.isReject){
     const rawJobId = jobIdInputEl.value.trim();
@@ -299,11 +292,8 @@ if(isNaN(parsedPoints)||parsedPoints<=0){
     return;
 }
     TrackerState.jobs.push(newJob);
-    TrackerState.syncStorage();
+    Storage.save();
     renderUI();
-
-    
-
 
     closeJobForm();
     jobIdInputEl.value = "";
@@ -327,7 +317,7 @@ if(isNaN(parsedPoints)||parsedPoints<=0){
     const plainTextData = `${rawJobId}\nLink: ${rawLink}\n${rejectReason}`;
 
     // 3. Generate the rich HTML layout string configuration
-    const htmlData = `<strong>${rawJobId}</strong><br>Link: <a href="${rawLink}">${rawLink}</a><br>${rejectReason}`;
+    const htmlData = `<strong>${rawJobId}</strong><br>Link: <a href="${rawLink}">Measurement UI</a><br>${rejectReason}`;
 
     // 4. Fire the screenshot pipeline and pass both text payloads down the stream
     await captureActiveTabAndTextToClipboard(plainTextData, htmlData);
@@ -340,33 +330,9 @@ if(isNaN(parsedPoints)||parsedPoints<=0){
 
     }
 }
-    function editJob(event){
-    const targetId= event.target.dataset.id;
-    TrackerState.currentEditId=targetId;
-    for(let i=0;i<TrackerState.jobs.length;i++)
-        if(TrackerState.jobs[i].id==targetId){
-                eJobFormEl.showModal();
-                eJobIdInputEl.value=TrackerState.jobs[i].jobId;
-                eJobPointsEl.value=TrackerState.jobs[i].points;
-                eJobLinkEl.value=TrackerState.jobs[i].link;
-                eJobStatusEl.value=TrackerState.jobs[i].status;
 
-        }
-
-    }
-    function deleteJob(event){
-        const targetId= event.target.dataset.id;
-        TrackerState.jobs= TrackerState.jobs.filter(job => job.id !== targetId);
-        TrackerState.syncStorage();
-        renderUI();
-
-    }
-    function closeEditJobForm(){
-        eJobFormEl.close();
-    }
-
-
-    function confirmEditJob(){
+// 3. UPDATE/DELETE JOB FORMS
+function confirmEditJob(){
         validateJobId(eJobIdInputEl.value);
 if(!validateJobId(parseFloat(eJobIdInputEl.value))){
     alert("Invalid Job Id. Please Try Again")
@@ -391,12 +357,59 @@ if(isNaN(parseFloat(eJobPointsEl.value))){
                 }
                 return job;
             });
-            TrackerState.syncStorage();
+            Storage.save();
             renderUI();
             eJobFormEl.close();
             TrackerState.currentEditId = null;
+    }    
+    function editJob(event){
+    const targetId= event.target.dataset.id;
+    TrackerState.currentEditId=targetId;
+    for(let i=0;i<TrackerState.jobs.length;i++)
+        if(TrackerState.jobs[i].id==targetId){
+                eJobFormEl.showModal();
+                eJobIdInputEl.value=TrackerState.jobs[i].jobId;
+                eJobPointsEl.value=TrackerState.jobs[i].points;
+                eJobLinkEl.value=TrackerState.jobs[i].link;
+                eJobStatusEl.value=TrackerState.jobs[i].status;
+
+        }
+
     }
-    async function captureActiveTabAndTextToClipboard(plainTextPayload, htmlPayload) {
+function deleteJob(event){
+        const targetId= event.target.dataset.id;
+        TrackerState.jobs= TrackerState.jobs.filter(job => job.id !== targetId);
+        Storage.save();
+        renderUI();
+
+    }
+function closeEditJobForm(){
+        eJobFormEl.close();
+    }
+
+//4. REJECT JOB
+function rejectJobForm(){
+TrackerState.isReject=true;
+    dialogSatusEl.style.display="none";
+    rejectJobBtnEl.style.display="none";
+pointsContainer.style.display="none";
+dialogRejectCatEl.style.display= 'block';
+};
+
+function resetRejectionFormState() {
+    // Return form panels back to standard default visibility settings
+    dialogSatusEl.style.display = "block";
+    pointsContainer.style.display = "block";
+    dialogRejectCatEl.style.display = 'none';
+    
+    // Clear field entries
+    jobIdInputEl.value = "";
+    dialogRejectCatEl.value = "";
+}
+
+
+// 5. CLIPBOARD FUNCTIONS
+async function captureActiveTabAndTextToClipboard(plainTextPayload, htmlPayload) {
     if (typeof chrome === "undefined" || !chrome.tabs) {
         console.error("Context Error: Run within extension environment.");
         return;
@@ -438,21 +451,116 @@ if(isNaN(parseFloat(eJobPointsEl.value))){
         alert("Clipboard update failed: " + err.message);
     }
 }
-//Reject JOb
+    function copyToClipboard(){
+        const rows = TrackerState.jobs.map(j => 
+            [j.jobId, ,j.points, j.status].join("\t")
+        );
+        navigator.clipboard.writeText(rows.join("\n"));
+        alert("Copied to clipboard — paste directly into sheets.");
+        
+    }
+    function copyTSC(){
+        if(!TrackerState.user)return;
+        let pastePayLoad="";        
+        const liveOvertimeValue = parseFloat(overtimeInputEl.value)||0;
+const tscLink = TrackerState.user?.tscLink; 
+
+        if(TrackerState.user.userShift=="Day"){
+            const shiftSchedule=CONFIG.dayShiftSchedule;
+
+            if (liveOvertimeValue > 0) {
+                const hours = Math.floor(liveOvertimeValue);
+                const minutes = Math.floor((liveOvertimeValue % 1) * 60);
+                
+                // Formats the duration explicitly to match your time taken column structure
+                const durationStr = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:00`;
+
+                const calculatedEndHour = 15 + hours;
+                const calculatedEndMin = 30 + minutes;
+                const endStr = `${calculatedEndHour.toString().padStart(2, "0")}:${calculatedEndMin.toString().padStart(2, "0")}:00`;
+
+                shiftSchedule.unshift({
+                    start: "15:30:00", 
+                    end: endStr, 
+                    duration: durationStr, 
+                    task: "TWISTER", 
+                    cat: "Hipster"
+                });
+            }
+
+            pastePayLoad = compileTscPayload(shiftSchedule);
+            navigator.clipboard.writeText(pastePayLoad);
+            alert("Copied to clipboard — paste directly into sheets.");
+        }
+        else {
+            const baseDate =new Date();
+            const nextdate = new Date(baseDate);
+            
+            nextdate.setDate(baseDate.getDate()+1);
+
+            const day1str= baseDate.toLocaleDateString();
+            const day2str= nextdate.toLocaleDateString();
+
+            const shiftSchedule = CONFIG.nightShiftSchedule;
+
+            pastePayLoad = compileTscPayload(shiftSchedule, (startHourStr) => {
+                const startHour = parseInt(startHourStr.split(":")[0],10);
+                return (startHour == 0 || startHour<12) ? day2str:day1str;
+            });
+            navigator.clipboard.writeText(pastePayLoad);
+            alert("Copied to clipboard — paste directly into sheets.");
+        }
+if (tscLink) {
+    window.open(tscLink, 'popupWindow', 'width=800,height=600,scrollbars=yes');
+    }}
+  function compileTscPayload(shiftScheduleArray, dateHandlerCb){
+        const liveOvertimeValue = parseFloat(overtimeInputEl.value)||0;
+
+        // Keep index 0 matching your standard output formatting logic requirements
+        const eotMarker = liveOvertimeValue > 0 ? "YES":"NO";
+        return shiftScheduleArray.map((slot,index) =>   {
+        const rowDate=dateHandlerCb ? dateHandlerCb(slot.start): new Date().toLocaleDateString();
+        
+        const baseColumns = [
+            TrackerState.user.techNo,
+            TrackerState.user.userName,
+            TrackerState.user.userShift,
+            rowDate,
+            slot.start,
+            slot.end,
+            slot.duration,
+            slot.task,
+            slot.cat
+        ];
+
+        const eotField = index === 0 ? eotMarker : "NO";
+        baseColumns.push(eotField);
+
+        return baseColumns.join("\t");
+    }).join("\n"); 
+    };
+async function writeRichLinkToClipboard(url) {
+    if (!url || !url.startsWith('http')) return;
+    try {
+        const htmlString = `<a href="${url}">${url}</a>`;
+        const textBlob = new Blob([url], { type: "text/plain" });
+        const htmlBlob = new Blob([htmlString], { type: "text/html" });
+
+        await navigator.clipboard.write([
+            new ClipboardItem({
+                "text/plain": textBlob,
+                "text/html": htmlBlob
+            })
+        ]);
+  
+    } catch (err) {
+        console.error("Failed to automatically write rich text link:", err);
+    }
+}
 
 
-function rejectJobForm(){
-TrackerState.isReject=true;
-    dialogSatusEl.style.display="none";
-    rejectJobBtnEl.style.display="none";
-pointsContainer.style.display="none";
-dialogRejectCatEl.style.display= 'block';
 
-};
-
- 
-
-    //OVERTIME form
+// 6. OVERTIME FORM
 function openOvertimeForm(){
     overtimeFormEl.showModal();
 }
@@ -469,10 +577,104 @@ function closeCopyOvertime(){
     overtimeFormEl.close();
     
 }
-    
-    //Add Points from Button
 
-    pointsContainer.addEventListener('click', (event) => {
+// 7. USER
+
+function  getNewUserInfo(){
+    const username = userNameEl?.value?.trim();
+    const techno = parseFloat(techNoEl?.value);
+if (!username||(Number.isNaN(techno)))return null;
+
+    return newUser = {
+
+            id: crypto.randomUUID(),
+            userName: username,
+            techNo: techno,
+            userShift: userShiftEl?.value || "",
+            date: new Date().toISOString().split('T')[0],
+            tscLink: tscLinkInputEl.value.trim(),
+            pointsheetLink: pointsheetLinkInputEl.value.trim()
+        };
+
+    }
+
+function confirmAddUser(){
+ const createdUser=getNewUserInfo();
+ if(!createdUser.userName)return;
+  if(isNaN(createdUser.techNo))return;
+isValidWebUrl(createdUser.tscLink);
+isValidWebUrl(createdUser.pointsheetLink);
+ TrackerState.user=createdUser;
+alert("User Added Succesfully");
+        Storage.save();
+        closeUserForm();
+        renderUI();
+       
+
+    };
+
+function closeUserForm(){
+        userFormEl.close();
+    }
+function deleteUser(){
+    Storage.clearUser();
+    renderUI();
+    window.location.reload();
+    }; 
+
+function openEditUserForm()
+    {
+        if(!TrackerState.user){
+            return;
+        }
+        getEditedUserInfo();
+        openEditUserFormEl.showModal();
+        
+    }
+
+function  getEditedUserInfo(){
+    eUserNameEl.value = TrackerState.user.userName || "";
+    eTechNoEl.value = TrackerState.user.techNo || "";
+    eUserShiftEl.value = TrackerState.user.userShift || "";
+    eTscLinkInputEl.value = TrackerState.user.tscLink || "";
+    ePointsheetLinkInputEl.value = TrackerState.user.pointsheetLink || "";
+    }
+    
+function confirmEditAddUser(){
+const parsedTechNo = parseFloat(eTechNoEl.value);
+    if (!eUserNameEl.value.trim() || isNaN(parsedTechNo)) {
+        alert("Please provide a valid Username and Tech Number.");
+        return;
+    }
+
+    // Direct, explicit mutation of our state object using the input field values
+    TrackerState.user = {
+        ...TrackerState.user, // Preserves the original unique user ID string
+        userName: eUserNameEl.value.trim(),
+        techNo: parsedTechNo,
+        userShift: eUserShiftEl.value || "",
+        tscLink: eTscLinkInputEl.value.trim(),
+        pointsheetLink: ePointsheetLinkInputEl.value.trim()
+    };
+
+    Storage.save();
+    openEditUserFormEl.close(); // Target the correct modal container
+    alert("User Updated Succesfully");
+    renderUI();
+}
+ function closeEditUserForm(){
+        openEditUserFormEl.close();
+    }
+   
+
+//8. HISTORY TABLE
+    function deleteAllTable(){
+    Storage.clearAllJobs();
+    renderUI();
+    };
+
+//9. EVENT LISTENERS
+pointsContainer.addEventListener('click', (event) => {
         const button= event.target.closest('.point-btn');
 
         if(button){
@@ -486,20 +688,7 @@ function closeCopyOvertime(){
         }
     }
     )
-
-
-    //Update Total Points
-
-    function updateTotalPoints(){
-
-     totalPointsEl.textContent="Total Points:"+TrackerState.summateTotalPoints();
-    TrackerState.syncStorage();
-    };
-
-
-
-
-        jobFormEl.addEventListener("keydown", (event) => {
+jobFormEl.addEventListener("keydown", (event) => {
         if(event.key === "Enter")
           
              confirmJob();
@@ -507,84 +696,120 @@ function closeCopyOvertime(){
     // Enter key triggers Add
 
  
-    jobIdInputEl.addEventListener("keydown", (event) => {
+jobIdInputEl.addEventListener("keydown", (event) => {
      
         if(event.key === "Enter") {
            event.preventDefault();
         addJobBtnEl.click();}
 
         });
-    eJobFormEl.addEventListener("keydown", (event) => {
+eJobFormEl.addEventListener("keydown", (event) => {
         if(event.key === "Enter") confirmEditJob();
     });
 
 
-    window.addEventListener("keydown", (event) => {
+window.addEventListener("keydown", (event) => {
         if(event.key === "Escape" && document.activeElement.tagName !== "INPUT" && document.activeElement.tagName !== "TEXTAREA"){
             event.preventDefault();
             timerDpEl.style.display="none";
                 showTimerEl.style.display="flex";
     }})
- window.addEventListener("keydown", (event) => {
+window.addEventListener("keydown", (event) => {
    const pressedkey = event.key.toLowerCase();
      if((event.ctrlKey ||event.metaKey )&& pressedkey==="m"){
         
         event.preventDefault();
         gMapsBtnEl.click();
 
-}});
-    window.addEventListener("keydown", (event)=> {
+    }});
+window.addEventListener("keydown", (event)=> {
         const pressedkey = event.key.toLowerCase();
         if((event.ctrlKey ||event.metaKey )&& pressedkey==="d"){
             event.preventDefault();
-            deleteUserEl.style.display="block";
+            editUserform.style.display="block";
             downloadBtnEl.style.display="block";
 
         }
     });
-    //Ctrl + M directly opens existing Maps 
+addJobBtnEl.addEventListener("click", async () => {
+    window.focus();
+    
+    try {
+        // Fetch data completely in-memory first
+        const clipboardText = await navigator.clipboard.readText();
+        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        let currentUrl = tab?.url;
 
-    // 5. STATUS UPDATE
-    function updateStatus(event){
+        // Open the form container to paint the UI
+        openJobForm(); 
+
+        // Update the form link input field
+        jobLinkEl.value = currentUrl || "";
+
+
+
+        // Only populate the job ID input if the clipboard originally had valid numeric data
+        if (clipboardText) {
+            const cleanJobId = clipboardText.replace(/[^0-9]/g, "");
+            jobIdInputEl.value = cleanJobId;
+            
+            // Explicitly hand focus back to the input so it's ready for typing
+            jobIdInputEl.focus();
+        }
+    } catch (err) {
+        console.error("Extension Clipboard Engine Failed:", err);
+        openJobForm(); // Fallback to ensure form opens even if clipboard fails
+    }});
+
+window.addEventListener("DOMContentLoaded",  () =>{
+
+        if(!TrackerState.user){
+            userFormEl.showModal();
+            return;
+        }});
+
+
+
+//10. UI
+function updateStatus(event){
         const jobId = event.target.dataset.id;
         const newStatus = event.target.value;
         for(let i = 0; i < TrackerState.jobs.length; i++){
             if(jobId === TrackerState.jobs[i].id){
                 TrackerState.jobs[i].status = newStatus;
-                TrackerState.syncStorage();
+                Storage.save();
                 updateStatusColor(event.target);    
                 return;
-            }
-        }  
-        
-    }
+            }}};
 
-function resetRejectionFormState() {
-    // Return form panels back to standard default visibility settings
-    dialogSatusEl.style.display = "block";
-    pointsContainer.style.display = "block";
-    dialogRejectCatEl.style.display = 'none';
-    
-    // Clear field entries
-    jobIdInputEl.value = "";
-    dialogRejectCatEl.value = "";
-}
-
-
-
-
-
-
-    //5.1 STATUS UPDATE COLOR
-    function updateStatusColor(selectEl){
+function updateStatusColor(selectEl){
         {selectEl.className = "status-select " + selectEl.value.toLowerCase();}
     }
 
+function highlightDuplicates(){
+    const allIdCells = historyBodyEl.querySelectorAll(".cell-id");
+    const seen = {};
 
+    // First pass — count occurrences
+    allIdCells.forEach(cell => {
+        const id = cell.textContent.trim();
+        seen[id] = (seen[id] || 0) + 1;
+    });
 
-    // 6. RENDER
-   function renderUI(){
+    // Second pass — apply class to duplicates
+    allIdCells.forEach(cell => {
+        const id = cell.textContent.trim();
+        if(seen[id] > 1){
+            cell.classList.add("duplicate-id");
+        } else {
+            cell.classList.remove("duplicate-id");
+        }
+    })};
+ function updateTotalPoints(){
+     totalPointsEl.textContent="Total Points:"+TrackerState.summateTotalPoints();
+    };
 
+function renderUI(){
 
     historyBodyEl.innerHTML = "";
         for(let i = 0; i < TrackerState.jobs.length; i++){
@@ -633,49 +858,18 @@ function resetRejectionFormState() {
             anchor.textContent = "Link";
             tr.querySelector(".cell-link").appendChild(anchor);
 
-
-
-
     const select = tr.querySelector(".status-select");
     select.addEventListener("change", updateStatus);
 
-    
-    
-            historyBodyEl.appendChild(tr);
-        
-            updateStatusColor(select);
-            
-            
-
-            
-            
-        }
-        function highlightDuplicates(){
-    const allIdCells = historyBodyEl.querySelectorAll(".cell-id");
-    const seen = {};
-
-    // First pass — count occurrences
-    allIdCells.forEach(cell => {
-        const id = cell.textContent.trim();
-        seen[id] = (seen[id] || 0) + 1;
-    });
-
-    // Second pass — apply class to duplicates
-    allIdCells.forEach(cell => {
-        const id = cell.textContent.trim();
-        if(seen[id] > 1){
-            cell.classList.add("duplicate-id");
-        } else {
-            cell.classList.remove("duplicate-id");
-        }
-    });
-}
+    historyBodyEl.appendChild(tr);
+    updateStatusColor(select);}
 
         updateTotalPoints();
-        highlightDuplicates();
-        }
+        highlightDuplicates();}
 
-    // 7. EXPORT
+        
+
+// 11. EXPORT
     function exportToCSV(){
         const headers = ["Link", "Job ID", "Points", "Status", "Time Taken", "Date"];
         const rows = TrackerState.jobs.map(j => [j.link, j.jobId, j.points, j.status, formatTime(j.timeElapsed), j.date]);
@@ -689,200 +883,65 @@ function resetRejectionFormState() {
         URL.revokeObjectURL(url);
     }
 
-
-
-    // 8. COPY
- // 8. COPY
-    function compileTscPayload(shiftScheduleArray, dateHandlerCb){
-        const liveOvertimeValue = parseFloat(overtimeInputEl.value)||0;
-
-        // Keep index 0 matching your standard output formatting logic requirements
-        const eotMarker = liveOvertimeValue > 0 ? "YES":"NO";
-        return shiftScheduleArray.map((slot,index) =>   {
-        const rowDate=dateHandlerCb ? dateHandlerCb(slot.start): new Date().toLocaleDateString();
-        
-        const baseColumns = [
-            TrackerState.user.techNo,
-            TrackerState.user.userName,
-            TrackerState.user.userShift,
-            rowDate,
-            slot.start,
-            slot.end,
-            slot.duration,
-            slot.task,
-            slot.cat
-        ];
-
-        const eotField = index === 0 ? eotMarker : "NO";
-        baseColumns.push(eotField);
-
-        return baseColumns.join("\t");
-    }).join("\n"); 
-    };
-
-    function copyToClipboard(){
-        const rows = TrackerState.jobs.map(j => 
-            [j.jobId, ,j.points, j.status].join("\t")
-        );
-        navigator.clipboard.writeText(rows.join("\n"));
-        alert("Copied to clipboard — paste directly into sheets.");
-        
-    }
-    function copyTSC(){
-        if(!TrackerState.user)return;
-        let pastePayLoad="";        
-        const liveOvertimeValue = parseFloat(overtimeInputEl.value)||0;
-
-        if(TrackerState.user.userShift=="Day"){
-            const shiftSchedule=[
-                { start: "13:45:00", end: "15:30:00", duration: "1:45:00", task: "TWISTER", cat: "Hipster" },
-                { start: "13:30:00", end: "13:45:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
-                { start: "12:00:00", end: "13:30:00", duration: "1:30:00", task: "TWISTER", cat: "Hipster" },
-                { start: "11:00:00", end: "12:00:00", duration: "1:00:00", task: "BREAK",   cat: "BREAK" },
-                { start: "09:15:00", end: "11:00:00", duration: "1:45:00", task: "TWISTER", cat: "Hipster" },
-                { start: "09:00:00", end: "09:15:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
-                { start: "06:30:00", end: "09:00:00", duration: "2:30:00", task: "TWISTER", cat: "Hipster" }
-            ];
-
-            if (liveOvertimeValue > 0) {
-                const hours = Math.floor(liveOvertimeValue);
-                const minutes = Math.floor((liveOvertimeValue % 1) * 60);
-                
-                // Formats the duration explicitly to match your time taken column structure
-                const durationStr = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:00`;
-
-                const calculatedEndHour = 15 + hours;
-                const calculatedEndMin = 30 + minutes;
-                const endStr = `${calculatedEndHour.toString().padStart(2, "0")}:${calculatedEndMin.toString().padStart(2, "0")}:00`;
-
-                shiftSchedule.unshift({
-                    start: "15:30:00", 
-                    end: endStr, 
-                    duration: durationStr, 
-                    task: "TWISTER", 
-                    cat: "Hipster"
-                });
-            }
-
-            pastePayLoad = compileTscPayload(shiftSchedule);
-            navigator.clipboard.writeText(pastePayLoad);
-            alert("Copied to clipboard — paste directly into sheets.");
-        }
-        else {
-            const baseDate =new Date();
-            const nextdate = new Date(baseDate);
-            nextdate.setDate(baseDate.getDate()+1);
-
-            const day1str= baseDate.toLocaleDateString();
-            const day2str= nextdate.toLocaleDateString();
-
-            const shiftSchedule = [
-                { start: "03:30:00", end: "06:00:00", duration: "2:30:00", task: "TWISTER", cat: "Hipster" },
-                { start: "03:15:00", end: "03:30:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
-                { start: "02:00:00", end: "03:15:00", duration: "1:15:00", task: "TWISTER", cat: "Hipster" },
-                { start: "01:00:00", end: "02:00:00", duration: "1:00:00", task: "BREAK",   cat: "BREAK" }, 
-                { start: "23:45:00", end: "01:00:00", duration: "1:15:00", task: "TWISTER", cat: "Hipster" },
-                { start: "23:30:00", end: "23:45:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
-                { start: "21:00:00", end: "23:30:00", duration: "2:30:00", task: "TWISTER", cat: "Hipster" }
-            ];
-
-            pastePayLoad = compileTscPayload(shiftSchedule, (startHourStr) => {
-                const startHour = parseInt(startHourStr.split(":")[0],10);
-                return (startHour == 0 || startHour<12) ? day2str:day1str;
-            });
-            navigator.clipboard.writeText(pastePayLoad);
-            alert("Copied to clipboard — paste directly into sheets.");
-        }
-         window.open(
-    'https://eagleviewcloud-my.sharepoint.com/:x:/r/personal/reynier_simagala_mnl_eagleview_com/_layouts/15/Doc.aspx?sourcedoc=%7B4F1BE068-E7DD-4B38-8E15-81F7AC22E13C%7D&file=Tsc%20Team%20142.xlsx&openShare=true&fromShare=true&action=default&mobileredirect=true', 'popupWindow', 'width=800,height=600,scrollbars=yes')
-    
-    }
-    function deleteAllTable(){
-    TrackerState.clearAllJobs();
-    renderUI();
-    };
-
-    function deleteUser(){
-    TrackerState.clearUser();
-    renderUI();
-    window.location.reload();
-    };  
-
-    function toggleTimer(){
-    if(TrackerState.isRunning){
-
-        pauseTimer();
-    }
-    else{
-
-        playTimer();
-    }
-    }
-
-
-    // 8. STORAGE
-
-// --- 1. RICH TEXT CLIPBOARD UTILITY ---
-// This function handles the complex HTML data formatting Teams looks for
-async function writeRichLinkToClipboard(url) {
-    if (!url || !url.startsWith('http')) return;
+//12.GMAPS
+async function openGMaps() {
     try {
-        const htmlString = `<a href="${url}">${url}</a>`;
-        const textBlob = new Blob([url], { type: "text/plain" });
-        const htmlBlob = new Blob([htmlString], { type: "text/html" });
+        const rawClipboard = await navigator.clipboard.readText();
+        const cleanData = rawClipboard.trim();
+        
+        if (!cleanData) {
+            alert("Clipboard context is empty.");
+            return;
+        }
 
-        await navigator.clipboard.write([
-            new ClipboardItem({
-                "text/plain": textBlob,
-                "text/html": htmlBlob
-            })
-        ]);
-        console.log("Teams-compatible link copied to clipboard automatically!");
+        const sanitizedComponent = encodeURIComponent(cleanData);
+        const targetUrl = `https://www.google.com/maps/place/${sanitizedComponent}`;
+        
+        // 1. Search all open tabs in the browser for our specific target URL pattern
+        const queryOptions = { url: "https://www.google.com/maps/*" };
+        const existingTabs = await chrome.tabs.query(queryOptions);
+
+        if (existingTabs.length > 0) {
+            // 2. Found an existing Maps tab! Target the first one available
+            const targetTab = existingTabs[0];
+
+            // 3. Update its destination URL and pull it into immediate focus context
+            await chrome.tabs.update(targetTab.id, { url: targetUrl, active: true });
+            
+            // 4. Ensure the parent window containing this tab is also focused
+            await chrome.windows.update(targetTab.windowId, { focused: true });
+        } else {
+            // 5. No active Google Maps tab found anywhere. Spawn a clean one
+            const newTab = await chrome.tabs.create({ url: targetUrl, active: true });
+        }
+        TrackerState.isWindowOpen = true;
+        
     } catch (err) {
-        console.error("Failed to automatically write rich text link:", err);
+        console.error("Extension Chrome Tabs API Fault:", err);
+    }};
+
+//VerifyLink
+function isValidWebUrl(string) {
+    try {
+        const url = new URL(string);
+        // Explicitly check for standard secure web protocols
+        return url.protocol === "https:" || url.protocol === "http:";
+    } catch (_) {
+        return false; // Throws an error internally if the string is invalid or malformed
     }
 }
-
-// --- 2. STORAGE & CORE ACTION ---
-addJobBtnEl.addEventListener("click", async () => {
-    window.focus();
-    
-    try {
-        // Fetch data completely in-memory first
-        const clipboardText = await navigator.clipboard.readText();
-        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        let currentUrl = tab?.url;
-
-        // Open the form container to paint the UI
-        openJobForm(); 
-
-        // Update the form link input field
-        jobLinkEl.value = currentUrl || "";
-
-
-
-        // Only populate the job ID input if the clipboard originally had valid numeric data
-        if (clipboardText) {
-            const cleanJobId = clipboardText.replace(/[^0-9]/g, "");
-            jobIdInputEl.value = cleanJobId;
-            
-            // Explicitly hand focus back to the input so it's ready for typing
-            jobIdInputEl.focus();
-        }
-    } catch (err) {
-        console.error("Extension Clipboard Engine Failed:", err);
-        openJobForm(); // Fallback to ensure form opens even if clipboard fails
-    }
-});
-
-// --- 3. INIT & APP STARTUP ---
+   
+// INIT & APP STARTUP
+function INIT(){
 showTimerEl.style.display = "none";
+TrackerState.user=savedData.user;
+TrackerState.jobs=savedData.jobs;
+console.log(TrackerState.user);
 pauseTimer();
 renderUI();
-
-// Primary application startup focus
 jobIdInputEl.focus();
-
+}
+INIT();
 
 
 

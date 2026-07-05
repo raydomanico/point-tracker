@@ -32,7 +32,7 @@
     <button id="copy-overtime-btn" class="copy-btn">Copy TSC 📋</button>
     <button id="close-overtime-btn" class="copy-btn">Cancel</button>
 </dialog>
-<button id="delete-user" class="delete-all-btn">Delete User Account</button>
+<button id="edit-user" class="delete-all-btn">Edit User Account</button>
 </div>
 
     <div id="input-container">
@@ -117,9 +117,11 @@
       <dialog id="user-form">
         <h3>Account Information</h3>
         <div id="dialog-pts-btn">
-         <input id="tech-no" type="number" placeholder="Tech Number"> 
+         <input id="tech-no" placeholder="Tech Number"> 
          <input id="user-name" placeholder="User Name">
-        <select id="user-shift">
+         <input id="tsc-link" placeholder="Team TSC Link (Optional)"> 
+         <input id="pointsheet-link" placeholder="Point Tracker Sheet Link (Optional)">
+         <select id="user-shift">
             <option value="Day">Day Shift</option>
             <option value="Night">Night Shift</option>
         </select>
@@ -127,6 +129,25 @@
         <div id="dialog-btns">
             <button id="confirm-user-btn" class="confirm-job-btn">Confirm</button>
             <button id="cancel-user-btn" class="cancel-job-btn">Cancel</button>
+            <button id="delete-user-btn" class="cancel-job-btn">Delete</button>
+        </div>
+    </dialog>
+    <dialog id="edit-user-form">
+        <h3>Account Information</h3>
+        <div id="dialog-pts-btn">
+         <input id="e-tech-no" placeholder="Tech Number"> 
+         <input id="e-username" placeholder="User Name">
+         <input id="e-tsc-link" placeholder="Team TSC Link (Optional)"> 
+         <input id="e-pointsheet-link" placeholder="Point Tracker Sheet Link (Optional)">
+         <select id="e-user-shift">
+            <option value="Day">Day Shift</option>
+            <option value="Night">Night Shift</option>
+        </select>
+    </div>
+        <div id="dialog-btns">
+            <button id="e-confirm-user-btn" class="confirm-job-btn">Confirm</button>
+            <button id="e-cancel-user-btn" class="cancel-job-btn">Cancel</button>
+            <button id="e-delete-user-btn" class="cancel-job-btn">Delete</button>
         </div>
     </dialog>
 
@@ -158,6 +179,7 @@
     </div>
 
 </div>
+<h1 id="transaction-notification"></h1>
 <p id="app-version">v1.0.0</p>
 </body>
 </html>

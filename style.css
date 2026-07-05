@@ -235,6 +235,7 @@ h1 {
 
 /* Dialog */
 dialog {
+  
     background: var(--surface);
     color: var(--text);
     border: 1px solid var(--border);
@@ -245,38 +246,53 @@ dialog {
     margin: auto;
     flex-direction: column;
     overflow-x: scroll;
+    
  
 }
 
-dialog::backdrop {
-    background: rgba(0,0,0,0.6);
+dialog[open] {
+    display: flex;
+    flex-direction: column;
+    gap: 16px; /* Strict vertical spacing for internal fields */
 }
+
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(2px); /* Optional: Modern sleek glass overlay */
+};
 
 dialog h3 {
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 700;
+    margin: 0;
 }
 
-dialog input, dialog select {
+/* 2. Strict Input Layout Fixes */
+dialog input, 
+dialog select {
     background: var(--surface-2);
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 10px 12px;
+    padding: 12px;
     color: var(--text);
     font-size: 0.9rem;
     outline: none;
-    width: 100%;
-    margin: .5rem;
+    width: 100%;            /* Fills container safely */
+    box-sizing: border-box; /* Crucial: includes padding inside the 100% width calculation */
+    margin: 0;              /* Removes default or chaotic browser margins */
 }
 
-dialog input:focus {
+dialog input:focus,
+dialog select:focus {
     border-color: var(--orange);
 }
 
-#dialog-btns , #dialog-pts-btn{
+/* 3. Button Layout Wrappers */
+#dialog-btns, 
+#dialog-pts-btn {
     display: flex;
     gap: 8px;
-
+    width: 100%;
 }
 .point-btn{
     height: 2.3rem;
@@ -498,4 +514,42 @@ color: var(--green);
 .duplicate-id {
     animation: pulse-red 3s infinite;
     font-weight: 700;
+}
+#user-form {
+    flex-direction: column;  /* Stacks immediate children vertically */
+    gap: 16px;              /* Standardized spacing between inputs */
+    width: 100%;            /* Fills parent container safely */
+    border: 2px solid var(--border);
+    border-radius: 0.75rem;
+    padding: 16px;          /* Increased padding for comfortable interior breathing room */
+    color: var(--green);
+}
+
+/* Ensure all immediate children take up full horizontal space */
+#edit-user-form > * {
+    width: 100%;
+    display: block;         /* Normalizes inline labels to prevent horizontal layout collisions */
+    
+}
+/* Ensure all immediate children take up full horizontal space */
+#user-form > * {./build-ex
+    width: 100%;
+    display: block;         /* Normalizes inline labels to prevent horizontal layout collisions */
+    
+}
+/* Production-grade styling for the inputs inside this specific form */
+#edit-user-form input, #user-form select{
+    box-sizing: border-box; /* Includes padding within the width calculation */
+    width: 100%;
+    padding: 12px;
+    margin-top: 12px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: inherit;
+    outline: none;
+}
+#edit-user{
+    display:none;
 }
