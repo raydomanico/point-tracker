@@ -187,9 +187,6 @@ h1 {
     font-weight: 600;
     cursor: pointer;
 }
-#delete-user{
-    display:none;
-}
 
 /* Table */
 #history-table {
@@ -380,7 +377,7 @@ dialog select:focus {
 
 }
 .btn-download {
-    display: blocknone;
+    display: none;
     align-items: center;
     justify-content: center;
     background-color: #48d18e; /* Accent green matching your timer startup color */
@@ -532,7 +529,7 @@ color: var(--green);
     
 }
 /* Ensure all immediate children take up full horizontal space */
-#user-form > * {./build-ex
+#user-form > * {
     width: 100%;
     display: block;         /* Normalizes inline labels to prevent horizontal layout collisions */
     

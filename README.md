@@ -20,7 +20,10 @@ Built for EagleView roof measurement tracking.
 
 - Enter — submit job ID
 - Click timer — pause/resume(Availabe on WebSite Only)
+  -Ctrl + D to display hidden Download Button and Edit/Delete User Info Button
 - Ctrl + M - directly opens Google Maps with copied Address
+- CTrl + Shift + Enter on extension to directly open Reject Form
+  -Ctrl + Shift + P to change all status to Passed for fater Editing
 
 ## Data storage
 
@@ -29,11 +32,13 @@ No data is sent to any server.
 
 ## Features
 
-- ⏱️ Auto-running timer that resets after each job entry
-- 📋 Paste Job ID to log work quickly
-- 📊 Work history table with status tracking (Open, Passed, Rework)
-- 💾 Persistent data via localStorage
-- 📤 Export to CSV or copy tab-separated for Google Sheets
+🗺️ Google Maps — Ctrl+M opens the address from your clipboard directly in Maps
+📸 Reject flow — Captures a screenshot of the job and copies it with the rejection reason ready to paste in Teams Shortcut:(Ctrl+Shift+Enter)
+📋 One-click job logging — copies your Job ID from clipboard automatically when you click Add or Enter.
+⏱️ Auto Timer — starts automatically and resets after every job so you can track how long each roof takes(Can be viewed on Export CSV File)
+📊 Work history table — logs every job with points, status, time taken, and date(Can be viewed on Export CSV File)
+✅ Status tracking — mark jobs as Open, Passed, or Rework directly from the table. Shortcut(Ctrl+Shift+P) will change all status to Passed
+📤 Export & Copy — paste your Updated Auto-Genrated TSC and Point History directly into Google Sheets with one click
 
 ## Built With
 

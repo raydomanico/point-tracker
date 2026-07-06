@@ -11,26 +11,26 @@
 // 5. CLIPBOARD & SCREENSHOT PIPELINES
 // 6. OVERTIME AUTOMATION
 // 7. USER INITIALIZATION & SESSIONS
-// 8. EVENT LISTENERS
-// 9. UI RENDERING & DOM MUTATIONS
-// 10. CSV EXPORT ENGINE
-// 11. GOOGLE MAPS INTEGRATION
-// 12. INITIALIZATION BOOTSTRAP
+// 8. HISTORY TABLE
+// 9. EVENT LISTENERS
+// 10. UI RENDERING & DOM MUTATIONS
+// 11. CSV EXPORT ENGINE
+// 12. GOOGLE MAPS INTEGRATION
+// 13. INITIALIZATION BOOTSTRAP
 
  const CONFIG = {
     version: "1.0.0",
     validJobIdRegex: /^\d{8,9}$/,
     dayShiftSchedule:[
-                { start: "03:30:00", end: "06:00:00", duration: "2:30:00", task: "TWISTER", cat: "Hipster" },
-                { start: "03:15:00", end: "03:30:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
-                { start: "02:00:00", end: "03:15:00", duration: "1:15:00", task: "TWISTER", cat: "Hipster" },
-                { start: "01:00:00", end: "02:00:00", duration: "1:00:00", task: "BREAK",   cat: "BREAK" }, 
-                { start: "23:45:00", end: "01:00:00", duration: "1:15:00", task: "TWISTER", cat: "Hipster" },
-                { start: "23:30:00", end: "23:45:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
-                { start: "21:00:00", end: "23:30:00", duration: "2:30:00", task: "TWISTER", cat: "Hipster" }
-            ],
-
-    nightShiftSchedule: [
+  { start: "13:45:00", end: "15:30:00", duration: "1:45:00", task: "TWISTER", cat: "Hipster" },
+  { start: "13:30:00", end: "13:45:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
+  { start: "12:00:00", end: "13:30:00", duration: "1:30:00", task: "TWISTER", cat: "Hipster" },
+  { start: "11:00:00", end: "12:00:00", duration: "1:00:00", task: "BREAK",   cat: "BREAK" }, 
+  { start: "09:15:00", end: "11:00:00", duration: "1:45:00", task: "TWISTER", cat: "Hipster" },
+  { start: "09:00:00", end: "09:15:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
+  { start: "06:30:00", end: "09:00:00", duration: "2:30:00", task: "TWISTER", cat: "Hipster" }
+],
+nightShiftSchedule: [
                 { start: "03:30:00", end: "06:00:00", duration: "2:30:00", task: "TWISTER", cat: "Hipster" },
                 { start: "03:15:00", end: "03:30:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
                 { start: "02:00:00", end: "03:15:00", duration: "1:15:00", task: "TWISTER", cat: "Hipster" },
@@ -68,7 +68,7 @@
     const eTechNoEl = document.getElementById("e-tech-no")
     const eTscLinkInputEl= document.getElementById("e-tsc-link");
     const eUserNameEl = document.getElementById("e-username")
-     const eUserShiftEl = document.getElementById("user-shift");
+     const eUserShiftEl = document.getElementById("e-user-shift");
     const ePointsheetLinkInputEl= document.getElementById("e-pointsheet-link");
 
 
@@ -258,6 +258,7 @@ function openJobForm(){
 
 function closeJobForm(){
         jobFormEl.close();
+        jobIdInputEl.value = "";
         jobLinkEl.value = "";
         jobPointsEl.value = "";
         jobStatusEl.value = "Open";
@@ -301,6 +302,7 @@ if(isNaN(parsedPoints)||parsedPoints<=0){
     startTimer();   
     timerDpEl.style.color = "#ff9f43";
     jobIdInputEl.focus();
+    TrackerState.isReject = false;
     }
     else{
     // 1. Target the exact values present in the form fields right now
@@ -325,6 +327,7 @@ if(isNaN(parsedPoints)||parsedPoints<=0){
     // 5. Clean up form interfaces and reset UI state cleanly
     closeJobForm(); 
     resetRejectionFormState();
+    TrackerState.isReject = false;
     window.location.href = "msteams://teams.microsoft.com/l/launch";
 
 
@@ -385,6 +388,7 @@ function deleteJob(event){
     }
 function closeEditJobForm(){
         eJobFormEl.close();
+       
     }
 
 //4. REJECT JOB
@@ -452,21 +456,24 @@ async function captureActiveTabAndTextToClipboard(plainTextPayload, htmlPayload)
     }
 }
     function copyToClipboard(){
+        const pointLink=TrackerState.user?.pointsheetLink;
         const rows = TrackerState.jobs.map(j => 
             [j.jobId, ,j.points, j.status].join("\t")
         );
         navigator.clipboard.writeText(rows.join("\n"));
-        alert("Copied to clipboard — paste directly into sheets.");
+        console.log(pointLink)
+if (pointLink) {
+    window.open(pointLink, 'popupWindow', 'width=800,height=600,scrollbars=yes');
+    }};
         
-    }
     function copyTSC(){
         if(!TrackerState.user)return;
         let pastePayLoad="";        
         const liveOvertimeValue = parseFloat(overtimeInputEl.value)||0;
-const tscLink = TrackerState.user?.tscLink; 
+        const tscLink = TrackerState.user?.tscLink; 
 
-        if(TrackerState.user.userShift=="Day"){
-            const shiftSchedule=CONFIG.dayShiftSchedule;
+        if(TrackerState.user?.userShift=="Day"){
+            const shiftSchedule=[...CONFIG.dayShiftSchedule];
 
             if (liveOvertimeValue > 0) {
                 const hours = Math.floor(liveOvertimeValue);
@@ -490,7 +497,6 @@ const tscLink = TrackerState.user?.tscLink;
 
             pastePayLoad = compileTscPayload(shiftSchedule);
             navigator.clipboard.writeText(pastePayLoad);
-            alert("Copied to clipboard — paste directly into sheets.");
         }
         else {
             const baseDate =new Date();
@@ -600,7 +606,7 @@ if (!username||(Number.isNaN(techno)))return null;
 
 function confirmAddUser(){
  const createdUser=getNewUserInfo();
- if(!createdUser.userName)return;
+ if(!createdUser)return;
   if(isNaN(createdUser.techNo))return;
 isValidWebUrl(createdUser.tscLink);
 isValidWebUrl(createdUser.pointsheetLink);
@@ -609,7 +615,6 @@ alert("User Added Succesfully");
         Storage.save();
         closeUserForm();
         renderUI();
-       
 
     };
 
@@ -700,7 +705,9 @@ jobIdInputEl.addEventListener("keydown", (event) => {
      
         if(event.key === "Enter") {
            event.preventDefault();
-        addJobBtnEl.click();}
+           openJobForm();
+        addJobBtnEl.click();
+    }
 
         });
 eJobFormEl.addEventListener("keydown", (event) => {
@@ -713,7 +720,7 @@ window.addEventListener("keydown", (event) => {
             event.preventDefault();
             timerDpEl.style.display="none";
                 showTimerEl.style.display="flex";
-    }})
+    }});
 window.addEventListener("keydown", (event) => {
    const pressedkey = event.key.toLowerCase();
      if((event.ctrlKey ||event.metaKey )&& pressedkey==="m"){
@@ -731,18 +738,44 @@ window.addEventListener("keydown", (event)=> {
 
         }
     });
+window.addEventListener("keydown", (event)=> {
+if (event.key.toLowerCase() !== "p") return;
+
+if((event.ctrlKey||event.metaKey)&&event.shiftKey){
+    event.preventDefault();
+    
+    if(TrackerState.jobs.length===0)return;
+
+    TrackerState.jobs=TrackerState.jobs.map(job =>(
+        {...job,
+            status:"Passed"
+        }
+    ))
+}
+Storage.save();
+renderUI();
+   });
+ 
+window.addEventListener("keydown", (event)=> {
+    
+    const pressedkey = event.key.toLowerCase();
+if((event.ctrlKey||event.metaKey) && event.shiftKey && event.key=="Enter"){
+event.preventDefault();
+rejectJobForm();
+
+
+
+}});
+
 addJobBtnEl.addEventListener("click", async () => {
-    window.focus();
+    
     
     try {
+        
         // Fetch data completely in-memory first
         const clipboardText = await navigator.clipboard.readText();
         let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
         let currentUrl = tab?.url;
-
-        // Open the form container to paint the UI
-        openJobForm(); 
-
         // Update the form link input field
         jobLinkEl.value = currentUrl || "";
 
@@ -752,7 +785,7 @@ addJobBtnEl.addEventListener("click", async () => {
         if (clipboardText) {
             const cleanJobId = clipboardText.replace(/[^0-9]/g, "");
             jobIdInputEl.value = cleanJobId;
-            
+            openJobForm();
             // Explicitly hand focus back to the input so it's ready for typing
             jobIdInputEl.focus();
         }
@@ -936,7 +969,6 @@ function INIT(){
 showTimerEl.style.display = "none";
 TrackerState.user=savedData.user;
 TrackerState.jobs=savedData.jobs;
-console.log(TrackerState.user);
 pauseTimer();
 renderUI();
 jobIdInputEl.focus();
