@@ -104,6 +104,7 @@ nightShiftSchedule: [
     document.getElementById("close-overtime-btn").addEventListener("click", closeCopyOvertime);
     document.getElementById("reject-job-btn").addEventListener("click", rejectJobForm);
     document.getElementById("gMaps-btn").addEventListener("click", openGMaps);
+    document.getElementById("cExplorer-btn").addEventListener("click", searchAddressOnEagleView);
 
 
     document.getElementById("confirm-user-btn").addEventListener("click", confirmAddUser);
@@ -448,8 +449,6 @@ async function captureActiveTabAndTextToClipboard(plainTextPayload, htmlPayload)
             })
         ]);
 
-        alert("Copied! Enable rich text in Teams (click A icon) then paste.");
-
     } catch (err) {
         console.error("Clipboard Pipeline Fault:", err.message);
         alert("Clipboard update failed: " + err.message);
@@ -611,7 +610,7 @@ function confirmAddUser(){
 isValidWebUrl(createdUser.tscLink);
 isValidWebUrl(createdUser.pointsheetLink);
  TrackerState.user=createdUser;
-alert("User Added Succesfully");
+
         Storage.save();
         closeUserForm();
         renderUI();
@@ -917,6 +916,53 @@ function renderUI(){
     }
 
 //12.GMAPS
+async function searchAddressOnEagleView() {
+    try {
+        // 1. Gather and clean your payload first
+        const rawClipboard = await navigator.clipboard.readText();
+        const cleanedAddress = rawClipboard.trim();
+        if (!cleanedAddress) return;
+
+        // 2. Query active windows for the target tab context
+        let tabs = await chrome.tabs.query({ url: "*://explorer.eagleview.com/*", active: true, currentWindow: true });
+
+        // Fallback to all windows if active view isn't matching
+        if (tabs.length === 0) {
+            tabs = await chrome.tabs.query({ url: "*://explorer.eagleview.com/*" });
+        }
+
+        if (tabs.length === 0) {
+            console.warn("Please log into EagleView first.");
+            return;
+        }
+
+        const targetTabId = tabs[0].id;
+
+        // 3. Inject programmatic execution payload directly
+        chrome.scripting.executeScript({
+            target: { tabId: targetTabId },
+            func: (address) => {
+                const searchToolButton = document.querySelector(".search-tool-icon") || document.querySelector("[title*='Search']");
+                if (searchToolButton) searchToolButton.click();
+
+                setTimeout(() => {
+                    const addressInput = document.querySelector("input[type='search']") || document.querySelector(".search-box input");
+                    const submitButton = document.querySelector(".search-submit-btn") || document.querySelector(".search-box button");
+
+                    if (addressInput && submitButton) {
+                        addressInput.value = address;
+                        addressInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        submitButton.click();
+                    }
+                }, 300);
+            },
+            args: [cleanedAddress]
+        });
+    } catch (err) {
+        console.error("Failed to read clipboard or inject script:", err);
+    }
+}
+
 async function openGMaps() {
     try {
         const rawClipboard = await navigator.clipboard.readText();

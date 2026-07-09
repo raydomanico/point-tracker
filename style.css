@@ -550,3 +550,6 @@ color: var(--green);
 #edit-user{
     display:none;
 }
+#create,#app-version{
+    color: var(--text-muted);
+}
