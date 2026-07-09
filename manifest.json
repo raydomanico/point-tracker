@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Roof Task & Time Tracker",
+  "name": "MeasureFlow™",
   "version": "1.0.0",
   "description": "Productivity Tool to boost workflows: Automating reports, generating TSC and manually tracking job's points, time taken to complete and it's status. Helping Workers to focus on more complex and revenue-generating tasks ",
   "permissions": [
@@ -15,7 +15,7 @@
     "default_popup": "index.html",
     "default_icon": "icon.png"
   },
-  "host_permissions": [
-    "<all_urls>"
-  ]
+"host_permissions": [
+  "https://explorer-internal.eagleview.com/*"
+]
 }

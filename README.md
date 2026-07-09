@@ -11,6 +11,7 @@ Built for EagleView roof measurement tracking.
 
 1. Copy a Job ID from EagleView
 2. Click Add or just press Enter — it auto-fills from clipboard
+   (Use Ctr + Shift. + Enter to directly open the reject job form)
 3. Fill in points and status
 4. Click Confirm — timer resets automatically.
    Click Reject - this will auto-generate your report for you to paste in MS Teams.
@@ -22,6 +23,7 @@ Built for EagleView roof measurement tracking.
 - Click timer — pause/resume(Availabe on WebSite Only)
   -Ctrl + D to display hidden Download Button and Edit/Delete User Info Button
 - Ctrl + M - directly opens Google Maps with copied Address
+- Ctrl + K - directly opens Connect Explorer with copied Address
 - CTrl + Shift + Enter on extension to directly open Reject Form
   -Ctrl + Shift + P to change all status to Passed for fater Editing
 
@@ -33,6 +35,7 @@ No data is sent to any server.
 ## Features
 
 🗺️ Google Maps — Ctrl+M opens the address from your clipboard directly in Maps
+🗺️ Connect Explorer Maps — Ctrl + K opens the address from your clipboard directly in Connect Explorer
 📸 Reject flow — Captures a screenshot of the job and copies it with the rejection reason ready to paste in Teams Shortcut:(Ctrl+Shift+Enter)
 📋 One-click job logging — copies your Job ID from clipboard automatically when you click Add or Enter.
 ⏱️ Auto Timer — starts automatically and resets after every job so you can track how long each roof takes(Can be viewed on Export CSV File)

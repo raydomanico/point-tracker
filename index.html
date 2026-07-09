@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Roof Tracker - Productivity tool</title>
+    <title>MeasureFlow - "Faster measurement workflows"</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="script.js" defer></script>
@@ -9,6 +9,15 @@
 </head>
 <body>
 <div id="page_container">
+    <p id="about-page" data-tooltip="About Page">ⓘ</p>
+
+<dialog id="about-modal">
+  <h3>About MeasureFlow</h3>
+  <p>MeasureFlow brings clarity to complex workflows with precision tools </p>
+    <p>Helping Workers to focus on more complex and revenue-generating tasks by Automating reports, generating TSC and a Manual tracker for job's points, status and time taken to measure.</p>
+  <button id="close-modal">Close</button>
+</dialog>
+
 <a href="roof-tracker-extension.zip" rel="noopener noreferrer"download="roof-tracker-extension-v1.0.0.zip" class="btn-download" id="download-btn">
     Download Browser Extension
 </a>
@@ -16,15 +25,15 @@
 
     <div id="timer-container">
    <h1 id="timer-dp">Start</h1>
-   <h1 class="web-title">TEAM-142 </h1>
+   <h1 class="web-title" src="icon.png">TEAM-142 </h1>
    <h1 id="show-timer">Show Timer ⏱️</h1>
     </div>
 
 <div id="shortcut-header">
-<button id="copy-tsc-btn" class="copy-btn">Copy TSC 📋</button>
-<button id="overtime-btn" class="overtime-btn">Overtime?</button>
 <button id="gMaps-btn" class="sitemap-btn">Open GMaps</button>
 <button id="cExplorer-btn" class="sitemap-btn">Open CExplorer</button>
+<button id="copy-tsc-btn" class="copy-btn">Copy TSC</button>
+<button id="overtime-btn" class="overtime-btn">Overtime?</button>
 <dialog id="overtime-form">
     <input id="overtime-input" type="number" placeholder="Input EOT Hours(e.g .5,1,2.5)">
 <label for="lunch-ot-input">
@@ -39,7 +48,7 @@
     <div id="input-container">
         <fieldset class="dialog-id">
             <legend>Job ID</legend>
-        <input id="job-id-input" inputmode="numeric" placeholder="Press 'Enter' or Click 'Add' " >
+        <input id="job-id-input" inputmode="numeric" placeholder="Press 'Enter' or Click 'Add' " readonly>
         
         </fieldset><button id="add-job-btn">Add</button>
     </div>
@@ -76,12 +85,14 @@
          <select id="reject-job-category">
             <option value="">None</option>
             <option value="Imagery Issues: ">Imagery Issues</option>
+            <option value="Imagery Issues: No Top Views">Imagery Issue No Top View</option>
             <option value="Imagery Issues: Outdated Views">Imagery Issue Outdated Views</option>
             <option value="Commercial Structure">Commercial Structure</option>
             <option value="Poor Imagery: Tree Coverage">Poor Imagery: Tree Coverage</option>
             <option value="Other: 50+ Facets">Other</option>
             <option value="Steep Pitch">Steep Pitch</option>
             <option value="Complex Measurement: ">Complex Measurement</option>
+            <option value="Complex Measurement: Connected Cone">Complex Measurement Connected Cone</option>
             <option value="Complex Measurement: Less Than 15 Degrees">Complex Measurement 15 Deg</option>
             <option value="Complex Measurement: Multi-Directional Layout">Complex Measurement Multi Directional</option>
             <option value="Imagery Misaligned">Imagery Misaligned</option>
@@ -183,7 +194,7 @@
 </div>
 <h1 id="transaction-notification"></h1>
 
-<p id="create">2026 RoofTracker&trade;</p>
+<p id="create">2026 MeasureFlow&trade;</p>
 <p id="app-version">v1.0.0</p>
 </body>
 </html>
