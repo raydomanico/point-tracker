@@ -16,7 +16,8 @@
         // 10. UI RENDERING & DOM MUTATIONS
         // 11. CSV EXPORT ENGINE
         // 12. MAPS INTEGRATION
-        // 13. INITIALIZATION BOOTSTRAP
+        // 13. CLOSING TABS
+        // 14. INITIALIZATION BOOTSTRAP
 
         const CONFIG = {
             version: "1.0.0",
@@ -62,6 +63,7 @@
             const tscLinkInputEl= document.getElementById("tsc-link");
             const pointsheetLinkInputEl= document.getElementById("pointsheet-link");
          const searchWebBtnEl= document.getElementById("searchWeb-btn");
+         const closeTabsBtnEl= document.getElementById("closeTabs-btn");
         
 
 
@@ -113,6 +115,7 @@
             document.getElementById("e-delete-user-btn").addEventListener("click", deleteUser);
             document.getElementById("e-cancel-user-btn").addEventListener("click", closeEditUserForm);
             document.getElementById("searchWeb-btn").addEventListener("click", searchWeb);
+            document.getElementById("closeTabs-btn").addEventListener("click", closeTabs);
 
 
         //About page
@@ -756,7 +759,14 @@
 
                 event.preventDefault();
                 cExplorerBtnEl.click();
-                console.log("succes ")
+
+            }});
+              window.addEventListener("keydown", (event) => {
+        const pressedkey = event.key.toLowerCase();
+            if((event.ctrlKey ||event.metaKey )&& event.shiftKey && pressedkey=="x"){
+
+                event.preventDefault();
+                closeTabsBtnEl.click();
 
             }});
         window.addEventListener("keydown", (event)=> {
@@ -1150,7 +1160,24 @@ observer.observe(document.body, { childList: true, subtree: true });
                 return false; // Throws an error internally if the string is invalid or malformed
             }
         }
+        //13. CLOSING TABS
+    async function closeTabs(){
+
+ const queryUrl = "https://apps.eagleview.com/measurementUi*"
+
+        const existingTabs = await chrome.tabs.query({url:queryUrl});
+
+      if(existingTabs.length > 0){
+        const [activeTab] = await chrome.tabs.query({active:true, currentWindow:true});
+        const tabsToClose = existingTabs.filter(t => t.id !==activeTab.id);
         
+        const TabIds = tabsToClose.map(t => t.id);
+
+        await chrome.tabs.remove(TabIds)
+      }
+
+    }
+
         // INIT & APP STARTUP
         function INIT(){
         showTimerEl.style.display = "none";

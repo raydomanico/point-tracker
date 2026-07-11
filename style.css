@@ -1,7 +1,7 @@
 :root {
     /* Main Accent Vibrancy (BetterBugs Signature Neon Mint) */
     --green: #00E699;         /* High-visibility active state green */
-    --orange: #2EB6FF;        /* Replaced warm orange with the clean electric cyan accent */
+    --blue: #2EB6FF;        /* Replaced warm blue with the clean electric cyan accent */
     --red: #FF4D6D;           /* Crisp, high-contrast ruby red for errors/rejections */
     
     /* Layered Canvas Depth Architecture */
@@ -79,7 +79,7 @@ h1 {
 #timer-dp {
     font-size: 6rem;
     font-weight: 700;
-    color: var(--orange);
+    color: var(--blue);
     letter-spacing: 4px;
     display: flex;
     justify-content: center;
@@ -147,7 +147,7 @@ h1 {
 }
 
 .copy-btn {
-    background: var(--orange);
+    background: var(--blue);
     color: var(--surface-2);
     border: none;
     border-radius: 8px;
@@ -216,7 +216,7 @@ h1 {
 }
 
 #history-table a {
-    color: var(--orange);
+    color: var(--blue);
     text-decoration: none;
 }
 
@@ -281,7 +281,7 @@ dialog select {
 
 dialog input:focus,
 dialog select:focus {
-    border-color: var(--orange);
+    border-color: var(--blue);
 }
 
 /* 3. Button Layout Wrappers */
@@ -308,7 +308,7 @@ dialog select:focus {
 
 /* Active state when a button is selected */
 .point-btn.active {
-  background-color: var(--orange); /* Bright blue highlight */
+  background-color: var(--blue); /* Bright blue highlight */
   color: #ffffff;
   border-color: #0056b3;
 }
@@ -340,7 +340,7 @@ dialog select:focus {
     flex: 3;
     overflow: scroll;
     width: 100%;
-    background: var(--orange);
+    background: var(--blue);
     color: #fff;
     border: none;
     border-radius: 8px;
@@ -373,7 +373,7 @@ dialog select:focus {
     #show-timer{
     border-radius: 8px;
     background: var(--surface);
-    color:var(--orange)
+    color:var(--blue)
 
 }
 .btn-download {
@@ -434,7 +434,7 @@ dialog select:focus {
 
 /* --- Edit Button Variation --- */
 #history-body .edit-btn {
-    background-color: rgba(255, 159, 67, 0.15); /* Light orange tint */
+    background-color: rgba(255, 159, 67, 0.15); /* Light blue tint */
     color: #ff9f43;
     border: 1px solid rgba(255, 159, 67, 0.3);
 }
@@ -446,7 +446,7 @@ dialog select:focus {
 
 /* --- Delete Button Variation --- */
 #history-body .delete-btn {
-    background-color: rgba(238, 90, 36, 0.15); /* Light red/orange tint */
+    background-color: rgba(238, 90, 36, 0.15); /* Light red/blue tint */
     color: #ee5a24;
     border: 1px solid rgba(238, 90, 36, 0.3);
 }
@@ -480,7 +480,7 @@ color: var(--green);}
      border-color: #48d18e;
   border-radius: .75rem;
   padding: 1px 10px;
-color: var(--orange)}
+color: var(--blue)}
 
 .dialog-id{
   border: 2px solid var(--border);
@@ -492,7 +492,7 @@ color: var(--green);
 }
 .dialog-id:has(#job-id-input:focus) {
   border: 2px solid var(--border);
-  border-color: var(--orange);
+  border-color: var(--blue);
   border-radius: .75rem;
   padding: 1px 10px;
 color: var(--green);
@@ -503,7 +503,7 @@ color: var(--green);
 
 /*Duplicate Job ID */
 @keyframes pulse-red {
-    0%   { color: var(--orange); }
+    0%   { color: var(--blue); }
     50%  { color: #fc5151; }
     100% { color: var(--red); }
 }
@@ -558,23 +558,57 @@ color: var(--green);
    background-color: var(--text-muted);
 
 }
-#shortcut-header{
-display: flex;
-gap: 1rem;
-margin-right: 1rem;
+#shortcut-header {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 3 columns */
+  grid-template-rows: repeat(2, auto);   /* 2 rows */
+  gap: 12px;                             /* spacing between buttons */
+  justify-items: stretch;                /* buttons fill their grid cell */
+  margin: 1rem 0;
 }
+
+#shortcut-header button {
+    max-width: 190px;
+  padding: 12px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Special style for Search Web button */
+#closeTabs-btn {
+  background: var(--red);   /* your neon red variable */
+  color: #fff;              /* white text for contrast */
+}
+
+
 #gMaps-btn{
     color: var(--surface)
 }
+#searchWeb-btn{
+    background-color: var(--blue);
+    color: var(--surface);
+}
 #about-page {
-    font-size: 1.2rem;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: color 0.2s ease;
+  display: flex;              /* allows centering */
+  align-items: center;        /* vertical center */
+  justify-content: center;    /* horizontal center */
+  width: 40px;                /* same size as other buttons */
+  height: 40px;
+  border-radius: 50%;         /* makes it circular */
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
 }
 
+/* Hover effect */
 #about-page:hover {
-    color: var(--orange)
+  background: var(--orange);
+  color: #fff;
+  transform: scale(1.1);x;
 }
 
 dialog {
@@ -607,4 +641,58 @@ border: 1px solid transparent;
 button:hover{
 outline: 1px solid var(--text);
 
+}
+#top-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* Shared style for top buttons */
+.top-btn,#about-page {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+/* Hover effect */
+.top-btn:hover,#about-page:hover {
+  background: var(--blue);
+  color: #fff;
+  transform: scale(1.1);
+}
+
+/* Tooltip styling */
+.top-btn::after,
+#about-page::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: -32px;
+  left: 150%;
+  transform: translateX(-50%);
+  background: var(--surface);
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  border: 1px solid var(--border);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Show tooltip on hover */
+.top-btn:hover::after,
+#about-page:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(4px);
 }

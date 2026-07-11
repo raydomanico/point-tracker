@@ -9,7 +9,12 @@
 </head>
 <body>
 <div id="page_container">
-    <p id="about-page" data-tooltip="About Page">ⓘ</p>
+<div id="top-actions">
+  <p id="about-page" data-tooltip="About Page">ⓘ</p>
+  <button id="copy-tsc-btn" class="top-btn" data-tooltip="Copy TSC 📋">📋</button>
+  <button id="overtime-btn" class="top-btn" data-tooltip="Add Overtime Hours ⏱️"> ⏱️</button>
+</div>
+
 
 <dialog id="about-modal">
   <h3>About MeasureFlow</h3>
@@ -18,14 +23,12 @@
     <p>Shortcuts:</p>
 <p>Ctrl/⌘ + J → Search Web</p>
 <p>Ctrl/⌘ + M → Open Google Maps</p>
-
 <p>Ctrl/⌘ + K → Open ConnectExplorer</p>
-
 <p>Ctrl/⌘ + D → Show Edit User + Download </p>
-
 <p>Ctrl/⌘ + Shift + P → Mark All Jobs Passed (sets every job’s status to "Passed")</p>
-
 <p>Ctrl/⌘ + Shift + Enter → Open Reject Job Form Directly</p>
+<p>Ctrl/⌘ + Shift + X → Close All Measuring Tabs except for active one</p>
+
 
   <button id="close-modal">Close</button>
 </dialog>
@@ -47,8 +50,7 @@
 <button id="gMaps-btn" class="sitemap-btn">Open GMaps</button>
 <button id="cExplorer-btn" class="sitemap-btn">Open CExplorer</button>
 <button id="searchWeb-btn" class="sitemap-btn">Search Web</button>
-<button id="copy-tsc-btn" class="copy-btn">Copy TSC</button>
-<button id="overtime-btn" class="overtime-btn">Overtime?</button>
+<button id="closeTabs-btn" class="sitemap-btn">Close Tabs</button>
 <dialog id="overtime-form">
     <input id="overtime-input" type="number" placeholder="Input EOT Hours(e.g .5,1,2.5)">
 <label for="lunch-ot-input">
