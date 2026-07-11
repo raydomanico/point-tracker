@@ -16,6 +16,11 @@
     "default_icon": "icon.png"
   },
 "host_permissions": [
+  "https://www.google.com/maps/*",
   "https://explorer-internal.eagleview.com/*"
+
 ]
+
+
+
 }
