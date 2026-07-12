@@ -644,39 +644,42 @@ outline: 1px solid var(--text);
 }
 #top-actions {
   display: flex;
+  justify-content: center;   /* center group horizontally */
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 16px;
+  margin: 1rem 0;
 }
 
-/* Shared style for top buttons */
-.top-btn,#about-page {
-  background: var(--surface-2);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 50%;
+/* Shared style for all top buttons */
+.top-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 40px;
   height: 40px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--text);
   font-size: 1.2rem;
   cursor: pointer;
   position: relative;
-  transition: transform 0.2s ease, background 0.2s ease;
+  border: 1px solid var(--border);
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
 
 /* Hover effect */
-.top-btn:hover,#about-page:hover {
-  background: var(--blue);
+.top-btn:hover {
+  background: var(--orange);
   color: #fff;
   transform: scale(1.1);
 }
 
 /* Tooltip styling */
-.top-btn::after,
-#about-page::after {
+.top-btn::after {
   content: attr(data-tooltip);
   position: absolute;
   bottom: -32px;
-  left: 150%;
+  left: 50%;
   transform: translateX(-50%);
   background: var(--surface);
   color: var(--text);
@@ -691,8 +694,7 @@ outline: 1px solid var(--text);
 }
 
 /* Show tooltip on hover */
-.top-btn:hover::after,
-#about-page:hover::after {
+.top-btn:hover::after {
   opacity: 1;
   transform: translateX(-50%) translateY(4px);
 }
