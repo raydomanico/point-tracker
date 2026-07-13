@@ -64,6 +64,7 @@
             const pointsheetLinkInputEl= document.getElementById("pointsheet-link");
          const searchWebBtnEl= document.getElementById("searchWeb-btn");
          const closeTabsBtnEl= document.getElementById("closeTabs-btn");
+         const workedLunchEl = document.getElementById("lunch-ot-input");
         
 
 
@@ -530,32 +531,52 @@
         if (tscLink) {
             window.open(tscLink, 'popupWindow', 'width=800,height=600,scrollbars=yes');
             }}
-        function compileTscPayload(shiftScheduleArray, dateHandlerCb){
-                const liveOvertimeValue = parseFloat(overtimeInputEl.value)||0;
+     function compileTscPayload(shiftScheduleArray, dateHandlerCb) {
+    const liveOvertimeValue = parseFloat(overtimeInputEl.value) || 0;
+    const workedLunchChecked = workedLunchEl.checked; // ✅ use the correct element
 
-                // Keep index 0 matching your standard output formatting logic requirements
-                const eotMarker = liveOvertimeValue > 0 ? "YES":"NO";
-                return shiftScheduleArray.map((slot,index) =>   {
-                const rowDate=dateHandlerCb ? dateHandlerCb(slot.start): new Date().toLocaleDateString();
-                
-                const baseColumns = [
-                    TrackerState.user.techNo,
-                    TrackerState.user.userName,
-                    TrackerState.user.userShift,
-                    rowDate,
-                    slot.start,
-                    slot.end,
-                    slot.duration,
-                    slot.task,
-                    slot.cat
-                ];
+    // Precompute the second break slot
+    const breakSlots = shiftScheduleArray.filter(s => s.task === "BREAK");
+    const secondBreak = breakSlots[1]; // index 1 = second break
 
-                const eotField = index === 0 ? eotMarker : "NO";
-                baseColumns.push(eotField);
+    return shiftScheduleArray.map((slot, index) => {
+        const rowDate = dateHandlerCb ? dateHandlerCb(slot.start) : new Date().toLocaleDateString();
 
-                return baseColumns.join("\t");
-            }).join("\n"); 
-            };
+        const baseColumns = [
+            TrackerState.user.techNo,
+            TrackerState.user.userName,
+            TrackerState.user.userShift,
+            rowDate,
+            slot.start,
+            slot.end,
+            slot.duration,
+            slot.task,
+            slot.cat
+        ];
+
+        let eotField = "NO";
+
+        // Rule 1: Overtime input → first row gets YES
+        if (index === 0 && liveOvertimeValue > 0) {
+            eotField = "YES";
+        }
+
+        // Rule 2: Worked Lunch checkbox → second break slot gets YES
+        if (
+            workedLunchChecked &&
+            secondBreak &&
+            slot.start === secondBreak.start &&
+            slot.end === secondBreak.end
+        ) {
+            eotField = "YES";
+        }
+
+        baseColumns.push(eotField);
+        return baseColumns.join("\t");
+    }).join("\n");
+}
+
+
         async function writeRichLinkToClipboard(url) {
             if (!url || !url.startsWith('http')) return;
             try {
