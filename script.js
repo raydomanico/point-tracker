@@ -1,25 +1,4 @@
-        //CONFIG
-
-        // TABLE OF CONTENTS
-        // CONFIGURATION & DOM ELEMENTS
-        // TRACKER STATE MANAGEMENT
-        // STORAGE ENGINE
-        // 1. TIMER FUNCTIONS
-        // 2. JOB FORM ACTIONS & VALIDATION
-        // 3. UPDATE & DELETE JOB UTILITIES
-        // 4. REJECT JOB PIPELINE
-        // 5. CLIPBOARD & SCREENSHOT PIPELINES
-        // 6. OVERTIME AUTOMATION
-        // 7. USER INITIALIZATION & SESSIONS
-        // 8. HISTORY TABLE
-        // 9. EVENT LISTENERS
-        // 10. UI RENDERING & DOM MUTATIONS
-        // 11. CSV EXPORT ENGINE
-        // 12. MAPS INTEGRATION
-        // 13. CLOSING TABS
-        // 14. INITIALIZATION BOOTSTRAP
-
-        const CONFIG = {
+const CONFIG = {
             version: "1.0.0",
             validJobIdRegex: /^\d{8,9}$/,
             dayShiftSchedule:[
@@ -40,6 +19,25 @@
                         { start: "23:30:00", end: "23:45:00", duration: "0:15:00", task: "BREAK",   cat: "BREAK" },
                         { start : "21:00:00", end: "23:30:00", duration: "2:30:00", task: "TWISTER", cat: "Hipster" }
                     ]};
+        // TABLE OF CONTENTS
+        // CONFIGURATION & DOM ELEMENTS
+        // TRACKER STATE MANAGEMENT
+        // STORAGE ENGINE
+        // 1. TIMER FUNCTIONS
+        // 2. JOB FORM ACTIONS & VALIDATION
+        // 3. UPDATE & DELETE JOB UTILITIES
+        // 4. REJECT JOB PIPELINE
+        // 5. CLIPBOARD & SCREENSHOT PIPELINES
+        // 6. OVERTIME AUTOMATION
+        // 7. USER INITIALIZATION & SESSIONS
+        // 8. HISTORY TABLE
+        // 9. EVENT LISTENERS
+        // 10. UI RENDERING & DOM MUTATIONS
+        // 11. CSV EXPORT ENGINE
+        // 12. MAPS INTEGRATION
+        // 13. CLOSING TABS
+        // 14. INITIALIZATION BOOTSTRAP
+
 
         //DOMS
             const timerDpEl = document.getElementById("timer-dp");
@@ -65,6 +63,7 @@
          const searchWebBtnEl= document.getElementById("searchWeb-btn");
          const closeTabsBtnEl= document.getElementById("closeTabs-btn");
          const workedLunchEl = document.getElementById("lunch-ot-input");
+         const estPphDpEl = document.getElementById("est-pph-dp");
         
 
 
@@ -117,7 +116,8 @@
             document.getElementById("e-cancel-user-btn").addEventListener("click", closeEditUserForm);
             document.getElementById("searchWeb-btn").addEventListener("click", searchWeb);
             document.getElementById("closeTabs-btn").addEventListener("click", closeTabs);
-
+document.getElementById("shift-toggle-btn").addEventListener("click", toggleShift);
+  
 
         //About page
         const aboutIcon = document.getElementById("about-page");
@@ -132,7 +132,6 @@
             showTimerEl.addEventListener("click", showTimer);
 
                     const screenWidth = screen.availWidth;
-                    const screenHeight = screen.availHeight;
                     const windowWidth = Math.round(screen.availWidth/3);
                     const windowHeight = Math.round(screen.availHeight/1.5);
         //TRACKERSTATE
@@ -150,6 +149,8 @@
                 isReject:false,
                 isWindowOpen:false,
                 myTab:null,
+                shiftStart: null,
+
 
         
             summateTotalPoints(totalSum){
@@ -182,7 +183,8 @@
                     points: parseFloat(jobPointsEl.value),
                     status: jobStatusEl.value,
                     timeElapsed: TrackerState.currentTime / 1000,
-                    date: new Date().toLocaleDateString()
+                    date: new Date().toLocaleDateString(),
+    
                 };
 
                 return newJob;
@@ -213,6 +215,8 @@
             },
         }
         const savedData=Storage.load();
+
+
 
         // 1. TIMER FUNCTIONS
         function startTimer(){
@@ -317,6 +321,7 @@
             timerDpEl.style.color = "#ff9f43";
             jobIdInputEl.focus();
             TrackerState.isReject = false;
+
             }
             else{
             // 1. Target the exact values present in the form fields right now
@@ -864,7 +869,7 @@
 
 
 
-        //10. UI
+        //10. UI()
         function updateStatus(event){
                 const jobId = event.target.dataset.id;
                 const newStatus = event.target.value;
@@ -959,7 +964,9 @@
             updateStatusColor(select);}
 
                 updateTotalPoints();
-                highlightDuplicates();}
+                highlightDuplicates();
+            estPphDpEl.textContent = computePPH();
+}
 
                 
 
@@ -1112,64 +1119,71 @@ await  chrome.windows.update(targetTab.windowId,{focused:true})
         }
         }
 
+async function openGMaps() {
+    try {
+        const rawClipboard = await navigator.clipboard.readText();
+        const cleanData = rawClipboard.trim();
 
+        if (!cleanData) {
+            alert("Clipboard context is empty.");
+            return;
+        }
 
-        async function openGMaps() {
-            try {
-                const rawClipboard = await navigator.clipboard.readText();
-                const cleanData = rawClipboard.trim();
-                
-                if (!cleanData) {
-                    alert("Clipboard context is empty.");
-                    return;
-                }
+        const sanitizedComponent = encodeURIComponent(cleanData);
+        const targetUrl = `https://www.google.com/maps/place/${sanitizedComponent}`;
 
-                const sanitizedComponent = encodeURIComponent(cleanData);
-                const targetUrl = `https://www.google.com/maps/place/${sanitizedComponent}`;
-                
-                // 1. Search all open tabs in the browser for our specific target URL pattern
-                const queryOptions = { url: "https://www.google.com/maps/*" };
-                const existingTabs = await chrome.tabs.query(queryOptions);
+        // 1. Find existing Google Maps tabs
+        const existingTabs = await chrome.tabs.query({ url: "https://www.google.com/maps/*" });
+        const exactMatchTabs = await chrome.tabs.query({ url: targetUrl });
 
-                if (existingTabs.length > 0) {
-                    // 2. Found an existing Maps tab! Target the first one available
-                    const targetTab = existingTabs[0];
+        // 2. If an exact match already exists → activate it
+        if (exactMatchTabs.length > 0) {
+            const tab = exactMatchTabs[0];
+            await chrome.tabs.update(tab.id, { active: true });
+            await chrome.windows.update(tab.windowId, { focused: true });
+            return;
+        }
 
-                    // 3. Update its destination URL and pull it into immediate focus context
-                    await chrome.tabs.update(targetTab.id, { url: targetUrl, active: true });
-                    
-                    // 4. Ensure the parent window containing this tab is also focused
-                    await chrome.windows.update(targetTab.windowId, { focused: true });
-                } else {
+        // 3. If a Maps tab exists → reuse it
+        if (existingTabs.length > 0) {
+            const tab = existingTabs[0];
+            await chrome.tabs.update(tab.id, { url: targetUrl, active: true });
+            await chrome.windows.update(tab.windowId, { focused: true });
+            return;
+        }
 
+        // 4. Otherwise → open a new popup window
         await chrome.windows.create({
             url: targetUrl,
             type: "popup",
-                left: screenWidth - windowWidth,
-                top: windowWidth-Math.floor(windowWidth/2),
-                width: windowWidth,
-                height: windowHeight
+            left: screenWidth - windowWidth,
+            top: windowWidth - Math.floor(windowWidth / 2),
+            width: windowWidth,
+            height: windowHeight
         });
 
-                }
-                TrackerState.isWindowOpen = true;
-      const observer = new MutationObserver(() => {
-  const btn = document.querySelector("img[src*='thumbnail?panoid']")?.closest("button");
-  if (btn) {
-    btn.click();
-    console.log("Street View opened");
-    observer.disconnect();
-  }
-});
+        TrackerState.isWindowOpen = true;
 
-observer.observe(document.body, { childList: true, subtree: true });
+        // 5. Auto-open Street View when thumbnail loads
+        const observer = new MutationObserver(() => {
+            const btn = document
+                .querySelector("img[src*='thumbnail?panoid']")
+                ?.closest("button");
 
+            if (btn) {
+                btn.click();
+                console.log("Street View opened");
+                observer.disconnect();
+            }
+        });
 
+        observer.observe(document.body, { childList: true, subtree: true });
 
-                
-            } catch (err) {
-                console.error("Extension Chrome Tabs API Fault:", err);
-            }};
+    } catch (err) {
+        console.error("Extension Chrome Tabs API Fault:", err);
+    }
+}
+
 
         //VerifyLink
         function isValidWebUrl(string) {
@@ -1199,15 +1213,78 @@ observer.observe(document.body, { childList: true, subtree: true });
 
     }
 
+    //14. Start and End Shift
+    function toggleShift() {
+    const btn = document.getElementById("shift-toggle-btn");
+
+    // If shift is NOT running → start it
+    if (!TrackerState.shiftStart) {
+        const now = Date.now();
+
+        TrackerState.shiftStart = now;
+        localStorage.setItem("shiftStart", now);
+
+        btn.classList.add("active");
+        btn.textContent = "Shift Running";
+
+        alert("Shift started");
+        renderUI();
+        return;
+    }
+
+    // If shift IS running → end it
+    const shiftDurationMs = Date.now() - TrackerState.shiftStart;
+    const hoursWorked = shiftDurationMs / 1000 / 3600;
+
+    TrackerState.shiftStart = null;
+    localStorage.removeItem("shiftStart");
+
+    btn.classList.remove("active");
+    btn.textContent = "Start Shift";
+
+    alert(`Shift ended. Hours worked: ${hoursWorked.toFixed(2)}`);
+    renderUI();
+}
+
+function computePPH() {
+    if (!TrackerState.shiftStart) return "0.00";
+
+    const hoursWorked = (Date.now() - TrackerState.shiftStart) / 1000 / 3600;
+
+    // Prevent insane PPH at shift start
+    if (hoursWorked < (1 / 60)) { // less than 1 minute
+        return "0.00";
+    }
+    if (hoursWorked < (1 / 60)) {
+    return "—";
+}
+
+
+    return (TrackerState.totalPoints / hoursWorked).toFixed(2);
+}
+
+
+
+
         // INIT & APP STARTUP
-        function INIT(){
-        showTimerEl.style.display = "none";
-        TrackerState.user=savedData.user;
-        TrackerState.jobs=savedData.jobs;
-        pauseTimer();
-        renderUI(); 
-        jobIdInputEl.focus();
-        }
+    function INIT(){
+   TrackerState.shiftStart = parseInt(localStorage.getItem("shiftStart")) || null;
+
+   const btn = document.getElementById("shift-toggle-btn");
+   if (TrackerState.shiftStart) {
+       btn.classList.add("active");
+       btn.textContent = "Shift Running";
+   }
+
+   showTimerEl.style.display = "none";
+   TrackerState.user=savedData.user;
+   TrackerState.jobs=savedData.jobs;
+   pauseTimer();
+   renderUI(); 
+   jobIdInputEl.focus();
+}
+INIT();
+
         INIT();
 
 

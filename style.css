@@ -744,3 +744,17 @@ outline: 1px solid var(--text);
 #lunch-ot-input:hover {
   border-color: var(--blue);
 }
+.shift-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    background: #444;
+    color: white;
+    font-weight: bold;
+    transition: 0.3s ease;
+    border: none;
+}
+
+.shift-btn.active {
+    background: #48d18e;
+    box-shadow: 0 0 15px #48d18e;
+}
