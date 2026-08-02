@@ -530,7 +530,8 @@ function copyTSC() {
         const baseDate = new Date();
         const nextdate = new Date(baseDate);
 
-        nextdate.setDate(baseDate.getDate() - 1);
+        baseDate.setDate(baseDate.getDate() - 1);
+
 
         const day1str = baseDate.toLocaleDateString();
         const day2str = nextdate.toLocaleDateString();
