@@ -326,10 +326,6 @@ async function confirmJob() {
         Storage.save();
         renderUI();
 
-        // Update MPF display
-        const avgMPF = computeMPF();
-        document.getElementById("transaction-notification").textContent =
-            "Average Minutes Per File: " + avgMPF;
 
         // Reset marker for next job
         lastConfirmTime = Date.now();
