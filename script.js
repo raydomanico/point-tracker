@@ -484,7 +484,7 @@ function copyTSC() {
         alert("Copied to clipboard — paste directly into sheets.");
     }
     if (tscLink) {
-        window.open(tscLink, 'popupWindow', 'width=800,height=600,scrollbars=yes');
+        window.open(tscLink, 'popupWindow', 'width=1920,height=1080,scrollbars=yes');
     }
 }
 function compileTscPayload(shiftScheduleArray, dateHandlerCb) {
@@ -927,8 +927,8 @@ function renderUI() {
 
 // 11. EXPORT
 function exportToCSV() {
-    const headers = ["Link", "Job ID", "Points", "Status", "Time Taken", "Date"];
-    const rows = TrackerState.jobs.map(j => [j.link, j.jobId, j.points, j.status, formatTime(j.timeElapsed), j.date]);
+    const headers = ["Link", "Job ID", "Points", "Status", "Date"];
+    const rows = TrackerState.jobs.map(j => [j.link, j.jobId, j.points, j.status, j.date]);
     const csv = [headers, ...rows].map(row => row.join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
