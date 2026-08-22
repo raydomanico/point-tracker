@@ -39,12 +39,7 @@ body {
 @media screen and (max-width: 500px) {
     .cell-link, 
     .cell-date,
-    .cell-time-taken,
-    #timer-dp,
-    #show-timer{
-        display: none !important;
-    }
-    
+
     table {
         width: 100%;
         table-layout: fixed;
@@ -76,16 +71,6 @@ h1 {
 
 }
 
-#timer-dp {
-    font-size: 6rem;
-    font-weight: 700;
-    color: var(--blue);
-    letter-spacing: 4px;
-    display: flex;
-    justify-content: center;
-    margin: 3rem;
-
-}
 
 #input-container {
     display: flex;
@@ -370,17 +355,12 @@ dialog select:focus {
     background: var(--red);
     color: #fff;
 }
-    #show-timer{
-    border-radius: 8px;
-    background: var(--surface);
-    color:var(--blue)
 
-}
 .btn-download {
     display: none;
     align-items: center;
     justify-content: center;
-    background-color: #48d18e; /* Accent green matching your timer startup color */
+    background-color: #48d18e; 
     color: #ffffff;
     padding: 12px 24px;
     font-weight: 600;
@@ -757,12 +737,6 @@ outline: 1px solid var(--text);
 .shift-btn.active {
     background: #48d18e;
     box-shadow: 0 0 15px #48d18e;
-}
-#timer-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
 }
 
 .metric-block {
