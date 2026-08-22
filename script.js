@@ -24,7 +24,6 @@ const CONFIG = {
 // CONFIGURATION & DOM ELEMENTS
 // TRACKER STATE MANAGEMENT
 // STORAGE ENGINE
-// 1. TIMER FUNCTIONS
 // 2. JOB FORM ACTIONS & VALIDATION
 // 3. UPDATE & DELETE JOB UTILITIES
 // 4. REJECT JOB PIPELINE
@@ -41,7 +40,7 @@ const CONFIG = {
 
 
 //DOMS
-const timerDpEl = document.getElementById("timer-dp");
+
 const jobIdInputEl = document.getElementById("job-id-input");
 const jobFormEl = document.getElementById("job-form");
 const eJobFormEl = document.getElementById("edit-job-form");
@@ -86,9 +85,7 @@ const jobLinkEl = document.getElementById("job-link");
 const jobPointsEl = document.getElementById("job-points");
 const jobStatusEl = document.getElementById("job-status");
 const historyBodyEl = document.getElementById("history-body");
-const timerProgressEl = document.getElementById("timer-progress");
 const totalPointsEl = document.getElementById("total-points");
-const showTimerEl = document.getElementById("show-timer");
 const editUserform = document.getElementById("edit-user");
 const downloadBtnEl = document.getElementById("download-btn");
 const closeOvertimeBtnEl = document.getElementById("close-overtime-btn");
@@ -106,7 +103,7 @@ document.getElementById("edit-user").addEventListener("click", openEditUserForm)
 document.getElementById("overtime-btn").addEventListener("click", openOvertimeForm);
 document.getElementById("copy-overtime-btn").addEventListener("click", confirmCopyOvertime);
 document.getElementById("close-overtime-btn").addEventListener("click", closeCopyOvertime);
-document.getElementById("reject-job-btn").addEventListener("click", window.rejectJobForm);
+
 document.getElementById("gMaps-btn").addEventListener("click", openGMaps);
 document.getElementById("cExplorer-btn").addEventListener("click", searchAddressOnEagleView);
 
@@ -129,8 +126,7 @@ const pointsContainer = document.querySelector('#dialog-pts-btn');
 const pointsInput = document.querySelector('#job-points');
 
 //Event Listeners
-timerDpEl.addEventListener("click", toggleTimer);
-showTimerEl.addEventListener("click", showTimer);
+
 
 const screenWidth = screen.availWidth;
 const windowWidth = Math.round(screen.availWidth / 3);
@@ -141,10 +137,7 @@ const TrackerState =
     id: 0,
     user: null,
     jobs: [],
-    timerInterval: null,
-    currentTime: 0,
     totalPoints: 0,
-    startTime: null,
     isRunning: false,
     currentEditId: 0,
     isReject: false,
@@ -217,57 +210,6 @@ const Storage = {
     },
 }
 const savedData = Storage.load();
-
-
-
-// 1. TIMER FUNCTIONS
-function startTimer() {
-    if (TrackerState.timerInterval) {
-        clearInterval(TrackerState.timerInterval);
-    }
-    TrackerState.currentTime = 0;
-    playTimer();
-}
-
-function playTimer() {
-    let totalTime = 0;
-    timerDpEl.style.opacity = "1";
-    TrackerState.startTime = Date.now();
-    TrackerState.isRunning = true;
-    TrackerState.timerInterval = setInterval(() => {
-        const now = Date.now();
-        TrackerState.accumulatedTime = now - TrackerState.startTime;
-        TrackerState.currentTime += TrackerState.accumulatedTime;
-        TrackerState.startTime = now;
-        totalTime = Math.floor(TrackerState.currentTime / 1000);
-        timerDpEl.textContent = formatTime(totalTime);
-    }, 1000);
-}
-function showTimer() {
-    timerDpEl.style.display = "flex";
-    showTimerEl.style.display = "none";
-}
-function formatTime(seconds) {
-
-    let minutes = Math.floor(seconds / 60) % 60;
-    let remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
-}
-function pauseTimer() {
-    TrackerState.isRunning = false;
-    clearInterval(TrackerState.timerInterval);
-    TrackerState.timerInterval = 0;
-    TrackerState.startTime = 0;
-    timerDpEl.style.opacity = "0.4";
-}
-function toggleTimer() {
-    if (TrackerState.isRunning) {
-        pauseTimer();
-    }
-    else {
-        playTimer();
-    }
-};
 
 // 2. JOB FORM
 function openJobForm() {
@@ -356,8 +298,8 @@ async function confirmJob() {
         resetRejectionFormState();
         TrackerState.isReject = false;
         window.location.href = "msteams://teams.microsoft.com/l/launch";
-    }
-}
+    }}
+
 
 // 3. UPDATE/DELETE JOB FORMS
 function confirmEditJob() {
@@ -772,15 +714,6 @@ window.addEventListener("keydown", (event) => {
 
     }
 });
-
-
-window.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && document.activeElement.tagName !== "INPUT" && document.activeElement.tagName !== "TEXTAREA") {
-        event.preventDefault();
-        timerDpEl.style.display = "none";
-        showTimerEl.style.display = "flex";
-    }
-});
 window.addEventListener("keydown", (event) => {
     const pressedkey = event.key.toLowerCase();
     if ((event.ctrlKey || event.metaKey) && pressedkey === "m") {
@@ -883,7 +816,8 @@ window.addEventListener("DOMContentLoaded", () => {
         return;
     }
 });
-
+//Button for Rejected Jobs
+rejectJobBtnEl.addEventListener("click", window.rejectJobForm);
 
 
 //10. UI()
@@ -1301,8 +1235,3 @@ function INIT() {
     jobIdInputEl.focus();
 }
 INIT();
-
-
-
-
-
