@@ -39,7 +39,7 @@ No data is sent to any server.
 📸 Reject flow — Captures a screenshot of the job and copies it with the rejection reason ready to paste in Teams Shortcut:(Ctrl+Shift+Enter)
 📋 One-click job logging — copies your Job ID from clipboard automatically when you click Add or Enter.
 ⏱️ Estimated Points Per Hour - automatically divides your total points to your whole shift rendered.
-📊 Work history table — logs every job with points, status, time taken, and date(Can be viewed on Export CSV File)
+📊 Work history table — logs every job with points, status and date(Can be viewed on Export CSV File)
 ✅ Status tracking — mark jobs as Open, Passed, or Rework directly from the table. Shortcut(Ctrl+Shift+P) will change all status to Passed
 📤 Export & Copy — paste your Updated Auto-Genrated TSC and Point History directly into Google Sheets with one click
 
