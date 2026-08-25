@@ -1,480 +1,499 @@
 :root {
-    /* Main Accent Vibrancy (BetterBugs Signature Neon Mint) */
-    --green: #00E699;         /* High-visibility active state green */
-    --blue: #2EB6FF;        /* Replaced warm blue with the clean electric cyan accent */
-    --red: #FF4D6D;           /* Crisp, high-contrast ruby red for errors/rejections */
-    
-    /* Layered Canvas Depth Architecture */
-    --bg: #0B0F17;            /* Deep obsidian/slate base workspace */
-    --surface: #141B27;       /* Primary UI Card Panels (History, Input Dock) */
-    --surface-2: #1E2635;     /* Dropdowns, Inner Input Fields, Active Buttons */
-    
-    /* Refined Dashboard Typography */
-    --text: #F1F5F9;          /* High contrast clean off-white */
-    --text-muted: #64748B;    /* Neutral steel gray for headers and metadata */
-    
-    /* Structural Framing Borders */
-    --border: #242F41;        /* Low-intensity layout lines to prevent visual noise */
+/* Main Accent Vibrancy (BetterBugs Signature Neon Mint) */
+--green: #00E699;         /* High-visibility active state green */
+--blue: #2EB6FF;        /* Replaced warm blue with the clean electric cyan accent */
+--red: #FF4D6D;           /* Crisp, high-contrast ruby red for errors/rejections */
+
+/* Layered Canvas Depth Architecture */
+--bg: #0B0F17;            /* Deep obsidian/slate base workspace */
+--surface: #141B27;       /* Primary UI Card Panels (History, Input Dock) */
+--surface-2: #1E2635;     /* Dropdowns, Inner Input Fields, Active Buttons */
+
+/* Refined Dashboard Typography */
+--text: #F1F5F9;          /* High contrast clean off-white */
+--text-muted: #64748B;    /* Neutral steel gray for headers and metadata */
+
+/* Structural Framing Borders */
+--border: #242F41;        /* Low-intensity layout lines to prevent visual noise */
 }
 * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+box-sizing: border-box;
+margin: 0;
+padding: 0;
 }
 
 body {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 24px;
-    background: #0F172A;
-    color: #F8FAFC;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    letter-spacing: -0.02em;
-    
+max-width: 960px;
+margin: 0 auto;
+padding: 24px;
+background: #0F172A;
+color: #F8FAFC;
+font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+letter-spacing: -0.02em;
+
 }
 .web-title{
-    display: none;
+display: none;
 }
 /* Triggers automatically when the window width drops below 500px */
 @media screen and (max-width: 500px) {
-    .cell-link, 
-    .cell-date,
-
-    table {
-        width: 100%;
-        table-layout: fixed;
-
+.cell-link, 
+.cell-date{
+        display: none !important;
     }
-    body {
-    width: 450px;
-    max-height: 600px;
-    margin: 0;
-    padding: 10px;
-    overflow-x:scroll;
-    overflow-y: auto;
+    
+
+table {
+width: 100%;
+table-layout: fixed;
+
 }
- .web-title{
-    display: flex;
- }
+body {
+width: 450px;
+max-height: 600px;
+margin: 0;
+padding: 10px;
+overflow-x:scroll;
+overflow-y: auto;
+}
+.web-title{
+display: flex;
+}
 }
 #page_container {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
+display: flex;
+flex-direction: column;
+gap: 24px;
 }
 
 h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    display: flex;
-    justify-content: center;
+font-size: 2rem;
+font-weight: 700;
+display: flex;
+justify-content: center;
 
 }
 
+#timer-dp {
+    font-size: 6rem;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: 4px;
+    display: flex;
+    justify-content: center;
+    margin: 3rem;
+
+}
 
 #input-container {
-    display: flex;
-    gap: 8px;
+display: flex;
+gap: 8px;
 }
 
 #job-id-input {
-    flex: 1;
-    background: var(--surface);
-    border: none;
-    border-radius: 8px;
-    padding: 10px 12px;
-    color: var(--text);
-    font-size: 0.9rem;
-    outline: none;
-    width: 300px;
+flex: 1;
+background: var(--surface);
+border: none;
+border-radius: 8px;
+padding: 10px 12px;
+color: var(--text);
+font-size: 0.9rem;
+outline: none;
+width: 300px;
 }
 
 #add-job-btn {
-    background: var(--green);
-    color: #0f0f0f;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 20px;
-    font-weight: 600;
-    cursor: pointer;
+background: var(--green);
+color: #0f0f0f;
+border: none;
+border-radius: 8px;
+padding: 10px 20px;
+font-weight: 600;
+cursor: pointer;
 }
 
 /* History */
 #history-container {
-    background: var(--surface);
-    border-radius: 12px;
-    padding: 20px;
+background: var(--surface);
+border-radius: 12px;
+padding: 20px;
 }
 
 #history-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
+display: flex;
+align-items: center;
+gap: 12px;
+margin-bottom: 16px;
 }
 
 #history-header h3 {
-    flex: 1;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--text-muted);
+flex: 1;
+font-size: 0.75rem;
+text-transform: uppercase;
+letter-spacing: 2px;
+color: var(--text-muted);
 }
 
 #export-btn {
-    background: var(--surface-2);
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 0.8rem;
-    cursor: pointer;
+background: var(--surface-2);
+color: var(--text);
+border: 1px solid var(--border);
+border-radius: 8px;
+padding: 8px 12px;
+font-size: 0.8rem;
+cursor: pointer;
 }
 
 .copy-btn {
-    background: var(--blue);
-    color: var(--surface-2);
-    border: none;
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
+background: var(--blue);
+color: var(--surface-2);
+border: none;
+border-radius: 8px;
+padding: 8px 12px;
+font-size: 0.8rem;
+font-weight: 600;
+cursor: pointer;
 }
 .overtime-btn {
-    background: var(--red);
-    color: var(--text);
-    border: none;
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
+background: var(--red);
+color: var(--text);
+border: none;
+border-radius: 8px;
+padding: 8px 12px;
+font-size: 0.8rem;
+font-weight: 600;
+cursor: pointer;
 }
 .sitemap-btn {
-    background: var(--green);
-    color: var(--text);
-    border: none;
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
+background: var(--green);
+color: var(--text);
+border: none;
+border-radius: 8px;
+padding: 8px 12px;
+font-size: 0.8rem;
+font-weight: 600;
+cursor: pointer;
 }
 
 .delete-all-btn {
-    background: var(--red);
-    color: var(--text);
-    border: none;
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
+background: var(--red);
+color: var(--text);
+border: none;
+border-radius: 8px;
+padding: 8px 12px;
+font-size: 0.8rem;
+font-weight: 600;
+cursor: pointer;
 }
 
 /* Table */
 #history-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9rem;
+width: 100%;
+border-collapse: collapse;
+font-size: 0.9rem;
 }
 
 #history-table th {
-    text-align: left;
-    padding: 10px 12px;
-    color: var(--text-muted);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border-bottom: 1px solid var(--border);
+text-align: left;
+padding: 10px 12px;
+color: var(--text-muted);
+font-size: 0.75rem;
+text-transform: uppercase;
+letter-spacing: 1px;
+border-bottom: 1px solid var(--border);
 }
 
 #history-table td {
-    padding: 12px;
-    border-bottom: 1px solid var(--border);
-    color: var(--text);
+padding: 12px;
+border-bottom: 1px solid var(--border);
+color: var(--text);
 }
 
 #history-table tr:last-child td {
-    border-bottom: none;
+border-bottom: none;
 }
 
 #history-table a {
-    color: var(--blue);
-    text-decoration: none;
+color: var(--blue);
+text-decoration: none;
 }
 
 .status-select {
-    background: var(--surface-2);
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 4px 8px;
-    font-size: 0.8rem;
-    cursor: pointer;
+background: var(--surface-2);
+color: var(--text);
+border: 1px solid var(--border);
+border-radius: 6px;
+padding: 4px 8px;
+font-size: 0.8rem;
+cursor: pointer;
 }
 
 /* Dialog */
 dialog {
-  
-    background: var(--surface);
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px;
-    width: 90%;
-    max-width: 400px;
-    margin: auto;
-    flex-direction: column;
-    overflow-x: scroll;
-    
- 
+
+background: var(--surface);
+color: var(--text);
+border: 1px solid var(--border);
+border-radius: 12px;
+padding: 24px;
+width: 90%;
+max-width: 400px;
+margin: auto;
+flex-direction: column;
+overflow-x: scroll;
+
+
 }
 
 dialog[open] {
-    display: flex;
-    flex-direction: column;
-    gap: 16px; /* Strict vertical spacing for internal fields */
+display: flex;
+flex-direction: column;
+gap: 16px; /* Strict vertical spacing for internal fields */
 }
 
 dialog::backdrop {
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(2px); /* Optional: Modern sleek glass overlay */
+background: rgba(0, 0, 0, 0.6);
+backdrop-filter: blur(2px); /* Optional: Modern sleek glass overlay */
 };
 
 dialog h3 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin: 0;
+font-size: 1.1rem;
+font-weight: 700;
+margin: 0;
 }
 
 /* 2. Strict Input Layout Fixes */
 dialog input, 
 dialog select {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px;
-    color: var(--text);
-    font-size: 0.9rem;
-    outline: none;
-    width: 100%;            /* Fills container safely */
-    box-sizing: border-box; /* Crucial: includes padding inside the 100% width calculation */
-    margin: 0;              /* Removes default or chaotic browser margins */
+background: var(--surface-2);
+border: 1px solid var(--border);
+border-radius: 8px;
+padding: 12px;
+color: var(--text);
+font-size: 0.9rem;
+outline: none;
+width: 100%;            /* Fills container safely */
+box-sizing: border-box; /* Crucial: includes padding inside the 100% width calculation */
+margin: 0;              /* Removes default or chaotic browser margins */
 }
 
 dialog input:focus,
 dialog select:focus {
-    border-color: var(--blue);
+border-color: var(--blue);
 }
 
 /* 3. Button Layout Wrappers */
 #dialog-btns, 
 #dialog-pts-btn {
-    display: flex;
-    gap: 8px;
-    width: 100%;
+display: flex;
+gap: 8px;
+width: 100%;
 }
 .point-btn{
-    height: 2.3rem;
-    color: #0f0f0f;
-    border: none;
-    gap:1px;
-    border-radius: 8px;
-    padding: 10px;
-    font-weight: 600;
-    margin-top: .5rem;
+height: 2.3rem;
+color: #0f0f0f;
+border: none;
+gap:1px;
+border-radius: 8px;
+padding: 10px;
+font-weight: 600;
+margin-top: .5rem;
 }
 .point-btn:hover {
-  background-color:var(--text-muted);
-  border-color: var(--green);
+background-color:var(--text-muted);
+border-color: var(--green);
 }
 
 /* Active state when a button is selected */
 .point-btn.active {
-  background-color: var(--blue); /* Bright blue highlight */
-  color: #ffffff;
-  border-color: #0056b3;
+background-color: var(--blue); /* Bright blue highlight */
+color: #ffffff;
+border-color: #0056b3;
 }
 
 
 .confirm-job-btn {
-    flex: 1;
-    background: var(--green);
-    color: #0f0f0f;
-    border: none;
-    border-radius: 8px;
-    padding: 10px;
-    font-weight: 600;
-    cursor: pointer;
+flex: 1;
+background: var(--green);
+color: #0f0f0f;
+border: none;
+border-radius: 8px;
+padding: 10px;
+font-weight: 600;
+cursor: pointer;
 }
 
 .cancel-job-btn {
-    flex: 1;
-    background: var(--red);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 10px;
-    font-weight: 600;
-    cursor: pointer;
+flex: 1;
+background: var(--red);
+color: #fff;
+border: none;
+border-radius: 8px;
+padding: 10px;
+font-weight: 600;
+cursor: pointer;
 }
 
 .reject-job-btn {
-    flex: 3;
-    overflow: scroll;
-    width: 100%;
-    background: var(--blue);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 10px;
-    font-weight: 600;
-    cursor: pointer;
+flex: 3;
+overflow: scroll;
+width: 100%;
+background: var(--blue);
+color: #fff;
+border: none;
+border-radius: 8px;
+padding: 10px;
+font-weight: 600;
+cursor: pointer;
 }
 
 /*Status Styles*/
 .status-select.open {
-    background: var(--surface-2);
-    color: var(--text);
+background: var(--surface-2);
+color: var(--text);
 }
 
 .status-select.passed {
-    background: var(--green);
-    color: var(--surface-2);
-  text-shadow: 
-    0 0 5px var(--text),
-    0 0 10px var(--text),
-    0 0 20px #0073e6,
-    0 0 40px #0073e6,
-    0 0 80px #0073e6;
+background: var(--green);
+color: var(--surface-2);
+text-shadow: 
+0 0 5px var(--text),
+0 0 10px var(--text),
+0 0 20px #0073e6,
+0 0 40px #0073e6,
+0 0 80px #0073e6;
 }
 
 .status-select.rework {
-    background: var(--red);
-    color: #fff;
+background: var(--red);
+color: #fff;
 }
+    #show-timer{
+    border-radius: 8px;
+    background: var(--surface);
+    color:var(--blue)
 
+}
 .btn-download {
-    display: none;
-    align-items: center;
-    justify-content: center;
+display: none;
+align-items: center;
+justify-content: center;
+    background-color: #48d18e; /* Accent green matching your timer startup color */
     background-color: #48d18e; 
-    color: #ffffff;
-    padding: 12px 24px;
-    font-weight: 600;
-    text-decoration: none;
-    border-radius: 6px;
-    transition: background-color 0.2s ease, transform 0.1s ease;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+color: #ffffff;
+padding: 12px 24px;
+font-weight: 600;
+text-decoration: none;
+border-radius: 6px;
+transition: background-color 0.2s ease, transform 0.1s ease;
+cursor: pointer;
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
 }
 
 .btn-download:hover {
-    background-color: #3cb879;
+background-color: #3cb879;
 }
 
 .btn-download:active {
-    transform: scale(0.98); /* Tactile click feedback */
+transform: scale(0.98); /* Tactile click feedback */
 }
 /* ==========================================================================
-   HISTORY TABLE ACTION BUTTONS
-   ========================================================================== */
+  HISTORY TABLE ACTION BUTTONS
+  ========================================================================== */
 
 /* Target the container cells to center the buttons vertically and horizontally */
 #history-body td.cell-edit,
 #history-body td.cell-delete {
-    text-align: center;
-    vertical-align: middle;
-    padding: 6px;
+text-align: center;
+vertical-align: middle;
+padding: 6px;
 }
 
 /* Core shared reset and button properties */
 #history-body .action-btn {
-    font-family: inherit;
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-    padding: 5px 10px;
-    border: none;
-    margin: .75rem;
-    border-radius: 4px;
-    cursor: pointer;
-    width: 65px; /* Fixed width keeps columns perfectly uniform across rows */
-    text-align: center;
-    transition: background-color 0.15s ease, transform 0.1s ease;
+font-family: inherit;
+font-size: 0.8rem;
+font-weight: 600;
+letter-spacing: 0.3px;
+padding: 5px 10px;
+border: none;
+margin: .75rem;
+border-radius: 4px;
+cursor: pointer;
+width: 65px; /* Fixed width keeps columns perfectly uniform across rows */
+text-align: center;
+transition: background-color 0.15s ease, transform 0.1s ease;
 }
 
 /* Micro-interaction on click */
 #history-body .action-btn:active {
-    transform: scale(0.95);
+transform: scale(0.95);
 }
 
 /* --- Edit Button Variation --- */
 #history-body .edit-btn {
-    background-color: rgba(255, 159, 67, 0.15); /* Light blue tint */
-    color: #ff9f43;
-    border: 1px solid rgba(255, 159, 67, 0.3);
+background-color: rgba(255, 159, 67, 0.15); /* Light blue tint */
+color: #ff9f43;
+border: 1px solid rgba(255, 159, 67, 0.3);
 }
 
 #history-body .edit-btn:hover {
-    background-color: #ff9f43;
-    color: #1e1e24; /* High contrast dark text on hover */
+background-color: #ff9f43;
+color: #1e1e24; /* High contrast dark text on hover */
 }
 
 /* --- Delete Button Variation --- */
 #history-body .delete-btn {
-    background-color: rgba(238, 90, 36, 0.15); /* Light red/blue tint */
-    color: #ee5a24;
-    border: 1px solid rgba(238, 90, 36, 0.3);
+background-color: rgba(238, 90, 36, 0.15); /* Light red/blue tint */
+color: #ee5a24;
+border: 1px solid rgba(238, 90, 36, 0.3);
 }
 
 #history-body .delete-btn:hover {
-    background-color: #ee5a24;
-    color: #ffffff; /* High contrast white text on hover */
+background-color: #ee5a24;
+color: #ffffff; /* High contrast white text on hover */
 }
 #job-form .dialog-points{
- border: 2px solid var(--border);
-  border-radius: .75rem;
-  padding: 1px 10px;
+border: 2px solid var(--border);
+border-radius: .75rem;
+padding: 1px 10px;
 color: var(--green);}
 
 #job-form .dialog-pts-btn input{
- border: none; /* Removes default inner input border */
-  outline: none;
-  width: 100%;
+border: none; /* Removes default inner input border */
+outline: none;
+width: 100%;
 }
 .dialog-reject-cat{
-    display:none;
+display:none;
 }
 .dialog-pts, .dialog-link, .dialog-status, .dialog-reject-cat{
-     border: 2px solid var(--border);
-  border-radius: .75rem;
-  padding: 1px 10px;
+border: 2px solid var(--border);
+border-radius: .75rem;
+padding: 1px 10px;
 color: var(--green);}
 
 .dialog-pts:active, .dialog-link:active, .dialog-status:active{
-     border: 2px solid var(--border);
-     border-color: #48d18e;
-  border-radius: .75rem;
-  padding: 1px 10px;
+border: 2px solid var(--border);
+border-color: #48d18e;
+border-radius: .75rem;
+padding: 1px 10px;
 color: var(--blue)}
 
 .dialog-id{
-  border: 2px solid var(--border);
-  border-radius: .75rem;
-  padding: 1px 10px;
+border: 2px solid var(--border);
+border-radius: .75rem;
+padding: 1px 10px;
 color: var(--green);
 
 
 }
 .dialog-id:has(#job-id-input:focus) {
-  border: 2px solid var(--border);
-  border-color: var(--blue);
-  border-radius: .75rem;
-  padding: 1px 10px;
+border: 2px solid var(--border);
+border-color: var(--blue);
+border-radius: .75rem;
+padding: 1px 10px;
 color: var(--green);
 
 }
@@ -483,137 +502,137 @@ color: var(--green);
 
 /*Duplicate Job ID */
 @keyframes pulse-red {
-    0%   { color: var(--blue); }
-    50%  { color: #fc5151; }
-    100% { color: var(--red); }
+0%   { color: var(--blue); }
+50%  { color: #fc5151; }
+100% { color: var(--red); }
 }
 
 .duplicate-id {
-    animation: pulse-red 3s infinite;
-    font-weight: 700;
+animation: pulse-red 3s infinite;
+font-weight: 700;
 }
 #user-form {
-    flex-direction: column;  /* Stacks immediate children vertically */
-    gap: 16px;              /* Standardized spacing between inputs */
-    width: 100%;            /* Fills parent container safely */
-    border: 2px solid var(--border);
-    border-radius: 0.75rem;
-    padding: 16px;          /* Increased padding for comfortable interior breathing room */
-    color: var(--green);
+flex-direction: column;  /* Stacks immediate children vertically */
+gap: 16px;              /* Standardized spacing between inputs */
+width: 100%;            /* Fills parent container safely */
+border: 2px solid var(--border);
+border-radius: 0.75rem;
+padding: 16px;          /* Increased padding for comfortable interior breathing room */
+color: var(--green);
 }
 
 /* Ensure all immediate children take up full horizontal space */
 #edit-user-form > * {
-    width: 100%;
-    display: block;         /* Normalizes inline labels to prevent horizontal layout collisions */
-    
+width: 100%;
+display: block;         /* Normalizes inline labels to prevent horizontal layout collisions */
+
 }
 /* Ensure all immediate children take up full horizontal space */
 #user-form > * {
-    width: 100%;
-    display: block;         /* Normalizes inline labels to prevent horizontal layout collisions */
-    
-}
+width: 100%;
+display: block;         /* Normalizes inline labels to prevent horizontal layout collisions */
 
+}
+/* Production-grade styling for the inputs inside this specific form */
 #edit-user-form input, #user-form select{
-    box-sizing: border-box; /* Includes padding within the width calculation */
-    width: 100%;
-    padding: 12px;
-    margin-top: 12px;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    font-family: inherit;
-    outline: none;
+box-sizing: border-box; /* Includes padding within the width calculation */
+width: 100%;
+padding: 12px;
+margin-top: 12px;
+background: var(--surface-2);
+border: 1px solid var(--border);
+border-radius: 8px;
+color: var(--text);
+font-family: inherit;
+outline: none;
 }
 #edit-user{
-    display:none;
+display:none;
 }
 #create,#app-version{
-    color: var(--text-muted);
+color: var(--text-muted);
 }
 #cExplorer-btn{
 
-   background-color: var(--text-muted);
+background-color: var(--text-muted);
 
 }
 #shortcut-header {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 3 columns */
-  grid-template-rows: repeat(2, auto);   /* 2 rows */
-  gap: 12px;                             /* spacing between buttons */
-  justify-items: stretch;                /* buttons fill their grid cell */
-  margin: 1rem 0;
+display: grid;
+grid-template-columns: repeat(2, 1fr); /* 3 columns */
+grid-template-rows: repeat(2, auto);   /* 2 rows */
+gap: 12px;                             /* spacing between buttons */
+justify-items: stretch;                /* buttons fill their grid cell */
+margin: 1rem 0;
 }
 
 #shortcut-header button {
-    max-width: 190px;
-  padding: 12px;
-  font-weight: 600;
-  border-radius: 8px;
-  cursor: pointer;
+max-width: 190px;
+padding: 12px;
+font-weight: 600;
+border-radius: 8px;
+cursor: pointer;
 }
 
 /* Special style for Search Web button */
 #closeTabs-btn {
-  background: var(--red);   /* your neon red variable */
-  color: #fff;              /* white text for contrast */
+background: var(--red);   /* your neon red variable */
+color: #fff;              /* white text for contrast */
 }
 
 
 #gMaps-btn{
-    color: var(--surface)
+color: var(--surface)
 }
 #searchWeb-btn{
-    background-color: var(--blue);
-    color: var(--surface);
+background-color: var(--blue);
+color: var(--surface);
 }
 #about-page {
-  display: flex;              /* allows centering */
-  align-items: center;        /* vertical center */
-  justify-content: center;    /* horizontal center */
-  width: 40px;                /* same size as other buttons */
-  height: 40px;
-  border-radius: 50%;         /* makes it circular */
-  background: var(--surface-2);
-  color: var(--text-muted);
-  font-size: 1.2rem;
-  cursor: pointer;
-  position: relative;
-  transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+display: flex;              /* allows centering */
+align-items: center;        /* vertical center */
+justify-content: center;    /* horizontal center */
+width: 40px;                /* same size as other buttons */
+height: 40px;
+border-radius: 50%;         /* makes it circular */
+background: var(--surface-2);
+color: var(--text-muted);
+font-size: 1.2rem;
+cursor: pointer;
+position: relative;
+transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
 }
 
 /* Hover effect */
 #about-page:hover {
-  background: var(--blue);
-  color: #fff;
-  transform: scale(1.1);
+background: var(--blue);
+color: #fff;
+transform: scale(1.1);
 }
 
 dialog {
-    background: var(--surface);
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 24px;
-    max-width: 400px;
+background: var(--surface);
+color: var(--text);
+border: 1px solid var(--border);
+border-radius: 8px;
+padding: 24px;
+max-width: 400px;
 }
 
 #close-modal {
-    background: transparent;
-    border: none;
-    font-size: 1rem;
-    color: var(--text-muted);
-    cursor: pointer;
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    transition: color 0.2s ease;
+background: transparent;
+border: none;
+font-size: 1rem;
+color: var(--text-muted);
+cursor: pointer;
+position: absolute;
+top: 12px;
+right: 12px;
+transition: color 0.2s ease;
 }
 
 #close-modal:hover {
-    color: var(--red)
+color: var(--red)
 }
 .button{
 border: 1px solid transparent; 
@@ -623,135 +642,141 @@ outline: 1px solid var(--text);
 
 }
 #top-actions {
-  display: flex;
-  justify-content: center;   /* center group horizontally */
-  align-items: center;
-  gap: 16px;
-  margin: 1rem 0;
+display: flex;
+justify-content: center;   /* center group horizontally */
+align-items: center;
+gap: 16px;
+margin: 1rem 0;
 }
 
 /* Shared style for all top buttons */
 .top-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--surface-2);
-  color: var(--text);
-  font-size: 1.2rem;
-  cursor: pointer;
-  position: relative;
-  border: 1px solid var(--border);
-  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+display: flex;
+align-items: center;
+justify-content: center;
+width: 40px;
+height: 40px;
+border-radius: 50%;
+background: var(--surface-2);
+color: var(--text);
+font-size: 1.2rem;
+cursor: pointer;
+position: relative;
+border: 1px solid var(--border);
+transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
 
 /* Hover effect */
 .top-btn:hover {
-  background: var(--blue);
-  color: #fff;
-  transform: scale(1.1);
+background: var(--blue);
+color: #fff;
+transform: scale(1.1);
 }
 
 /* Tooltip styling */
 .top-btn::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: -32px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--surface);
-  color: var(--text);
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  border: 1px solid var(--border);
-  transition: opacity 0.2s ease, transform 0.2s ease;
+content: attr(data-tooltip);
+position: absolute;
+bottom: -32px;
+left: 50%;
+transform: translateX(-50%);
+background: var(--surface);
+color: var(--text);
+padding: 6px 10px;
+border-radius: 6px;
+font-size: 0.75rem;
+white-space: nowrap;
+opacity: 0;
+pointer-events: none;
+border: 1px solid var(--border);
+transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 /* Show tooltip on hover */
 .top-btn:hover::after {
-  opacity: 1;
-  transform: translateX(-50%) translateY(4px);
+opacity: 1;
+transform: translateX(-50%) translateY(4px);
 }
 /* Base style for the label */
 #overtime-form label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500;
-  cursor: pointer;
+display: flex;
+align-items: center;
+gap: 8px;
+font-weight: 500;
+cursor: pointer;
 }
 
 /* Hide the native checkbox */
 #lunch-ot-input {
-  appearance: none;
-  -webkit-appearance: none;
-  background-color: #fff;
-  margin: 0;
-  font: inherit;
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--border); 
-  border-radius: 4px;
-  display: grid;
-  place-content: center;
-  cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+appearance: none;
+-webkit-appearance: none;
+background-color: #fff;
+margin: 0;
+font: inherit;
+width: 20px;
+height: 20px;
+border: 2px solid var(--border); 
+border-radius: 4px;
+display: grid;
+place-content: center;
+cursor: pointer;
+transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 /* Checkmark style */
 #lunch-ot-input::before {
-  content: "";
-  width: 12px;
-  height: 12px;
-  transform: scale(0);
-  transition: transform 0.2s ease-in-out;
-  background-color: var(--green); /* green fill */
-  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 20%, 80% 0, 43% 62%);
+content: "";
+width: 12px;
+height: 12px;
+transform: scale(0);
+transition: transform 0.2s ease-in-out;
+background-color: var(--green); /* green fill */
+clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 20%, 80% 0, 43% 62%);
 }
 
 /* When checked */
 #lunch-ot-input:checked::before {
-  transform: scale(1);
+transform: scale(1);
 }
 
 /* Hover effect */
 #lunch-ot-input:hover {
-  border-color: var(--blue);
+border-color: var(--blue);
 }
 .shift-btn {
-    padding: 10px 20px;
-    border-radius: 8px;
-    background: #444;
-    color: white;
-    font-weight: bold;
-    transition: 0.3s ease;
-    border: none;
+padding: 10px 20px;
+border-radius: 8px;
+background: #444;
+color: white;
+font-weight: bold;
+transition: 0.3s ease;
+border: none;
 }
 
 .shift-btn.active {
-    background: #48d18e;
-    box-shadow: 0 0 15px #48d18e;
+background: #48d18e;
+box-shadow: 0 0 15px #48d18e;
+}
+#timer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 
 .metric-block {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
+display: flex;
+align-items: baseline;
+gap: 8px;
 }
 
 .metric-block .web-title {
-  font-size: 1.2rem;
-  color: #555;
+font-size: 1.2rem;
+color: #555;
 }
 
 .metric-block h1 {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #2a9d8f; /* teal highlight */
+font-size: 1.5rem;
+font-weight: bold;
+color: #2a9d8f; /* teal highlight */
 }

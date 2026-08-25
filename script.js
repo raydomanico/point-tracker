@@ -176,7 +176,6 @@ const TrackerState =
             link: currentTabUrl, // Injects the active page URL automatically
             points: parseFloat(jobPointsEl.value),
             status: jobStatusEl.value,
-            timeElapsed: TrackerState.currentTime / 1000,
             date: new Date().toLocaleDateString(),
 
         };
@@ -215,9 +214,8 @@ const savedData = Storage.load();
 function openJobForm() {
     if (jobIdInputEl.value.trim() === "") return;
     jobFormEl.showModal();
-    timerDpEl.style.color = "#48d18e";
     rejectJobBtnEl.style.display = "block";
-    pauseTimer();
+
 }
 
 function closeJobForm() {
@@ -226,9 +224,6 @@ function closeJobForm() {
     jobLinkEl.value = "";
     jobPointsEl.value = "";
     jobStatusEl.value = "Open";
-
-    playTimer();
-    timerDpEl.style.color = "#ff9f43";
 }
 
 function validateJobId(jobIdValue) {
@@ -277,7 +272,7 @@ async function confirmJob() {
         jobIdInputEl.value = "";
         TrackerState.isReject = false;
         jobIdInputEl.focus();
-        timerDpEl.style.color = "#ff9f43";
+
     } else {
         // rejection branch...
         const rawJobId = jobIdInputEl.value.trim();
@@ -893,7 +888,6 @@ function renderUI() {
                                 <option value="Rework" ${job.status === "Rework" ? "selected" : ""}>Rework</option>
                             </select>
                         </td>
-                        <td class="cell-time-taken">${formatTime(job.timeElapsed)}</td>
                         <td class="cell-date">${job.date}</td>
                         <td class="cell-edit"></td>
                         <td class="cell-delete"></td>
@@ -1226,11 +1220,8 @@ function INIT() {
         btn.classList.add("active");
         btn.textContent = "Shift Running";
     }
-
-    showTimerEl.style.display = "none";
     TrackerState.user = savedData.user;
     TrackerState.jobs = savedData.jobs;
-    pauseTimer();
     renderUI();
     jobIdInputEl.focus();
 }
