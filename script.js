@@ -170,7 +170,7 @@ const TrackerState =
         // 2. Fallback gracefully if permissions fail or running outside of tab context
         const currentTabUrl = activeTab ? activeTab.url : "";
 
-        const newJob = await {
+        const newJob ={
             id: crypto.randomUUID(),
             jobId: jobIdInputEl.value.trim(),
             link: currentTabUrl, // Injects the active page URL automatically
@@ -298,12 +298,13 @@ async function confirmJob() {
 
 // 3. UPDATE/DELETE JOB FORMS
 function confirmEditJob() {
-    validateJobId(eJobIdInputEl.value);
-    if (!validateJobId(parseFloat(eJobIdInputEl.value))) {
+    const eJobId= eJobIdInputEl.value.trim();
+    const parsedPts = parseFloat(eJobPointsEl.value);
+    if (!validateJobId(eJobId)) {
         alert("Invalid Job Id. Please Try Again")
         return;
     }
-    if (isNaN(parseFloat(eJobPointsEl.value))) {
+    if (isNaN(parsedPts)) {
         alert("Invalid Points. Please Try Again");
         return;
     }
@@ -421,7 +422,6 @@ function copyToClipboard() {
         [j.jobId, , j.points, j.status].join("\t")
     );
     navigator.clipboard.writeText(rows.join("\n"));
-    console.log(pointLink)
     if (pointLink) {
         window.open(pointLink, 'popupWindow', 'width=800,height=600,scrollbars=yes');
     }
@@ -574,7 +574,7 @@ function getNewUserInfo() {
     const techno = parseFloat(techNoEl?.value);
     if (!username || (Number.isNaN(techno))) return null;
 
-    return newUser = {
+    const newUser = {
 
         id: crypto.randomUUID(),
         userName: username,
@@ -584,6 +584,7 @@ function getNewUserInfo() {
         tscLink: tscLinkInputEl.value.trim(),
         pointsheetLink: pointsheetLinkInputEl.value.trim()
     };
+    return newUser;
 
 }
 
@@ -759,9 +760,10 @@ window.addEventListener("keydown", (event) => {
                 status: "Passed"
             }
         ))
-    }
-    Storage.save();
+            Storage.save();
     renderUI();
+    }
+
 });
 
 window.addEventListener("keydown", (event) => {
@@ -1062,7 +1064,7 @@ async function searchAddressOnEagleView() {
             args: [address]
         });
 
-        console.log("EagleView Search:", result);
+
     } catch (err) {
         console.error("EagleView Search Error:", err);
     }
@@ -1121,7 +1123,7 @@ async function openGMaps() {
 
             if (btn) {
                 btn.click();
-                console.log("Street View opened");
+                console.log("as")
                 observer.disconnect();
             }
         });
