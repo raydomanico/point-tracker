@@ -554,12 +554,13 @@ function openOvertimeForm() {
     overtimeFormEl.showModal();
 }
 function confirmCopyOvertime() {
+        const tscLink = TrackerState.user?.tscLink;
     if (!TrackerState.user) return;
     copyTSC();
     closeCopyOvertime();
-    window.open(
-        'https://eagleviewcloud-my.sharepoint.com/:x:/r/personal/reynier_simagala_mnl_eagleview_com/_layouts/15/Doc.aspx?sourcedoc=%7B4F1BE068-E7DD-4B38-8E15-81F7AC22E13C%7D&file=Tsc%20Team%20142.xlsx&openShare=true&fromShare=true&action=default&mobileredirect=true', 'popupWindow', 'width=800,height=600,scrollbars=yes')
-
+ if (tscLink) {
+        window.open(tscLink, 'popupWindow','scrollbars=yes');
+    }
 }
 function closeCopyOvertime() {
     overtimeInputEl.value = "";
@@ -592,12 +593,19 @@ function confirmAddUser() {
     const createdUser = getNewUserInfo();
     if (!createdUser) return;
     if (isNaN(createdUser.techNo)) return;
-    isValidWebUrl(createdUser.tscLink);
-    isValidWebUrl(createdUser.pointsheetLink);
-    TrackerState.user = createdUser;
+ if (createdUser.tscLink && !isValidWebUrl(createdUser.tscLink)) {
+        alert("TSC link must be a valid http/https URL.");
+        return;
+    }
+    if (createdUser.pointsheetLink && !isValidWebUrl(createdUser.pointsheetLink)) {
+        alert("Pointsheet link must be a valid http/https URL.");
+        return;
+    }
 
+    TrackerState.user = createdUser;
     Storage.save();
     closeUserForm();
+    aboutModal.showModal();
     renderUI();
 
 };
@@ -634,6 +642,15 @@ function confirmEditAddUser() {
         alert("Please provide a valid Username and Tech Number.");
         return;
     }
+     if (eTscLinkInputEl.value&& !isValidWebUrl(eTscLinkInputEl.value)) {
+        alert("TSC link must be a valid http/https URL.");
+        return;
+    }
+    if (ePointsheetLinkInputEl.value&& !isValidWebUrl(ePointsheetLinkInputEl.value)) {
+        alert("Pointsheet link must be a valid http/https URL.");
+        return;
+    }
+
 
     // Direct, explicit mutation of our state object using the input field values
     TrackerState.user = {

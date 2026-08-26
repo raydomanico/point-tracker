@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,8 +25,8 @@
 
 <dialog id="about-modal">
   <h3>About MeasureFlow</h3>
-  <p>MeasureFlow brings clarity to complex workflows with precision tools </p>
-    <p>Helping Measuring Technicians to focus on more complex and revenue-generating tasks by Automating reports, generating TSC, direct maps and google search,and a Manual tracker for job's points, status.</p>
+  <p>MeasureFlow boost workflows with precision tools </p>
+    <p>Helping Measuring Technicians to focus on more complex and revenue-generating tasks by Automating reports, generating TSC, direct maps and google search, Estimated PPH Monitoring, and a Manual tracker for job's points,link and status.</p>
     <p>Shortcuts:</p>
 <p>Ctrl/⌘ + J → Search Web</p>
 <p>Ctrl/⌘ + M → Open Google Maps</p>
@@ -34,7 +35,7 @@
 <p>Ctrl/⌘ + Shift + P → Mark All Jobs Passed (sets every job’s status to "Passed")</p>
 <p>Ctrl/⌘ + Shift + Enter → Open Reject Job Form Directly</p>
 <p>Ctrl/⌘ + Shift + X → Close All Measuring Tabs except for active one</p>
-
+  <h3 class ="author-name">Built By: Raymond Domanico</h3>
 
   <button id="close-modal">Close</button>
 </dialog>
@@ -44,13 +45,13 @@
 </a>
 
 
-    <h1></h1>
-
     <div id="pph-container">
+        <div class="pph-header">
 
-   <h1 class="web-title">Estimated PPH:</h1>
-   <h1 id="est-pph-dp"></h1>
-
+            <span class="pph-label">Estimated PPH</span>
+        </div>
+        <div class="pph-value" id="est-pph-dp">0.00</div>
+        <div class="pph-unit">points / hour</div>
     </div>
 
 <div id="shortcut-header">
@@ -152,6 +153,7 @@
     </dialog>
 
       <dialog id="user-form">
+        
         <h3>Account Information</h3>
         <div id="dialog-pts-btn">
          <input id="tech-no" placeholder="Tech Number"> 

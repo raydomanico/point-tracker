@@ -32,9 +32,6 @@ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation 
 letter-spacing: -0.02em;
 
 }
-.web-title{
-display: none;
-}
 /* Triggers automatically when the window width drops below 500px */
 @media screen and (max-width: 500px) {
 .cell-link, 
@@ -56,8 +53,8 @@ padding: 10px;
 overflow-x:scroll;
 overflow-y: auto;
 }
-.web-title{
-display: flex;
+.pph-value {
+font-size: 2.25rem;
 }
 }
 #page_container {
@@ -73,16 +70,49 @@ display: flex;
 justify-content: center;
 
 }
+/* PPH Section */
+#pph-container {
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+gap: 4px;
+background: var(--surface);
+border: 1px solid var(--border);
+border-radius: 12px;
+padding: 20px 24px;
+margin: 1.25rem 0;
+}
 
-#timer-dp {
-    font-size: 6rem;
-    font-weight: 700;
-    color: var(--blue);
-    letter-spacing: 4px;
-    display: flex;
-    justify-content: center;
-    margin: 3rem;
+.pph-header {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+}
 
+.pph-label {
+font-size: 0.72rem;
+font-weight: 600;
+text-transform: uppercase;
+letter-spacing: 2px;
+color: var(--text-muted);
+}
+
+.pph-value {
+font-size: 3rem;
+font-weight: 700;
+line-height: 1;
+letter-spacing: -0.02em;
+color: var(--text);
+font-variant-numeric: tabular-nums;
+}
+
+.pph-unit {
+font-size: 0.7rem;
+text-transform: uppercase;
+letter-spacing: 1px;
+color: var(--text-muted);
 }
 
 #input-container {
@@ -757,26 +787,7 @@ border: none;
 background: #48d18e;
 box-shadow: 0 0 15px #48d18e;
 }
-#timer-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
 
-.metric-block {
-display: flex;
-align-items: baseline;
-gap: 8px;
-}
-
-.metric-block .web-title {
-font-size: 1.2rem;
-color: #555;
-}
-
-.metric-block h1 {
-font-size: 1.5rem;
-font-weight: bold;
-color: #2a9d8f; /* teal highlight */
+.author-name{
+    color:var(--text-muted)
 }
