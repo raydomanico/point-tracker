@@ -10,7 +10,6 @@ mkdir ./dist-ext
 cp index.html script.js style.css icon.png manifest.json ./dist-ext/
 
 # 4. Create a clean flat ZIP without folder nesting using the -j (junk paths) flag
-# This extracts the files directly from the directory without nesting folders!
 zip -j roof-tracker-extension.zip ./dist-ext/*
 
 # 5. Destroy the temporary staging directory safely
