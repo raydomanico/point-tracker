@@ -206,6 +206,7 @@ const savedData = Storage.load();
 // 2. JOB FORM
 function openJobForm() {
      const jobId= jobIdInputEl.value.trim();
+
     if (jobId=== "") {
         alert("Clipboard Empty")
         return;
@@ -217,14 +218,19 @@ function openJobForm() {
  
     jobFormEl.showModal();
 
+  
+
 }
 
 function closeJobForm() {
-    jobFormEl.close();
+  
     jobIdInputEl.value = "";
     jobLinkEl.value = "";
     jobPointsEl.value = "";
     jobStatusEl.value = "Open";
+    TrackerState.isReject = false;
+    resetRejectionFormState();
+    jobFormEl.close();
 }
 
 function validateJobId(jobIdValue) {
@@ -242,6 +248,7 @@ let lastConfirmTime = TrackerState.shiftStart; // set when shift starts
 async function confirmJob() {
 
     if (!TrackerState.isReject) {
+
         const rawJobId = jobIdInputEl.value.trim();
         if (!validateJobId(rawJobId)) {
             alert("Invalid job Id. Please try again");
@@ -271,7 +278,6 @@ async function confirmJob() {
         // Clean Up UI
         closeJobForm();
         jobIdInputEl.value = "";
-        TrackerState.isReject = false;
         jobIdInputEl.focus();
 
     } else {
@@ -290,9 +296,9 @@ async function confirmJob() {
 
         await captureActiveTabAndTextToClipboard(plainTextData, htmlData);
 
-        closeJobForm();
+  
         resetRejectionFormState();
-        TrackerState.isReject = false;
+              closeJobForm();
         window.location.href = "msteams://teams.microsoft.com/l/launch";
     }}
 
@@ -357,11 +363,12 @@ function closeEditJobForm() {
 
 //4. REJECT JOB
 window.rejectJobForm = function () {
-    TrackerState.isReject = true;
+
     dialogSatusEl.style.display = "none";
     rejectJobBtnEl.style.display = "none";
     pointsContainer.style.display = "none";
     dialogRejectCatEl.style.display = 'block';
+    TrackerState.isReject = true;
 };
 
 function resetRejectionFormState() {
@@ -370,9 +377,12 @@ function resetRejectionFormState() {
     pointsContainer.style.display = "block";
     dialogRejectCatEl.style.display = 'none';
     rejectJobBtnEl.style.display = "block";
+
+   
     // Clear field entries
     jobIdInputEl.value = "";
     dialogRejectCatEl.value = "";
+
 }
 
 
@@ -1224,8 +1234,6 @@ function computePPH() {
     }
     return (TrackerState.totalPoints / hoursWorked).toFixed(2);
 }
-
-
 
 // INIT & APP STARTUP
 function INIT() {
