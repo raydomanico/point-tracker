@@ -25,7 +25,7 @@
 
 <dialog id="about-modal">
   <h3>About MeasureFlow</h3>
-  <p>MeasureFlow boost workflows with precision tools </p>
+  <p>MeasureFlow boosts workflows with precision tools </p>
     <p>Helping Measuring Technicians to focus on more complex and revenue-generating tasks by Automating reports, generating TSC, direct maps and google search, Estimated PPH Monitoring, and a Manual tracker for job's points,link and status.</p>
     <p>Shortcuts:</p>
 <p>Enter → Press Enter to directly open the Add Job Form</p>
@@ -127,7 +127,7 @@
         </select>
     </fieldset>
         
-        <div id="dialog-btns">
+        <div class="dialog-btns">
             <button id="confirm-job-btn" class="confirm-job-btn">Confirm</button>
             <button id="cancel-job-btn" class="cancel-job-btn">Cancel</button>
             <button id="reject-job-btn" class="reject-job-btn">Reject </button>
@@ -157,7 +157,7 @@
       <dialog id="user-form">
         
         <h3>Account Information</h3>
-        <div id="dialog-pts-btn">
+        <div id="dialog-acc-setup">
          <input id="tech-no" placeholder="Tech Number"> 
          <input id="user-name" placeholder="User Name">
          <input id="tsc-link" placeholder="Team TSC Link (Optional)"> 
@@ -167,25 +167,26 @@
             <option value="Night">Night Shift</option>
         </select>
     </div>
-        <div id="dialog-btns">
+        <div class="dialog-btns">
             <button id="confirm-user-btn" class="confirm-job-btn">Confirm</button>
             <button id="cancel-user-btn" class="cancel-job-btn">Cancel</button>
-            <button id="delete-user-btn" class="cancel-job-btn">Delete</button>
         </div>
     </dialog>
     <dialog id="edit-user-form">
-        <h3>Account Information</h3>
-        <div id="dialog-pts-btn">
-         <input id="e-tech-no" placeholder="Tech Number"> 
-         <input id="e-username" placeholder="User Name">
-         <input id="e-tsc-link" placeholder="Team TSC Link (Optional)"> 
-         <input id="e-pointsheet-link" placeholder="Point Tracker Sheet Link (Optional)">
-         <select id="e-user-shift">
+        <h3>Edit Account Information</h3>
+        <div id="dialog-acc-edit">
+            <fieldset class="dialog-acc-edit">
+       <legend>Tech Number</legend>  <input id="e-tech-no" placeholder="Tech Number"> 
+        <legend>Username</legend>  <input id="e-username" placeholder="User Name">
+          <legend>TSC Link</legend>  <input id="e-tsc-link" placeholder="Team TSC Link (Optional)"> 
+          <legend>Pointsheet Link</legend>  <input id="e-pointsheet-link" placeholder="Point Tracker Sheet Link (Optional)">
+                   <legend>User Shift</legend> <select id="e-user-shift">
             <option value="Day">Day Shift</option>
             <option value="Night">Night Shift</option>
         </select>
+        </fieldset>
     </div>
-        <div id="dialog-btns">
+        <div class="dialog-btns">
             <button id="e-confirm-user-btn" class="confirm-job-btn">Confirm</button>
             <button id="e-cancel-user-btn" class="cancel-job-btn">Cancel</button>
             <button id="e-delete-user-btn" class="cancel-job-btn">Delete</button>

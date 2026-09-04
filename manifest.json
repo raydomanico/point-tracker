@@ -17,7 +17,9 @@
   },
 "host_permissions": [
   "https://www.google.com/maps/*",
-  "https://explorer-internal.eagleview.com/*"
+  "https://explorer-internal.eagleview.com/*",
+  "https://apps.eagleview.com/measurementUi*",
+  "https://www.google.com/search*"
 
 ]
 

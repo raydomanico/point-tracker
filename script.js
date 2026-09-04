@@ -53,7 +53,6 @@ const overtimeFormEl = document.getElementById("overtime-form");
 const overtimeInputEl = document.getElementById("overtime-input");
 const addJobBtnEl = document.getElementById("add-job-btn");
 const dialogRejectCatEl = document.querySelector('.dialog-reject-cat');
-const dialogRejectCat = document.getElementById('dialog-reject-cat');
 const rejectJobCategoryEl = document.getElementById("reject-job-category");
 const rejectJobBtnEl = document.getElementById("reject-job-btn");
 const gMapsBtnEl = document.getElementById("gMaps-btn");
@@ -75,7 +74,7 @@ const ePointsheetLinkInputEl = document.getElementById("e-pointsheet-link");
 const techNoEl = document.getElementById("tech-no");
 const userNameEl = document.getElementById("user-name");
 const userShiftEl = document.getElementById("user-shift");
-const dialogSatusEl = document.querySelector('.dialog-status');
+const dialogStatusEl = document.querySelector('.dialog-status'); // was dialogSatusEl (typo)
 
 const jobLinkEl = document.getElementById("job-link");
 const jobPointsEl = document.getElementById("job-points");
@@ -98,17 +97,17 @@ document.getElementById("cancel-user-btn").addEventListener("click", closeUserFo
 document.getElementById("edit-user").addEventListener("click", openEditUserForm);
 document.getElementById("overtime-btn").addEventListener("click", openOvertimeForm);
 document.getElementById("copy-overtime-btn").addEventListener("click", confirmCopyOvertime);
-document.getElementById("close-overtime-btn").addEventListener("click", closeCopyOvertime);
+closeOvertimeBtnEl.addEventListener("click", closeCopyOvertime); // now uses the existing variable
 
-document.getElementById("gMaps-btn").addEventListener("click", openGMaps);
-document.getElementById("cExplorer-btn").addEventListener("click", searchAddressOnEagleView);
+gMapsBtnEl.addEventListener("click", openGMaps);
+cExplorerBtnEl.addEventListener("click", searchAddressOnEagleView);
 
 document.getElementById("confirm-user-btn").addEventListener("click", confirmAddUser);
 document.getElementById("e-confirm-user-btn").addEventListener("click", confirmEditAddUser);
 document.getElementById("e-delete-user-btn").addEventListener("click", deleteUser);
 document.getElementById("e-cancel-user-btn").addEventListener("click", closeEditUserForm);
-document.getElementById("searchWeb-btn").addEventListener("click", searchWeb);
-document.getElementById("closeTabs-btn").addEventListener("click", closeTabs);
+searchWebBtnEl.addEventListener("click", searchWeb);
+closeTabsBtnEl.addEventListener("click", closeTabs);
 document.getElementById("shift-toggle-btn").addEventListener("click", toggleShift);
 
 
@@ -127,20 +126,16 @@ const windowHeight = Math.round(screen.availHeight / 1.5);
 //TRACKERSTATE
 const TrackerState =
 {
-    id: 0,
     user: null,
     jobs: [],
     totalPoints: 0,
-    isRunning: false,
     currentEditId: 0,
     isReject: false,
     isWindowOpen: false,
-    myTab: null,
     shiftStart: null,
+    // Removed: id, isRunning, myTab — declared but never read or written anywhere.
 
-
-
-    summateTotalPoints(totalSum) {
+    summateTotalPoints() {
         let sum = 0;
         for (let i = 0; i < this.jobs.length; i++) {
             if (this.jobs[i].points == 0 || isNaN(this.jobs[i].points)) {
@@ -152,8 +147,7 @@ const TrackerState =
             sum += this.jobs[i].points;
         }
         this.totalPoints = sum;
-        totalSum = sum;
-        return totalSum;
+        return sum;
     },
 
     async getJobInputDetails() {
@@ -163,14 +157,13 @@ const TrackerState =
         // 2. Fallback gracefully if permissions fail or running outside of tab context
         const currentTabUrl = activeTab ? activeTab.url : "";
 
-        const newJob ={
+        const newJob = {
             id: crypto.randomUUID(),
             jobId: jobIdInputEl.value.trim(),
             link: currentTabUrl, // Injects the active page URL automatically
             points: parseFloat(jobPointsEl.value),
             status: jobStatusEl.value,
             date: new Date().toLocaleDateString(),
-
         };
 
         return newJob;
@@ -205,9 +198,9 @@ const savedData = Storage.load();
 
 // 2. JOB FORM
 function openJobForm() {
-     const jobId= jobIdInputEl.value.trim();
+    const jobId = jobIdInputEl.value.trim();
 
-    if (jobId=== "") {
+    if (jobId === "") {
         alert("Clipboard Empty")
         return;
     }
@@ -215,15 +208,11 @@ function openJobForm() {
         alert("Invalid Job Id. Please Try Again")
         return;
     }
- 
+
     jobFormEl.showModal();
-
-  
-
 }
 
 function closeJobForm() {
-  
     jobIdInputEl.value = "";
     jobLinkEl.value = "";
     jobPointsEl.value = "";
@@ -235,13 +224,7 @@ function closeJobForm() {
 
 function validateJobId(jobIdValue) {
     const regex = CONFIG.validJobIdRegex;
-    if (regex.test(jobIdValue)) {
-        return true;
-    }
-    else {
-        
-        return false;
-    }
+    return regex.test(jobIdValue);
 }
 let lastConfirmTime = TrackerState.shiftStart; // set when shift starts
 
@@ -262,7 +245,7 @@ async function confirmJob() {
             return;
         }
 
-        // ⏱ compute elapsed time
+        // compute elapsed time
         const elapsedMs = Date.now() - lastConfirmTime;
         const elapsedMinutes = elapsedMs / 1000 / 60;
         newJob.timeElapsed = elapsedMinutes;
@@ -275,9 +258,8 @@ async function confirmJob() {
         // Reset marker for next job
         lastConfirmTime = Date.now();
 
-        // Clean Up UI
+        // Clean Up UI (closeJobForm already clears the inputs)
         closeJobForm();
-        jobIdInputEl.value = "";
         jobIdInputEl.focus();
 
     } else {
@@ -296,16 +278,17 @@ async function confirmJob() {
 
         await captureActiveTabAndTextToClipboard(plainTextData, htmlData);
 
-  
-        resetRejectionFormState();
-              closeJobForm();
+        // closeJobForm() below already calls resetRejectionFormState() internally,
+        // so the separate call that used to live here was removed.
+        closeJobForm();
         window.location.href = "msteams://teams.microsoft.com/l/launch";
-    }}
+    }
+}
 
 
 // 3. UPDATE/DELETE JOB FORMS
 function confirmEditJob() {
-    const eJobId= eJobIdInputEl.value.trim();
+    const eJobId = eJobIdInputEl.value.trim();
     const parsedPts = parseFloat(eJobPointsEl.value);
     if (!validateJobId(eJobId)) {
         alert("Invalid Job Id. Please Try Again")
@@ -325,7 +308,6 @@ function confirmEditJob() {
                     link: eJobLinkEl.value.trim(),
                     points: parseFloat(eJobPointsEl.value),
                     status: eJobStatusEl.value
-
                 };
             }
             return job;
@@ -345,26 +327,21 @@ function editJob(event) {
             eJobPointsEl.value = TrackerState.jobs[i].points;
             eJobLinkEl.value = TrackerState.jobs[i].link;
             eJobStatusEl.value = TrackerState.jobs[i].status;
-
         }
-
 }
 function deleteJob(event) {
     const targetId = event.target.dataset.id;
     TrackerState.jobs = TrackerState.jobs.filter(job => job.id !== targetId);
     Storage.save();
     renderUI();
-
 }
 function closeEditJobForm() {
     eJobFormEl.close();
-
 }
 
 //4. REJECT JOB
 window.rejectJobForm = function () {
-
-    dialogSatusEl.style.display = "none";
+    dialogStatusEl.style.display = "none";
     rejectJobBtnEl.style.display = "none";
     pointsContainer.style.display = "none";
     dialogRejectCatEl.style.display = 'block';
@@ -373,16 +350,14 @@ window.rejectJobForm = function () {
 
 function resetRejectionFormState() {
     // Return form panels back to standard default visibility settings
-    dialogSatusEl.style.display = "block";
+    dialogStatusEl.style.display = "block";
     pointsContainer.style.display = "block";
     dialogRejectCatEl.style.display = 'none';
     rejectJobBtnEl.style.display = "block";
 
-   
     // Clear field entries
     jobIdInputEl.value = "";
     dialogRejectCatEl.value = "";
-
 }
 
 
@@ -430,7 +405,10 @@ async function captureActiveTabAndTextToClipboard(plainTextPayload, htmlPayload)
 function copyToClipboard() {
     const pointLink = TrackerState.user?.pointsheetLink;
     const rows = TrackerState.jobs.map(j =>
-        [j.jobId, , j.points, j.status].join("\t")
+        // TODO: this used to be [j.jobId, , j.points, j.status] — the stray comma left a
+        // blank column. Given the CSV export order (Link, Job ID, Points, Status), this was
+        // most likely meant to include j.link. Swap/remove as appropriate for your workflow.
+        [j.jobId, j.link, j.points, j.status].join("\t")
     );
     navigator.clipboard.writeText(rows.join("\n"));
     if (pointLink) {
@@ -476,7 +454,6 @@ function copyTSC() {
 
         baseDate.setDate(baseDate.getDate() - 1);
 
-
         const day1str = baseDate.toLocaleDateString();
         const day2str = nextdate.toLocaleDateString();
 
@@ -495,7 +472,7 @@ function copyTSC() {
 }
 function compileTscPayload(shiftScheduleArray, dateHandlerCb) {
     const liveOvertimeValue = parseFloat(overtimeInputEl.value) || 0;
-    const workedLunchChecked = workedLunchEl.checked; // ✅ use the correct element
+    const workedLunchChecked = workedLunchEl.checked;
 
     // Precompute the second break slot
     const breakSlots = shiftScheduleArray.filter(s => s.task === "BREAK");
@@ -559,24 +536,22 @@ async function writeRichLinkToClipboard(url) {
 }
 
 
-
 // 6. OVERTIME FORM
 function openOvertimeForm() {
     overtimeFormEl.showModal();
 }
 function confirmCopyOvertime() {
-        const tscLink = TrackerState.user?.tscLink;
+    const tscLink = TrackerState.user?.tscLink;
     if (!TrackerState.user) return;
     copyTSC();
     closeCopyOvertime();
- if (tscLink) {
-        window.open(tscLink, 'popupWindow','scrollbars=yes');
+    if (tscLink) {
+        window.open(tscLink, 'popupWindow', 'scrollbars=yes');
     }
 }
 function closeCopyOvertime() {
     overtimeInputEl.value = "";
     overtimeFormEl.close();
-
 }
 
 // 7. USER
@@ -587,7 +562,6 @@ function getNewUserInfo() {
     if (!username || (Number.isNaN(techno))) return null;
 
     const newUser = {
-
         id: crypto.randomUUID(),
         userName: username,
         techNo: techno,
@@ -597,14 +571,13 @@ function getNewUserInfo() {
         pointsheetLink: pointsheetLinkInputEl.value.trim()
     };
     return newUser;
-
 }
 
 function confirmAddUser() {
     const createdUser = getNewUserInfo();
     if (!createdUser) return;
     if (isNaN(createdUser.techNo)) return;
- if (createdUser.tscLink && !isValidWebUrl(createdUser.tscLink)) {
+    if (createdUser.tscLink && !isValidWebUrl(createdUser.tscLink)) {
         alert("TSC link must be a valid http/https URL.");
         return;
     }
@@ -618,7 +591,6 @@ function confirmAddUser() {
     closeUserForm();
     aboutModal.showModal();
     renderUI();
-
 };
 
 function closeUserForm() {
@@ -636,7 +608,6 @@ function openEditUserForm() {
     }
     getEditedUserInfo();
     openEditUserFormEl.showModal();
-
 }
 
 function getEditedUserInfo() {
@@ -648,20 +619,19 @@ function getEditedUserInfo() {
 }
 
 function confirmEditAddUser() {
-    const parsedTechNo = parseFloat(eTechNoEl.value);                   
+    const parsedTechNo = parseFloat(eTechNoEl.value);
     if (!eUserNameEl.value.trim() || isNaN(parsedTechNo)) {
         alert("Please provide a valid Username and Tech Number.");
         return;
     }
-     if (eTscLinkInputEl.value&& !isValidWebUrl(eTscLinkInputEl.value)) {
+    if (eTscLinkInputEl.value && !isValidWebUrl(eTscLinkInputEl.value)) {
         alert("TSC link must be a valid http/https URL.");
         return;
     }
-    if (ePointsheetLinkInputEl.value&& !isValidWebUrl(ePointsheetLinkInputEl.value)) {
+    if (ePointsheetLinkInputEl.value && !isValidWebUrl(ePointsheetLinkInputEl.value)) {
         alert("Pointsheet link must be a valid http/https URL.");
         return;
     }
-
 
     // Direct, explicit mutation of our state object using the input field values
     TrackerState.user = {
@@ -674,14 +644,13 @@ function confirmEditAddUser() {
     };
 
     Storage.save();
-    openEditUserFormEl.close(); // Target the correct modal container
+    openEditUserFormEl.close();
     alert("User Updated Succesfully");
     renderUI();
 }
 function closeEditUserForm() {
     openEditUserFormEl.close();
 }
-
 
 
 //8. HISTORY TABLE
@@ -707,23 +676,17 @@ pointsContainer.addEventListener('click', (event) => {
         const pointValue = button.dataset.category;
         pointsInput.value = pointValue;
     }
-}
-)
-jobFormEl.addEventListener("keydown", (event) => {
-    if (event.key === "Enter")
-
-        confirmJob();
 });
-// Enter key triggers Add
 
+jobFormEl.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") confirmJob();
+});
 
 jobIdInputEl.addEventListener("keydown", (event) => {
-
     if (event.key === "Enter") {
         event.preventDefault();
         addJobBtnEl.click();
     }
-
 });
 eJobFormEl.addEventListener("keydown", (event) => {
     if (event.key === "Enter") confirmEditJob();
@@ -731,37 +694,29 @@ eJobFormEl.addEventListener("keydown", (event) => {
 window.addEventListener("keydown", (event) => {
     const pressedkey = event.key.toLowerCase();
     if ((event.ctrlKey || event.metaKey) && pressedkey === "j") {
-
         event.preventDefault();
         searchWebBtnEl.click();
-
     }
 });
 window.addEventListener("keydown", (event) => {
     const pressedkey = event.key.toLowerCase();
     if ((event.ctrlKey || event.metaKey) && pressedkey === "m") {
-
         event.preventDefault();
         gMapsBtnEl.click();
-
     }
 });
 window.addEventListener("keydown", (event) => {
     const pressedkey = event.key.toLowerCase();
     if ((event.ctrlKey || event.metaKey) && pressedkey === "k") {
-
         event.preventDefault();
         cExplorerBtnEl.click();
-
     }
 });
 window.addEventListener("keydown", (event) => {
     const pressedkey = event.key.toLowerCase();
     if ((event.ctrlKey || event.metaKey) && event.shiftKey && pressedkey == "x") {
-
         event.preventDefault();
         closeTabsBtnEl.click();
-
     }
 });
 window.addEventListener("keydown", (event) => {
@@ -770,7 +725,6 @@ window.addEventListener("keydown", (event) => {
         event.preventDefault();
         editUserform.style.display = "block";
         downloadBtnEl.style.display = "block";
-
     }
 });
 window.addEventListener("keydown", (event) => {
@@ -781,42 +735,30 @@ window.addEventListener("keydown", (event) => {
 
         if (TrackerState.jobs.length === 0) return;
 
-        TrackerState.jobs = TrackerState.jobs.map(job => (
-            {
-                ...job,
-                status: "Passed"
-            }
-        ))
-            Storage.save();
-    renderUI();
+        TrackerState.jobs = TrackerState.jobs.map(job => ({
+            ...job,
+            status: "Passed"
+        }));
+        Storage.save();
+        renderUI();
     }
-
 });
 
 window.addEventListener("keydown", (event) => {
-
     if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key == "Enter") {
         event.preventDefault();
         window.rejectJobForm();
-
-
-
     }
 });
 
 addJobBtnEl.addEventListener("click", async () => {
-
-
     try {
-
         // Fetch data completely in-memory first
         const clipboardText = await navigator.clipboard.readText();
         let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
         let currentUrl = tab?.url;
         // Update the form link input field
         jobLinkEl.value = currentUrl || "";
-
-
 
         // Only populate the job ID input if the clipboard originally had valid numeric data
         if (clipboardText) {
@@ -833,10 +775,8 @@ addJobBtnEl.addEventListener("click", async () => {
 });
 
 window.addEventListener("DOMContentLoaded", () => {
-
     if (!TrackerState.user) {
         userFormEl.showModal();
-        return;
     }
 });
 //Button for Rejected Jobs
@@ -858,7 +798,7 @@ function updateStatus(event) {
 };
 
 function updateStatusColor(selectEl) {
-    { selectEl.className = "status-select " + selectEl.value.toLowerCase(); }
+    selectEl.className = "status-select " + selectEl.value.toLowerCase();
 }
 
 function highlightDuplicates() {
@@ -879,14 +819,13 @@ function highlightDuplicates() {
         } else {
             cell.classList.remove("duplicate-id");
         }
-    })
+    });
 };
 function updateTotalPoints() {
     totalPointsEl.textContent = "Total Points:" + TrackerState.summateTotalPoints();
 };
 
 function renderUI() {
-
     historyBodyEl.innerHTML = "";
     for (let i = 0; i < TrackerState.jobs.length; i++) {
         const job = TrackerState.jobs[i];
@@ -912,16 +851,15 @@ function renderUI() {
                         <td>
                             <select data-id="${job.id}" class="status-select">
                                 <option value="Open" ${job.status === "Open" ? "selected" : ""}>Open</option>
-                                <option value="Passed" style="" ${job.status === "Passed" ? "selected" : ""}>Passed</option>
+                                <option value="Passed" ${job.status === "Passed" ? "selected" : ""}>Passed</option>
                                 <option value="Rework" ${job.status === "Rework" ? "selected" : ""}>Rework</option>
                             </select>
                         </td>
                         <td class="cell-date">${job.date}</td>
                         <td class="cell-edit"></td>
                         <td class="cell-delete"></td>
-                    
                     `;
-        //XSS Prevention
+        // XSS Prevention: set text/attrs via DOM APIs, not template interpolation
         tr.querySelector(".cell-delete").appendChild(btnDelete);
         tr.querySelector(".cell-edit").appendChild(btnEdit);
         tr.querySelector(".cell-id").textContent = job.jobId;
@@ -946,7 +884,6 @@ function renderUI() {
 }
 
 
-
 // 11. EXPORT
 function exportToCSV() {
     const headers = ["Link", "Job ID", "Points", "Status", "Date"];
@@ -969,20 +906,16 @@ async function searchWeb() {
         return;
     }
     const sanitizedUrl = encodeURIComponent(address);
-    const targetUrl = `https://www.google.com/search?q=${sanitizedUrl}`
+    const targetUrl = `https://www.google.com/search?q=${sanitizedUrl}`;
 
     const queryUrl = { url: "https://www.google.com/search*" };
     const tabs = await chrome.tabs.query(queryUrl);
 
-
     if (tabs.length > 0) {
-        targetTab = tabs[0];
+        const targetTab = tabs[0];
         await chrome.tabs.update(targetTab.id, { url: targetUrl, active: true });
-        await chrome.windows.update(targetTab.windowId, { focused: true })
-
-    }
-    else {
-
+        await chrome.windows.update(targetTab.windowId, { focused: true });
+    } else {
         await chrome.windows.create({
             url: targetUrl,
             type: "popup",
@@ -1010,7 +943,6 @@ async function searchAddressOnEagleView() {
         let targetTab;
 
         if (!tabs.length) {
-            // Create new window and capture its tab
             const newWindow = await chrome.windows.create({
                 url: "https://explorer-internal.eagleview.com/index.php",
                 type: "popup",
@@ -1020,7 +952,7 @@ async function searchAddressOnEagleView() {
                 height: windowHeight
             });
 
-            targetTab = newWindow.tabs[0]; // ✅ safe   
+            targetTab = newWindow.tabs[0];
         } else {
             targetTab = tabs[0];
         }
@@ -1033,7 +965,7 @@ async function searchAddressOnEagleView() {
         await chrome.windows.update(targetTab.windowId, { focused: true });
         await chrome.tabs.update(targetTab.id, { active: true });
 
-        const result = await chrome.scripting.executeScript({
+        await chrome.scripting.executeScript({
             target: { tabId: targetTab.id, allFrames: true },
             func: (address) => {
                 function isVisible(el) {
@@ -1089,7 +1021,6 @@ async function searchAddressOnEagleView() {
             },
             args: [address]
         });
-
 
     } catch (err) {
         console.error("EagleView Search Error:", err);
@@ -1149,7 +1080,6 @@ async function openGMaps() {
 
             if (btn) {
                 btn.click();
-                console.log("as")
                 observer.disconnect();
             }
         });
@@ -1166,28 +1096,24 @@ async function openGMaps() {
 function isValidWebUrl(string) {
     try {
         const url = new URL(string);
-        // Explicitly check for standard secure web protocols
         return url.protocol === "https:" || url.protocol === "http:";
     } catch (_) {
-        return false; // Throws an error internally if the string is invalid or malformed
+        return false;
     }
 }
 //13. CLOSING TABS
 async function closeTabs() {
-
-    const queryUrl = "https://apps.eagleview.com/measurementUi*"
-
-    const existingTabs = await chrome.tabs.query({ url: queryUrl });
+    const queryUrls = ["https://apps.eagleview.com/measurementUi*",
+    "https://www.google.com/search*"];
+    
+    const existingTabs = await chrome.tabs.query({ url: queryUrls });
 
     if (existingTabs.length > 0) {
         const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        const tabsToClose = existingTabs.filter(t => t.id !== activeTab.id);
-
-        const TabIds = tabsToClose.map(t => t.id);
-
-        await chrome.tabs.remove(TabIds)
+        const tabsToClose = existingTabs.filter(t => t.id !== activeTab?.id);
+        const tabIds = tabsToClose.map(t => t.id);
+        await chrome.tabs.remove(tabIds);
     }
-
 }
 
 //14. Start and End Shift

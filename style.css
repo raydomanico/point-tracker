@@ -273,6 +273,7 @@ flex-direction: column;
 overflow-x: scroll;
 
 
+
 }
 
 dialog[open] {
@@ -312,9 +313,16 @@ dialog select:focus {
 border-color: var(--blue);
 }
 
+
 /* 3. Button Layout Wrappers */
-#dialog-btns, 
+.dialog-btns, 
 #dialog-pts-btn {
+display: flex;
+gap: 8px;
+width: 100%;
+}
+#dialog-acc-setup,
+#dialog-acc-edit{
 display: flex;
 gap: 8px;
 width: 100%;
@@ -527,6 +535,13 @@ padding: 1px 10px;
 color: var(--green);
 
 }
+.dialog-acc-edit{
+
+border: 2px solid var(--border);
+border-radius: .75rem;
+padding: 1px 10px;
+color: var(--green);
+}
 
 
 
@@ -640,14 +655,7 @@ color: #fff;
 transform: scale(1.1);
 }
 
-dialog {
-background: var(--surface);
-color: var(--text);
-border: 1px solid var(--border);
-border-radius: 8px;
-padding: 24px;
-max-width: 400px;
-}
+
 
 #close-modal {
 background: transparent;
