@@ -5,7 +5,7 @@ rm -rf ./dist-ext
 
 # 2. Initialize a clean, pristine temporary environment directory
 mkdir ./dist-ext
-
+set -e
 # 3. Copy your live development assets straight into the staging area
 cp index.html script.js style.css icon.png manifest.json ./dist-ext/
 

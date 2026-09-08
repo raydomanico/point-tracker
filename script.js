@@ -1,5 +1,8 @@
+// ============================================================================
+// CONFIG & CONSTANTS — shared static data, not part of any of the 4 objects.
+// ============================================================================
 const CONFIG = {
-    version: "1.0.0",
+    version: "2.0.0",
     validJobIdRegex: /^\d{8,9}$/,
     dayShiftSchedule: [
         { start: "13:45:00", end: "15:30:00", duration: "1:45:00", task: "TWISTER", cat: "Hipster" },
@@ -20,1159 +23,1160 @@ const CONFIG = {
         { start: "21:00:00", end: "23:30:00", duration: "2:30:00", task: "TWISTER", cat: "Hipster" }
     ]
 };
-// TABLE OF CONTENTS
-// CONFIGURATION & DOM ELEMENTS
-// TRACKER STATE MANAGEMENT
-// STORAGE ENGINE
-// 2. JOB FORM ACTIONS & VALIDATION
-// 3. UPDATE & DELETE JOB UTILITIES
-// 4. REJECT JOB PIPELINE
-// 5. CLIPBOARD & SCREENSHOT PIPELINES
-// 6. OVERTIME AUTOMATION
-// 7. USER INITIALIZATION & SESSIONS
-// 8. HISTORY TABLE
-// 9. EVENT LISTENERS
-// 10. UI RENDERING & DOM MUTATIONS
-// 11. CSV EXPORT ENGINE
-// 12. MAPS INTEGRATION
-// 13. CLOSING TABS
-// 14. INITIALIZATION BOOTSTRAP
-
-
-//DOMS
-
-const jobIdInputEl = document.getElementById("job-id-input");
-const jobFormEl = document.getElementById("job-form");
-const eJobFormEl = document.getElementById("edit-job-form");
-const eJobIdInputEl = document.getElementById('edit-job-id-input');
-const eJobLinkEl = document.getElementById("edit-job-link");
-const eJobPointsEl = document.getElementById("edit-job-points");
-const eJobStatusEl = document.getElementById("edit-job-status");
-const userFormEl = document.getElementById("user-form");
-const overtimeFormEl = document.getElementById("overtime-form");
-const overtimeInputEl = document.getElementById("overtime-input");
-const addJobBtnEl = document.getElementById("add-job-btn");
-const dialogRejectCatEl = document.querySelector('.dialog-reject-cat');
-const rejectJobCategoryEl = document.getElementById("reject-job-category");
-const rejectJobBtnEl = document.getElementById("reject-job-btn");
-const gMapsBtnEl = document.getElementById("gMaps-btn");
-const cExplorerBtnEl = document.getElementById("cExplorer-btn");
-const tscLinkInputEl = document.getElementById("tsc-link");
-const pointsheetLinkInputEl = document.getElementById("pointsheet-link");
-const searchWebBtnEl = document.getElementById("searchWeb-btn");
-const closeTabsBtnEl = document.getElementById("closeTabs-btn");
-const workedLunchEl = document.getElementById("lunch-ot-input");
-const estPphDpEl = document.getElementById("est-pph-dp");
-
-const openEditUserFormEl = document.getElementById("edit-user-form");
-const eTechNoEl = document.getElementById("e-tech-no")
-const eTscLinkInputEl = document.getElementById("e-tsc-link");
-const eUserNameEl = document.getElementById("e-username")
-const eUserShiftEl = document.getElementById("e-user-shift");
-const ePointsheetLinkInputEl = document.getElementById("e-pointsheet-link");
-
-const techNoEl = document.getElementById("tech-no");
-const userNameEl = document.getElementById("user-name");
-const userShiftEl = document.getElementById("user-shift");
-const dialogStatusEl = document.querySelector('.dialog-status'); // was dialogSatusEl (typo)
-
-const jobLinkEl = document.getElementById("job-link");
-const jobPointsEl = document.getElementById("job-points");
-const jobStatusEl = document.getElementById("job-status");
-const historyBodyEl = document.getElementById("history-body");
-const totalPointsEl = document.getElementById("total-points");
-const editUserform = document.getElementById("edit-user");
-const downloadBtnEl = document.getElementById("download-btn");
-const closeOvertimeBtnEl = document.getElementById("close-overtime-btn");
-
-document.getElementById("confirm-job-btn").addEventListener("click", confirmJob);
-document.getElementById("cancel-job-btn").addEventListener("click", closeJobForm);
-document.getElementById("export-btn").addEventListener("click", exportToCSV);
-document.getElementById("copy-btn").addEventListener("click", copyToClipboard);
-document.getElementById("delete-all-btn").addEventListener("click", deleteAllTable);
-document.getElementById("edit-confirm-job-btn").addEventListener("click", confirmEditJob);
-document.getElementById("edit-cancel-job-btn").addEventListener("click", closeEditJobForm);
-document.getElementById("copy-tsc-btn").addEventListener("click", copyTSC);
-document.getElementById("cancel-user-btn").addEventListener("click", closeUserForm);
-document.getElementById("edit-user").addEventListener("click", openEditUserForm);
-document.getElementById("overtime-btn").addEventListener("click", openOvertimeForm);
-document.getElementById("copy-overtime-btn").addEventListener("click", confirmCopyOvertime);
-closeOvertimeBtnEl.addEventListener("click", closeCopyOvertime); // now uses the existing variable
-
-gMapsBtnEl.addEventListener("click", openGMaps);
-cExplorerBtnEl.addEventListener("click", searchAddressOnEagleView);
-
-document.getElementById("confirm-user-btn").addEventListener("click", confirmAddUser);
-document.getElementById("e-confirm-user-btn").addEventListener("click", confirmEditAddUser);
-document.getElementById("e-delete-user-btn").addEventListener("click", deleteUser);
-document.getElementById("e-cancel-user-btn").addEventListener("click", closeEditUserForm);
-searchWebBtnEl.addEventListener("click", searchWeb);
-closeTabsBtnEl.addEventListener("click", closeTabs);
-document.getElementById("shift-toggle-btn").addEventListener("click", toggleShift);
-
-
-//About page
-const aboutIcon = document.getElementById("about-page");
-const aboutModal = document.getElementById("about-modal");
-const closeModal = document.getElementById("close-modal");
-
-const pointsContainer = document.querySelector('#dialog-pts-btn');
-const pointsInput = document.querySelector('#job-points');
 
 const screenWidth = screen.availWidth;
 const windowWidth = Math.round(screen.availWidth / 3);
 const windowHeight = Math.round(screen.availHeight / 1.5);
 
-//TRACKERSTATE
-const TrackerState =
-{
+
+// ============================================================================
+// 1. trackerState — pure data model + transitions.
+// HARD RULE: nothing in this object touches `document`, `localStorage`, or
+// `chrome.*`. If a method here ever needs a form value or a browser API
+// result, that value must be PASSED IN by logic — never read directly.
+// ============================================================================
+const trackerState = {
     user: null,
     jobs: [],
     totalPoints: 0,
-    currentEditId: 0,
+    currentEditId: null,
     isReject: false,
-    isWindowOpen: false,
+    isWindowOpen: false, // set by openGMaps in the original code but never read back anywhere — dead state, kept for parity.
     shiftStart: null,
-    // Removed: id, isRunning, myTab — declared but never read or written anywhere.
+    lastConfirmTime: null, // NOTE: preserved from the original `let lastConfirmTime = TrackerState.shiftStart`,
+                            // which evaluated to null at load time. That means the very first job logged in a
+                            // session still gets a huge timeElapsed (Date.now() - null). Not something I changed —
+                            // flagging it here since it was invisible before, buried in a loose module-level `let`.
+
+    // ---- job CRUD ----
+
+    /** Shapes a new job record from already-collected plain values. No DOM, no chrome.tabs — logic gathers those first. */
+    buildJobRecord({ jobId, link, points, status, date }) {
+        return { id: crypto.randomUUID(), jobId, link, points, status, date };
+    },
+
+    addJob(job) {
+        this.jobs.push(job);
+    },
+
+    updateJob(id, patch) {
+        this.jobs = this.jobs.map(job => (job.id === id ? { ...job, ...patch } : job));
+    },
+
+    updateJobStatus(id, status) {
+        this.updateJob(id, { status });
+    },
+
+    removeJob(id) {
+        this.jobs = this.jobs.filter(job => job.id !== id);
+    },
+
+    markAllPassed() {
+        this.jobs = this.jobs.map(job => ({ ...job, status: "Passed" }));
+    },
+
+    clearJobs() {
+        this.jobs = [];
+    },
 
     summateTotalPoints() {
         let sum = 0;
         for (let i = 0; i < this.jobs.length; i++) {
-            if (this.jobs[i].points == 0 || isNaN(this.jobs[i].points)) {
-                continue;
-            }
-            if (this.jobs[i].status == "Rework") {
-                continue;
-            }
+            if (this.jobs[i].points == 0 || isNaN(this.jobs[i].points)) continue;
+            if (this.jobs[i].status == "Rework") continue;
             sum += this.jobs[i].points;
         }
         this.totalPoints = sum;
         return sum;
     },
 
-    async getJobInputDetails() {
-        // 1. Query Chrome for the active tab in the currently focused window
-        const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    /** Returns elapsed minutes since the last confirmed job, and resets the marker. */
+    markJobConfirmed() {
+        const elapsedMinutes = (Date.now() - this.lastConfirmTime) / 1000 / 60;
+        this.lastConfirmTime = Date.now();
+        return elapsedMinutes;
+    },
 
-        // 2. Fallback gracefully if permissions fail or running outside of tab context
-        const currentTabUrl = activeTab ? activeTab.url : "";
+    // ---- user ----
 
-        const newJob = {
-            id: crypto.randomUUID(),
-            jobId: jobIdInputEl.value.trim(),
-            link: currentTabUrl, // Injects the active page URL automatically
-            points: parseFloat(jobPointsEl.value),
-            status: jobStatusEl.value,
-            date: new Date().toLocaleDateString(),
-        };
+    setUser(user) {
+        this.user = user;
+    },
 
-        return newJob;
-    }
-}
-//STORAGE 
-const Storage = {
-    save() {
-        localStorage.setItem("myJobs", JSON.stringify(TrackerState.jobs));
-        localStorage.setItem("myPoints", JSON.stringify(TrackerState.totalPoints));
-        localStorage.setItem("myUser", JSON.stringify(TrackerState.user));
+    patchUser(partial) {
+        this.user = { ...this.user, ...partial };
     },
-    load() {
-        return {
-            user: JSON.parse(localStorage.getItem("myUser")) || null,
-            jobs: JSON.parse(localStorage.getItem("myJobs")) || [],
-        }
-    },
-    clear() {
-        localStorage.clear();
-    },
-    clearAllJobs() {
-        TrackerState.jobs = [];
-        Storage.save();
-    },
+
     clearUser() {
-        TrackerState.user = null;
-        Storage.save();
+        this.user = null;
     },
-}
-const savedData = Storage.load();
 
-// 2. JOB FORM
-function openJobForm() {
-    const jobId = jobIdInputEl.value.trim();
+    // ---- shift / PPH ----
 
-    if (jobId === "") {
-        alert("Clipboard Empty")
-        return;
-    }
-    if (!validateJobId(jobId)) {
-        alert("Invalid Job Id. Please Try Again")
-        return;
-    }
+    startShift(timestampMs) {
+        this.shiftStart = timestampMs;
+    },
 
-    jobFormEl.showModal();
-}
+    /** Ends the shift, returns hoursWorked. */
+    endShift() {
+        const hoursWorked = (Date.now() - this.shiftStart) / 1000 / 3600;
+        this.shiftStart = null;
+        return hoursWorked;
+    },
 
-function closeJobForm() {
-    jobIdInputEl.value = "";
-    jobLinkEl.value = "";
-    jobPointsEl.value = "";
-    jobStatusEl.value = "Open";
-    TrackerState.isReject = false;
-    resetRejectionFormState();
-    jobFormEl.close();
-}
+    computePPH() {
+        if (!this.shiftStart) return "0.00";
+        const hoursWorked = (Date.now() - this.shiftStart) / 1000 / 3600;
+        if (hoursWorked < (1 / 60)) return "0.00"; // guard against absurd PPH in the first minute
+        return (this.totalPoints / hoursWorked).toFixed(2);
+    },
 
-function validateJobId(jobIdValue) {
-    const regex = CONFIG.validJobIdRegex;
-    return regex.test(jobIdValue);
-}
-let lastConfirmTime = TrackerState.shiftStart; // set when shift starts
+    // ---- pure validators — value in, boolean out, no DOM ----
 
-async function confirmJob() {
+    validateJobId(jobIdValue) {
+        return CONFIG.validJobIdRegex.test(jobIdValue);
+    },
 
-    if (!TrackerState.isReject) {
-
-        const rawJobId = jobIdInputEl.value.trim();
-        if (!validateJobId(rawJobId)) {
-            alert("Invalid job Id. Please try again");
-            return;
+    isValidWebUrl(string) {
+        try {
+            const url = new URL(string);
+            return url.protocol === "https:" || url.protocol === "http:";
+        } catch (_) {
+            return false;
         }
+    },
 
-        const newJob = await TrackerState.getJobInputDetails();
-        const parsedPoints = parseFloat(jobPointsEl.value);
-        if (isNaN(parsedPoints) || parsedPoints <= 0) {
-            alert("Invalid Point Value, Please try again");
-            return;
-        }
+    /**
+     * Pure TSC payload builder. liveOvertimeValue / workedLunchChecked are
+     * PARAMETERS now, not direct reads of overtimeInputEl.value /
+     * workedLunchEl.checked like the original — that's the DOM-decoupling fix.
+     */
+    compileTscPayload(shiftScheduleArray, { liveOvertimeValue = 0, workedLunchChecked = false, dateHandlerCb } = {}) {
+        const breakSlots = shiftScheduleArray.filter(s => s.task === "BREAK");
+        const secondBreak = breakSlots[1];
 
-        // compute elapsed time
-        const elapsedMs = Date.now() - lastConfirmTime;
-        const elapsedMinutes = elapsedMs / 1000 / 60;
-        newJob.timeElapsed = elapsedMinutes;
+        return shiftScheduleArray.map((slot, index) => {
+            const rowDate = dateHandlerCb ? dateHandlerCb(slot.start) : new Date().toLocaleDateString();
 
-        // push once with timeElapsed included
-        TrackerState.jobs.push(newJob);
-        Storage.save();
-        renderUI();
+            const baseColumns = [
+                this.user.techNo,
+                this.user.userName,
+                this.user.userShift,
+                rowDate,
+                slot.start,
+                slot.end,
+                slot.duration,
+                slot.task,
+                slot.cat
+            ];
 
-        // Reset marker for next job
-        lastConfirmTime = Date.now();
-
-        // Clean Up UI (closeJobForm already clears the inputs)
-        closeJobForm();
-        jobIdInputEl.focus();
-
-    } else {
-        // rejection branch...
-        const rawJobId = jobIdInputEl.value.trim();
-        const rawLink = jobLinkEl.value.trim();
-        const rejectReason = rejectJobCategoryEl.value;
-
-        if (!validateJobId(rawJobId)) {
-            alert("Invalid job Id. Please try again");
-            return;
-        }
-
-        const plainTextData = `${rawJobId}\nLink: ${rawLink}\n${rejectReason}`;
-        const htmlData = `<strong>${rawJobId}</strong><br>Link: <a href="${rawLink}">Measurement UI</a><br>${rejectReason}`;
-
-        await captureActiveTabAndTextToClipboard(plainTextData, htmlData);
-
-        // closeJobForm() below already calls resetRejectionFormState() internally,
-        // so the separate call that used to live here was removed.
-        closeJobForm();
-        window.location.href = "msteams://teams.microsoft.com/l/launch";
-    }
-}
-
-
-// 3. UPDATE/DELETE JOB FORMS
-function confirmEditJob() {
-    const eJobId = eJobIdInputEl.value.trim();
-    const parsedPts = parseFloat(eJobPointsEl.value);
-    if (!validateJobId(eJobId)) {
-        alert("Invalid Job Id. Please Try Again")
-        return;
-    }
-    if (isNaN(parsedPts)) {
-        alert("Invalid Points. Please Try Again");
-        return;
-    }
-
-    TrackerState.jobs = TrackerState.jobs.map(
-        job => {
-            if (job.id === TrackerState.currentEditId) {
-                return {
-                    ...job,
-                    jobId: eJobIdInputEl.value.trim(),
-                    link: eJobLinkEl.value.trim(),
-                    points: parseFloat(eJobPointsEl.value),
-                    status: eJobStatusEl.value
-                };
+            let eotField = "NO";
+            if (index === 0 && liveOvertimeValue > 0) eotField = "YES";
+            if (workedLunchChecked && secondBreak && slot.start === secondBreak.start && slot.end === secondBreak.end) {
+                eotField = "YES";
             }
-            return job;
-        });
-    Storage.save();
-    renderUI();
-    eJobFormEl.close();
-    TrackerState.currentEditId = null;
-}
-function editJob(event) {
-    const targetId = event.target.dataset.id;
-    TrackerState.currentEditId = targetId;
-    for (let i = 0; i < TrackerState.jobs.length; i++)
-        if (TrackerState.jobs[i].id == targetId) {
-            eJobFormEl.showModal();
-            eJobIdInputEl.value = TrackerState.jobs[i].jobId;
-            eJobPointsEl.value = TrackerState.jobs[i].points;
-            eJobLinkEl.value = TrackerState.jobs[i].link;
-            eJobStatusEl.value = TrackerState.jobs[i].status;
-        }
-}
-function deleteJob(event) {
-    const targetId = event.target.dataset.id;
-    TrackerState.jobs = TrackerState.jobs.filter(job => job.id !== targetId);
-    Storage.save();
-    renderUI();
-}
-function closeEditJobForm() {
-    eJobFormEl.close();
-}
 
-//4. REJECT JOB
-window.rejectJobForm = function () {
-    dialogStatusEl.style.display = "none";
-    rejectJobBtnEl.style.display = "none";
-    pointsContainer.style.display = "none";
-    dialogRejectCatEl.style.display = 'block';
-    TrackerState.isReject = true;
+            baseColumns.push(eotField);
+            return baseColumns.join("\t");
+        }).join("\n");
+    },
 };
 
-function resetRejectionFormState() {
-    // Return form panels back to standard default visibility settings
-    dialogStatusEl.style.display = "block";
-    pointsContainer.style.display = "block";
-    dialogRejectCatEl.style.display = 'none';
-    rejectJobBtnEl.style.display = "block";
 
-    // Clear field entries
-    jobIdInputEl.value = "";
-    dialogRejectCatEl.value = "";
-}
+// ============================================================================
+// 2. storage — persistence only. No knowledge of trackerState, no DOM.
+// Every call is wrapped, since the original let a corrupted JSON.parse or a
+// quota-exceeded setItem throw uncaught.
+// ============================================================================
+const storage = {
+    saveAll({ jobs, totalPoints, user }) {
+        try {
+            localStorage.setItem("myJobs", JSON.stringify(jobs));
+            localStorage.setItem("myPoints", JSON.stringify(totalPoints));
+            localStorage.setItem("myUser", JSON.stringify(user));
+        } catch (err) {
+            console.error("Storage save failed:", err);
+        }
+    },
+
+    load() {
+        try {
+            return {
+                user: JSON.parse(localStorage.getItem("myUser")) || null,
+                jobs: JSON.parse(localStorage.getItem("myJobs")) || [],
+            };
+        } catch (err) {
+            console.error("Storage load failed, starting fresh:", err);
+            return { user: null, jobs: [] };
+        }
+    },
+
+    saveShiftStart(timestampMs) {
+        try {
+            localStorage.setItem("shiftStart", timestampMs);
+        } catch (err) {
+            console.error("Storage saveShiftStart failed:", err);
+        }
+    },
+
+    loadShiftStart() {
+        try {
+            return parseInt(localStorage.getItem("shiftStart")) || null;
+        } catch (err) {
+            console.error("Storage loadShiftStart failed:", err);
+            return null;
+        }
+    },
+
+    clearShiftStart() {
+        try {
+            localStorage.removeItem("shiftStart");
+        } catch (err) {
+            console.error("Storage clearShiftStart failed:", err);
+        }
+    },
+
+    clearAll() {
+        try {
+            localStorage.clear();
+        } catch (err) {
+            console.error("Storage clearAll failed:", err);
+        }
+    },
+};
 
 
-// 5. CLIPBOARD FUNCTIONS
-async function captureActiveTabAndTextToClipboard(plainTextPayload, htmlPayload) {
-    if (typeof chrome === "undefined" || !chrome.tabs) {
-        console.error("Context Error: Run within extension environment.");
-        return;
-    }
+// ============================================================================
+// 3. paint — DOM writes only. No CONFIG, no trackerState, no storage, no
+// chrome.* calls. Never uses innerHTML — every node is createElement/textContent,
+// so job/user data can never be interpreted as markup no matter its source.
+// Click handlers are passed IN as a `handlers` object; paint calls them with
+// plain ids and never imports or calls a `logic` function by name.
+// ============================================================================
+const paint = {
+    dom: {
+        jobIdInputEl: document.getElementById("job-id-input"),
+        jobFormEl: document.getElementById("job-form"),
+        eJobFormEl: document.getElementById("edit-job-form"),
+        eJobIdInputEl: document.getElementById("edit-job-id-input"),
+        eJobLinkEl: document.getElementById("edit-job-link"),
+        eJobPointsEl: document.getElementById("edit-job-points"),
+        eJobStatusEl: document.getElementById("edit-job-status"),
+        userFormEl: document.getElementById("user-form"),
+        overtimeFormEl: document.getElementById("overtime-form"),
+        overtimeInputEl: document.getElementById("overtime-input"),
+        addJobBtnEl: document.getElementById("add-job-btn"),
+        dialogRejectCatEl: document.querySelector(".dialog-reject-cat"),
+        rejectJobCategoryEl: document.getElementById("reject-job-category"),
+        rejectJobBtnEl: document.getElementById("reject-job-btn"),
+        gMapsBtnEl: document.getElementById("gMaps-btn"),
+        cExplorerBtnEl: document.getElementById("cExplorer-btn"),
+        tscLinkInputEl: document.getElementById("tsc-link"),
+        pointsheetLinkInputEl: document.getElementById("pointsheet-link"),
+        searchWebBtnEl: document.getElementById("searchWeb-btn"),
+        closeTabsBtnEl: document.getElementById("closeTabs-btn"),
+        workedLunchEl: document.getElementById("lunch-ot-input"),
+        estPphDpEl: document.getElementById("est-pph-dp"),
 
-    try {
-        // 1. Capture screenshot
-        const dataUrl = await new Promise((resolve, reject) => {
-            chrome.tabs.captureVisibleTab(null, { format: "png" }, (result) => {
-                if (chrome.runtime.lastError) {
-                    return reject(new Error(chrome.runtime.lastError.message));
-                }
-                resolve(result);
+        openEditUserFormEl: document.getElementById("edit-user-form"),
+        eTechNoEl: document.getElementById("e-tech-no"),
+        eTscLinkInputEl: document.getElementById("e-tsc-link"),
+        eUserNameEl: document.getElementById("e-username"),
+        eUserShiftEl: document.getElementById("e-user-shift"),
+        ePointsheetLinkInputEl: document.getElementById("e-pointsheet-link"),
+
+        techNoEl: document.getElementById("tech-no"),
+        userNameEl: document.getElementById("user-name"),
+        userShiftEl: document.getElementById("user-shift"),
+        dialogStatusEl: document.querySelector(".dialog-status"),
+
+        jobLinkEl: document.getElementById("job-link"),
+        jobPointsEl: document.getElementById("job-points"),
+        jobStatusEl: document.getElementById("job-status"),
+        historyBodyEl: document.getElementById("history-body"),
+        totalPointsEl: document.getElementById("total-points"),
+        editUserBtnEl: document.getElementById("edit-user"),
+        downloadBtnEl: document.getElementById("download-btn"),
+        closeOvertimeBtnEl: document.getElementById("close-overtime-btn"),
+
+        aboutIcon: document.getElementById("about-page"),
+        aboutModal: document.getElementById("about-modal"),
+        closeModalBtnEl: document.getElementById("close-modal"),
+
+        pointsContainer: document.querySelector("#dialog-pts-btn"),
+        pointsInput: document.querySelector("#job-points"),
+
+        shiftToggleBtnEl: document.getElementById("shift-toggle-btn"),
+
+        confirmJobBtnEl: document.getElementById("confirm-job-btn"),
+        cancelJobBtnEl: document.getElementById("cancel-job-btn"),
+        exportBtnEl: document.getElementById("export-btn"),
+        copyBtnEl: document.getElementById("copy-btn"),
+        deleteAllBtnEl: document.getElementById("delete-all-btn"),
+        editConfirmJobBtnEl: document.getElementById("edit-confirm-job-btn"),
+        editCancelJobBtnEl: document.getElementById("edit-cancel-job-btn"),
+        copyTscBtnEl: document.getElementById("copy-tsc-btn"),
+        cancelUserBtnEl: document.getElementById("cancel-user-btn"),
+        overtimeBtnEl: document.getElementById("overtime-btn"),
+        copyOvertimeBtnEl: document.getElementById("copy-overtime-btn"),
+        confirmUserBtnEl: document.getElementById("confirm-user-btn"),
+        eConfirmUserBtnEl: document.getElementById("e-confirm-user-btn"),
+        eDeleteUserBtnEl: document.getElementById("e-delete-user-btn"),
+        eCancelUserBtnEl: document.getElementById("e-cancel-user-btn"),
+    },
+
+    // ---- job table rendering ----
+
+    renderJobRows(jobs, handlers) {
+        const dom = this.dom;
+        dom.historyBodyEl.textContent = "";
+
+        jobs.forEach(job => {
+            const tr = document.createElement("tr");
+
+            const linkCell = document.createElement("td");
+            linkCell.className = "cell-link";
+            const anchor = document.createElement("a");
+            anchor.href = job.link;
+            anchor.target = "_blank";
+            anchor.textContent = "Link";
+            linkCell.appendChild(anchor);
+
+            const idCell = document.createElement("td");
+            idCell.className = "cell-id";
+            idCell.textContent = job.jobId;
+
+            const pointsCell = document.createElement("td");
+            pointsCell.className = "cell-points";
+            pointsCell.textContent = job.points;
+
+            const statusCell = document.createElement("td");
+            const select = document.createElement("select");
+            select.className = "status-select";
+            select.dataset.id = job.id;
+            ["Open", "Passed", "Rework"].forEach(statusOption => {
+                const option = document.createElement("option");
+                option.value = statusOption;
+                option.textContent = statusOption;
+                option.selected = job.status === statusOption;
+                select.appendChild(option);
             });
-        });
-
-        // 2. Embed screenshot directly inside the HTML payload
-        const htmlWithImage = `
-                    ${htmlPayload}
-                    <br>
-                    <img src="${dataUrl}" style="max-width: 100%; height: auto; display: block; margin-top: 3px; border-radius: 4px;">
-                `;
-
-        // 3. Write HTML + plain text only — no separate image blob needed
-        const textBlob = new Blob([plainTextPayload], { type: "text/plain" });
-        const htmlBlob = new Blob([htmlWithImage], { type: "text/html" });
-
-        await navigator.clipboard.write([
-            new ClipboardItem({
-                "text/plain": textBlob,
-                "text/html": htmlBlob
-            })
-        ]);
-
-    } catch (err) {
-        console.error("Clipboard Pipeline Fault:", err.message);
-        alert("Clipboard update failed: " + err.message);
-    }
-}
-function copyToClipboard() {
-    const pointLink = TrackerState.user?.pointsheetLink;
-    const rows = TrackerState.jobs.map(j =>
-        // TODO: this used to be [j.jobId, , j.points, j.status] — the stray comma left a
-        // blank column. Given the CSV export order (Link, Job ID, Points, Status), this was
-        // most likely meant to include j.link. Swap/remove as appropriate for your workflow.
-        [j.jobId, j.link, j.points, j.status].join("\t")
-    );
-    navigator.clipboard.writeText(rows.join("\n"));
-    if (pointLink) {
-        window.open(pointLink, 'popupWindow', 'width=800,height=600,scrollbars=yes');
-    }
-};
-
-function copyTSC() {
-    if (!TrackerState.user) return;
-    let pastePayLoad = "";
-    const liveOvertimeValue = parseFloat(overtimeInputEl.value) || 0;
-    const tscLink = TrackerState.user?.tscLink;
-
-    if (TrackerState.user?.userShift == "Day") {
-        const shiftSchedule = [...CONFIG.dayShiftSchedule];
-
-        if (liveOvertimeValue > 0) {
-            const hours = Math.floor(liveOvertimeValue);
-            const minutes = Math.floor((liveOvertimeValue % 1) * 60);
-
-            // Formats the duration explicitly to match your time taken column structure
-            const durationStr = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:00`;
-
-            const calculatedEndHour = 15 + hours;
-            const calculatedEndMin = 30 + minutes;
-            const endStr = `${calculatedEndHour.toString().padStart(2, "0")}:${calculatedEndMin.toString().padStart(2, "0")}:00`;
-
-            shiftSchedule.unshift({
-                start: "15:30:00",
-                end: endStr,
-                duration: durationStr,
-                task: "TWISTER",
-                cat: "Hipster"
+            select.addEventListener("change", event => {
+                handlers.onStatusChange(job.id, event.target.value, event.target);
             });
-        }
+            statusCell.appendChild(select);
 
-        pastePayLoad = compileTscPayload(shiftSchedule);
-        navigator.clipboard.writeText(pastePayLoad);
-    }
-    else {
-        const baseDate = new Date();
-        const nextdate = new Date(baseDate);
+            const dateCell = document.createElement("td");
+            dateCell.className = "cell-date";
+            dateCell.textContent = job.date;
 
-        baseDate.setDate(baseDate.getDate() - 1);
+            const editCell = document.createElement("td");
+            editCell.className = "cell-edit";
+            const btnEdit = document.createElement("button");
+            btnEdit.textContent = "✏️";
+            btnEdit.className = "action-btn edit-btn";
+            btnEdit.dataset.id = job.id;
+            btnEdit.addEventListener("click", () => handlers.onEdit(job.id));
+            editCell.appendChild(btnEdit);
 
-        const day1str = baseDate.toLocaleDateString();
-        const day2str = nextdate.toLocaleDateString();
+            const deleteCell = document.createElement("td");
+            deleteCell.className = "cell-delete";
+            const btnDelete = document.createElement("button");
+            btnDelete.textContent = "❌";
+            btnDelete.className = "action-btn delete-btn";
+            btnDelete.dataset.id = job.id;
+            btnDelete.addEventListener("click", () => handlers.onDelete(job.id));
+            deleteCell.appendChild(btnDelete);
 
-        const shiftSchedule = CONFIG.nightShiftSchedule;
-
-        pastePayLoad = compileTscPayload(shiftSchedule, (startHourStr) => {
-            const startHour = parseInt(startHourStr.split(":")[0], 10);
-            return (startHour == 0 || startHour < 12) ? day2str : day1str;
+            tr.append(linkCell, idCell, pointsCell, statusCell, dateCell, editCell, deleteCell);
+            dom.historyBodyEl.appendChild(tr);
+            this.updateStatusColor(select);
         });
-        navigator.clipboard.writeText(pastePayLoad);
-        alert("TSC Copied to clipboard — Double check the TSC generated by the computer.");
-    }
-    if (tscLink) {
-        window.open(tscLink, 'popupWindow', 'width=1920,height=1080,scrollbars=yes');
-    }
-}
-function compileTscPayload(shiftScheduleArray, dateHandlerCb) {
-    const liveOvertimeValue = parseFloat(overtimeInputEl.value) || 0;
-    const workedLunchChecked = workedLunchEl.checked;
 
-    // Precompute the second break slot
-    const breakSlots = shiftScheduleArray.filter(s => s.task === "BREAK");
-    const secondBreak = breakSlots[1]; // index 1 = second break
+        this.highlightDuplicates();
+    },
 
-    return shiftScheduleArray.map((slot, index) => {
-        const rowDate = dateHandlerCb ? dateHandlerCb(slot.start) : new Date().toLocaleDateString();
+    updateStatusColor(selectEl) {
+        selectEl.className = "status-select " + selectEl.value.toLowerCase();
+    },
 
-        const baseColumns = [
-            TrackerState.user.techNo,
-            TrackerState.user.userName,
-            TrackerState.user.userShift,
-            rowDate,
-            slot.start,
-            slot.end,
-            slot.duration,
-            slot.task,
-            slot.cat
-        ];
+    highlightDuplicates() {
+        const allIdCells = this.dom.historyBodyEl.querySelectorAll(".cell-id");
+        const seen = {};
 
-        let eotField = "NO";
+        allIdCells.forEach(cell => {
+            const id = cell.textContent.trim();
+            seen[id] = (seen[id] || 0) + 1;
+        });
+        allIdCells.forEach(cell => {
+            const id = cell.textContent.trim();
+            cell.classList.toggle("duplicate-id", seen[id] > 1);
+        });
+    },
 
-        // Rule 1: Overtime input → first row gets YES
-        if (index === 0 && liveOvertimeValue > 0) {
-            eotField = "YES";
-        }
+    renderTotals(total, pph) {
+        this.dom.totalPointsEl.textContent = "Total Points:" + total;
+        this.dom.estPphDpEl.textContent = pph;
+    },
 
-        // Rule 2: Worked Lunch checkbox → second break slot gets YES
-        if (
-            workedLunchChecked &&
-            secondBreak &&
-            slot.start === secondBreak.start &&
-            slot.end === secondBreak.end
-        ) {
-            eotField = "YES";
-        }
+    setShiftButtonState(isRunning) {
+        this.dom.shiftToggleBtnEl.classList.toggle("active", isRunning);
+        this.dom.shiftToggleBtnEl.textContent = isRunning ? "Shift Running" : "Start Shift";
+    },
 
-        baseColumns.push(eotField);
-        return baseColumns.join("\t");
-    }).join("\n");
-}
+    // ---- form population (write-only: data -> fields) ----
 
+    populateEditJobForm(job) {
+        this.dom.eJobIdInputEl.value = job.jobId;
+        this.dom.eJobPointsEl.value = job.points;
+        this.dom.eJobLinkEl.value = job.link;
+        this.dom.eJobStatusEl.value = job.status;
+    },
 
-async function writeRichLinkToClipboard(url) {
-    if (!url || !url.startsWith('http')) return;
-    try {
-        const htmlString = `<a href="${url}">${url}</a>`;
-        const textBlob = new Blob([url], { type: "text/plain" });
-        const htmlBlob = new Blob([htmlString], { type: "text/html" });
+    populateEditUserForm(user) {
+        this.dom.eUserNameEl.value = user.userName || "";
+        this.dom.eTechNoEl.value = user.techNo || "";
+        this.dom.eUserShiftEl.value = user.userShift || "";
+        this.dom.eTscLinkInputEl.value = user.tscLink || "";
+        this.dom.ePointsheetLinkInputEl.value = user.pointsheetLink || "";
+    },
 
-        await navigator.clipboard.write([
-            new ClipboardItem({
-                "text/plain": textBlob,
-                "text/html": htmlBlob
-            })
-        ]);
+    clearJobForm() {
+        this.dom.jobIdInputEl.value = "";
+        this.dom.jobLinkEl.value = "";
+        this.dom.jobPointsEl.value = "";
+        this.dom.jobStatusEl.value = "Open";
+    },
 
-    } catch (err) {
-        console.error("Failed to automatically write rich text link:", err);
-    }
-}
+    clearOvertimeForm() {
+        this.dom.overtimeInputEl.value = "";
+    },
 
+    showRejectPanel() {
+        this.dom.dialogStatusEl.style.display = "none";
+        this.dom.rejectJobBtnEl.style.display = "none";
+        this.dom.pointsContainer.style.display = "none";
+        this.dom.dialogRejectCatEl.style.display = "block";
+    },
 
-// 6. OVERTIME FORM
-function openOvertimeForm() {
-    overtimeFormEl.showModal();
-}
-function confirmCopyOvertime() {
-    const tscLink = TrackerState.user?.tscLink;
-    if (!TrackerState.user) return;
-    copyTSC();
-    closeCopyOvertime();
-    if (tscLink) {
-        window.open(tscLink, 'popupWindow', 'scrollbars=yes');
-    }
-}
-function closeCopyOvertime() {
-    overtimeInputEl.value = "";
-    overtimeFormEl.close();
-}
+    hideRejectPanel() {
+        this.dom.dialogStatusEl.style.display = "block";
+        this.dom.pointsContainer.style.display = "block";
+        this.dom.dialogRejectCatEl.style.display = "none";
+        this.dom.rejectJobBtnEl.style.display = "block";
+        this.dom.jobIdInputEl.value = "";
+        this.dom.dialogRejectCatEl.value = "";
+    },
 
-// 7. USER
-
-function getNewUserInfo() {
-    const username = userNameEl?.value?.trim();
-    const techno = parseFloat(techNoEl?.value);
-    if (!username || (Number.isNaN(techno))) return null;
-
-    const newUser = {
-        id: crypto.randomUUID(),
-        userName: username,
-        techNo: techno,
-        userShift: userShiftEl?.value || "",
-        date: new Date().toISOString().split('T')[0],
-        tscLink: tscLinkInputEl.value.trim(),
-        pointsheetLink: pointsheetLinkInputEl.value.trim()
-    };
-    return newUser;
-}
-
-function confirmAddUser() {
-    const createdUser = getNewUserInfo();
-    if (!createdUser) return;
-    if (isNaN(createdUser.techNo)) return;
-    if (createdUser.tscLink && !isValidWebUrl(createdUser.tscLink)) {
-        alert("TSC link must be a valid http/https URL.");
-        return;
-    }
-    if (createdUser.pointsheetLink && !isValidWebUrl(createdUser.pointsheetLink)) {
-        alert("Pointsheet link must be a valid http/https URL.");
-        return;
-    }
-
-    TrackerState.user = createdUser;
-    Storage.save();
-    closeUserForm();
-    aboutModal.showModal();
-    renderUI();
+    dialogs: {
+        openJob() { paint.dom.jobFormEl.showModal(); },
+        closeJob() { paint.dom.jobFormEl.close(); },
+        openEditJob() { paint.dom.eJobFormEl.showModal(); },
+        closeEditJob() { paint.dom.eJobFormEl.close(); },
+        openUser() { paint.dom.userFormEl.showModal(); },
+        closeUser() { paint.dom.userFormEl.close(); },
+        openEditUser() { paint.dom.openEditUserFormEl.showModal(); },
+        closeEditUser() { paint.dom.openEditUserFormEl.close(); },
+        openOvertime() { paint.dom.overtimeFormEl.showModal(); },
+        closeOvertime() { paint.dom.overtimeFormEl.close(); },
+        openAbout() { paint.dom.aboutModal.showModal(); },
+        closeAbout() { paint.dom.aboutModal.close(); },
+    },
 };
 
-function closeUserForm() {
-    userFormEl.close();
-}
-function deleteUser() {
-    Storage.clearUser();
-    renderUI();
-    window.location.reload();
-};
 
-function openEditUserForm() {
-    if (!TrackerState.user) {
-        return;
-    }
-    getEditedUserInfo();
-    openEditUserFormEl.showModal();
-}
+// ============================================================================
+// 4. logic — the only object that touches trackerState + storage + paint +
+// chrome.*/clipboard/window APIs. Owns every event listener.
+// ============================================================================
+const logic = {
 
-function getEditedUserInfo() {
-    eUserNameEl.value = TrackerState.user.userName || "";
-    eTechNoEl.value = TrackerState.user.techNo || "";
-    eUserShiftEl.value = TrackerState.user.userShift || "";
-    eTscLinkInputEl.value = TrackerState.user.tscLink || "";
-    ePointsheetLinkInputEl.value = TrackerState.user.pointsheetLink || "";
-}
+    init() {
+        const savedData = storage.load();
+        trackerState.user = savedData.user;
+        trackerState.jobs = savedData.jobs;
+        trackerState.shiftStart = storage.loadShiftStart();
 
-function confirmEditAddUser() {
-    const parsedTechNo = parseFloat(eTechNoEl.value);
-    if (!eUserNameEl.value.trim() || isNaN(parsedTechNo)) {
-        alert("Please provide a valid Username and Tech Number.");
-        return;
-    }
-    if (eTscLinkInputEl.value && !isValidWebUrl(eTscLinkInputEl.value)) {
-        alert("TSC link must be a valid http/https URL.");
-        return;
-    }
-    if (ePointsheetLinkInputEl.value && !isValidWebUrl(ePointsheetLinkInputEl.value)) {
-        alert("Pointsheet link must be a valid http/https URL.");
-        return;
-    }
+        if (trackerState.shiftStart) paint.setShiftButtonState(true);
 
-    // Direct, explicit mutation of our state object using the input field values
-    TrackerState.user = {
-        ...TrackerState.user, // Preserves the original unique user ID string
-        userName: eUserNameEl.value.trim(),
-        techNo: parsedTechNo,
-        userShift: eUserShiftEl.value || "",
-        tscLink: eTscLinkInputEl.value.trim(),
-        pointsheetLink: ePointsheetLinkInputEl.value.trim()
-    };
+        this._bindEvents();
+        this.refreshUI();
+        paint.dom.jobIdInputEl.focus();
 
-    Storage.save();
-    openEditUserFormEl.close();
-    alert("User Updated Succesfully");
-    renderUI();
-}
-function closeEditUserForm() {
-    openEditUserFormEl.close();
-}
+        // Consolidated from two separate, timing-fragile checks in the original
+        // (a DOMContentLoaded listener that read TrackerState.user before INIT()
+        // had populated it, plus INIT() itself). trackerState.user is guaranteed
+        // loaded by this point, so this single check is reliable either way.
+        if (!trackerState.user) paint.dialogs.openUser();
+    },
 
+    /** Recomputes derived data and repaints totals/PPH + the full job table. */
+    refreshUI() {
+        trackerState.summateTotalPoints();
+        paint.renderJobRows(trackerState.jobs, {
+            onEdit: id => this.handleEditJobClick(id),
+            onDelete: id => this.handleDeleteJobClick(id),
+            onStatusChange: (id, status, el) => this.handleStatusChange(id, status, el),
+        });
+        paint.renderTotals(trackerState.totalPoints, trackerState.computePPH());
+    },
 
-//8. HISTORY TABLE
-function deleteAllTable() {
-    Storage.clearAllJobs();
-    renderUI();
-};
+    /** Recomputes totalPoints, then writes jobs/points/user to storage together. */
+    persist() {
+        trackerState.summateTotalPoints();
+        storage.saveAll({
+            jobs: trackerState.jobs,
+            totalPoints: trackerState.totalPoints,
+            user: trackerState.user,
+        });
+    },
 
-//9. EVENT LISTENERS
+    // ---- job form ----
 
-aboutIcon.addEventListener("click", () => aboutModal.showModal());
-closeModal.addEventListener("click", () => aboutModal.close());
+    openJobForm() {
+        const jobId = paint.dom.jobIdInputEl.value.trim();
+        if (jobId === "") { alert("Clipboard Empty"); return; }
+        if (!trackerState.validateJobId(jobId)) { alert("Invalid Job Id. Please Try Again"); return; }
+        paint.dialogs.openJob();
+    },
 
-pointsContainer.addEventListener('click', (event) => {
-    const button = event.target.closest('.point-btn');
+    closeJobForm() {
+        paint.clearJobForm();
+        trackerState.isReject = false;
+        this.resetRejectionFormState();
+        paint.dialogs.closeJob();
+    },
 
-    if (button) {
-        // 1. Remove the active color class from whichever button currently has it
-        pointsContainer.querySelectorAll('.point-btn').forEach(btn => btn.classList.remove('active'));
+    async confirmJob() {
+        if (!trackerState.isReject) {
+            const rawJobId = paint.dom.jobIdInputEl.value.trim();
+            if (!trackerState.validateJobId(rawJobId)) { alert("Invalid job Id. Please try again"); return; }
 
-        // 2. Add the active color class to the button that was just clicked
-        button.classList.add('active');
-        const pointValue = button.dataset.category;
-        pointsInput.value = pointValue;
-    }
-});
+            const parsedPoints = parseFloat(paint.dom.jobPointsEl.value);
+            if (isNaN(parsedPoints) || parsedPoints <= 0) { alert("Invalid Point Value, Please try again"); return; }
 
-jobFormEl.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") confirmJob();
-});
+            const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            const currentTabUrl = activeTab ? activeTab.url : "";
 
-jobIdInputEl.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-        event.preventDefault();
-        addJobBtnEl.click();
-    }
-});
-eJobFormEl.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") confirmEditJob();
-});
-window.addEventListener("keydown", (event) => {
-    const pressedkey = event.key.toLowerCase();
-    if ((event.ctrlKey || event.metaKey) && pressedkey === "j") {
-        event.preventDefault();
-        searchWebBtnEl.click();
-    }
-});
-window.addEventListener("keydown", (event) => {
-    const pressedkey = event.key.toLowerCase();
-    if ((event.ctrlKey || event.metaKey) && pressedkey === "m") {
-        event.preventDefault();
-        gMapsBtnEl.click();
-    }
-});
-window.addEventListener("keydown", (event) => {
-    const pressedkey = event.key.toLowerCase();
-    if ((event.ctrlKey || event.metaKey) && pressedkey === "k") {
-        event.preventDefault();
-        cExplorerBtnEl.click();
-    }
-});
-window.addEventListener("keydown", (event) => {
-    const pressedkey = event.key.toLowerCase();
-    if ((event.ctrlKey || event.metaKey) && event.shiftKey && pressedkey == "x") {
-        event.preventDefault();
-        closeTabsBtnEl.click();
-    }
-});
-window.addEventListener("keydown", (event) => {
-    const pressedkey = event.key.toLowerCase();
-    if ((event.ctrlKey || event.metaKey) && pressedkey === "d") {
-        event.preventDefault();
-        editUserform.style.display = "block";
-        downloadBtnEl.style.display = "block";
-    }
-});
-window.addEventListener("keydown", (event) => {
-    if (event.key.toLowerCase() !== "p") return;
+            const newJob = trackerState.buildJobRecord({
+                jobId: rawJobId,
+                link: currentTabUrl,
+                points: parsedPoints,
+                status: paint.dom.jobStatusEl.value,
+                date: new Date().toLocaleDateString(),
+            });
+            newJob.timeElapsed = trackerState.markJobConfirmed();
 
-    if ((event.ctrlKey || event.metaKey) && event.shiftKey) {
-        event.preventDefault();
+            trackerState.addJob(newJob);
+            this.persist();
+            this.refreshUI();
 
-        if (TrackerState.jobs.length === 0) return;
-
-        TrackerState.jobs = TrackerState.jobs.map(job => ({
-            ...job,
-            status: "Passed"
-        }));
-        Storage.save();
-        renderUI();
-    }
-});
-
-window.addEventListener("keydown", (event) => {
-    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key == "Enter") {
-        event.preventDefault();
-        window.rejectJobForm();
-    }
-});
-
-addJobBtnEl.addEventListener("click", async () => {
-    try {
-        // Fetch data completely in-memory first
-        const clipboardText = await navigator.clipboard.readText();
-        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        let currentUrl = tab?.url;
-        // Update the form link input field
-        jobLinkEl.value = currentUrl || "";
-
-        // Only populate the job ID input if the clipboard originally had valid numeric data
-        if (clipboardText) {
-            const cleanJobId = clipboardText.replace(/[^0-9]/g, "");
-            jobIdInputEl.value = cleanJobId;
-            openJobForm();
-            // Explicitly hand focus back to the input so it's ready for typing
-            jobIdInputEl.focus();
-        }
-    } catch (err) {
-        console.error("Extension Clipboard Engine Failed:", err);
-        openJobForm(); // Fallback to ensure form opens even if clipboard fails
-    }
-});
-
-window.addEventListener("DOMContentLoaded", () => {
-    if (!TrackerState.user) {
-        userFormEl.showModal();
-    }
-});
-//Button for Rejected Jobs
-rejectJobBtnEl.addEventListener("click", window.rejectJobForm);
-
-
-//10. UI()
-function updateStatus(event) {
-    const jobId = event.target.dataset.id;
-    const newStatus = event.target.value;
-    for (let i = 0; i < TrackerState.jobs.length; i++) {
-        if (jobId === TrackerState.jobs[i].id) {
-            TrackerState.jobs[i].status = newStatus;
-            Storage.save();
-            updateStatusColor(event.target);
-            return;
-        }
-    }
-};
-
-function updateStatusColor(selectEl) {
-    selectEl.className = "status-select " + selectEl.value.toLowerCase();
-}
-
-function highlightDuplicates() {
-    const allIdCells = historyBodyEl.querySelectorAll(".cell-id");
-    const seen = {};
-
-    // First pass — count occurrences
-    allIdCells.forEach(cell => {
-        const id = cell.textContent.trim();
-        seen[id] = (seen[id] || 0) + 1;
-    });
-
-    // Second pass — apply class to duplicates
-    allIdCells.forEach(cell => {
-        const id = cell.textContent.trim();
-        if (seen[id] > 1) {
-            cell.classList.add("duplicate-id");
+            this.closeJobForm();
+            paint.dom.jobIdInputEl.focus();
         } else {
-            cell.classList.remove("duplicate-id");
+            const rawJobId = paint.dom.jobIdInputEl.value.trim();
+            const rawLink = paint.dom.jobLinkEl.value.trim();
+            const rejectReason = paint.dom.rejectJobCategoryEl.value;
+
+            if (!trackerState.validateJobId(rawJobId)) { alert("Invalid job Id. Please try again"); return; }
+
+            // FIX applied here: rawLink is a user-editable field, not a locked-in
+            // value — the original interpolated it straight into an href inside
+            // an HTML string bound for the clipboard with no validation at all.
+            // Now it's checked against isValidWebUrl before it ever touches HTML.
+            const safeLink = trackerState.isValidWebUrl(rawLink) ? rawLink : "";
+
+            const plainTextData = `${rawJobId}\nLink: ${rawLink}\n${rejectReason}`;
+            const htmlData = `<strong>${rawJobId}</strong><br>Link: <a href="${safeLink}">Measurement UI</a><br>${rejectReason}`;
+
+            await this.captureActiveTabAndTextToClipboard(plainTextData, htmlData);
+
+            this.closeJobForm();
+            window.location.href = "msteams://teams.microsoft.com/l/launch";
         }
-    });
-};
-function updateTotalPoints() {
-    totalPointsEl.textContent = "Total Points:" + TrackerState.summateTotalPoints();
-};
+    },
 
-function renderUI() {
-    historyBodyEl.innerHTML = "";
-    for (let i = 0; i < TrackerState.jobs.length; i++) {
-        const job = TrackerState.jobs[i];
-        const tr = document.createElement("tr");
-        const btnEdit = document.createElement("button");
-        const btnDelete = document.createElement("button");
+    confirmEditJob() {
+        const eJobId = paint.dom.eJobIdInputEl.value.trim();
+        const parsedPts = parseFloat(paint.dom.eJobPointsEl.value);
+        if (!trackerState.validateJobId(eJobId)) { alert("Invalid Job Id. Please Try Again"); return; }
+        if (isNaN(parsedPts)) { alert("Invalid Points. Please Try Again"); return; }
 
-        btnEdit.innerText = "✏️";
-        btnDelete.innerText = "❌ ";
-
-        btnEdit.dataset.id = job.id;
-        btnDelete.dataset.id = job.id;
-
-        btnDelete.addEventListener("click", deleteJob);
-        btnEdit.addEventListener("click", editJob);
-
-        btnEdit.className = "action-btn edit-btn";
-        btnDelete.className = "action-btn delete-btn";
-        tr.innerHTML = `
-                    <td class="cell-link"></td>
-                        <td class="cell-id"></td>
-                        <td class="cell-points"></td>
-                        <td>
-                            <select data-id="${job.id}" class="status-select">
-                                <option value="Open" ${job.status === "Open" ? "selected" : ""}>Open</option>
-                                <option value="Passed" ${job.status === "Passed" ? "selected" : ""}>Passed</option>
-                                <option value="Rework" ${job.status === "Rework" ? "selected" : ""}>Rework</option>
-                            </select>
-                        </td>
-                        <td class="cell-date">${job.date}</td>
-                        <td class="cell-edit"></td>
-                        <td class="cell-delete"></td>
-                    `;
-        // XSS Prevention: set text/attrs via DOM APIs, not template interpolation
-        tr.querySelector(".cell-delete").appendChild(btnDelete);
-        tr.querySelector(".cell-edit").appendChild(btnEdit);
-        tr.querySelector(".cell-id").textContent = job.jobId;
-        tr.querySelector(".cell-points").textContent = job.points;
-
-        const anchor = document.createElement("a");
-        anchor.href = job.link;
-        anchor.target = "_blank";
-        anchor.textContent = "Link";
-        tr.querySelector(".cell-link").appendChild(anchor);
-
-        const select = tr.querySelector(".status-select");
-        select.addEventListener("change", updateStatus);
-
-        historyBodyEl.appendChild(tr);
-        updateStatusColor(select);
-    }
-
-    updateTotalPoints();
-    highlightDuplicates();
-    estPphDpEl.textContent = computePPH();
-}
-
-
-// 11. EXPORT
-function exportToCSV() {
-    const headers = ["Link", "Job ID", "Points", "Status", "Date"];
-    const rows = TrackerState.jobs.map(j => [j.link, j.jobId, j.points, j.status, j.date]);
-    const csv = [headers, ...rows].map(row => row.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "roof-tracker/" + new Date().toLocaleDateString() + ".csv";
-    a.click();
-    URL.revokeObjectURL(url);
-}
-
-//12.MAPS
-async function searchWeb() {
-    const address = (await navigator.clipboard.readText()).trim();
-    if (!address) {
-        alert("Clipboard Empty");
-        return;
-    }
-    const sanitizedUrl = encodeURIComponent(address);
-    const targetUrl = `https://www.google.com/search?q=${sanitizedUrl}`;
-
-    const queryUrl = { url: "https://www.google.com/search*" };
-    const tabs = await chrome.tabs.query(queryUrl);
-
-    if (tabs.length > 0) {
-        const targetTab = tabs[0];
-        await chrome.tabs.update(targetTab.id, { url: targetUrl, active: true });
-        await chrome.windows.update(targetTab.windowId, { focused: true });
-    } else {
-        await chrome.windows.create({
-            url: targetUrl,
-            type: "popup",
-            left: screenWidth - windowWidth,
-            top: windowWidth - Math.floor(windowWidth / 2),
-            width: windowWidth,
-            height: windowHeight
+        trackerState.updateJob(trackerState.currentEditId, {
+            jobId: eJobId,
+            link: paint.dom.eJobLinkEl.value.trim(),
+            points: parsedPts,
+            status: paint.dom.eJobStatusEl.value,
         });
-    }
-};
+        this.persist();
+        this.refreshUI();
+        paint.dialogs.closeEditJob();
+        trackerState.currentEditId = null;
+    },
 
+    handleEditJobClick(jobId) {
+        trackerState.currentEditId = jobId;
+        const job = trackerState.jobs.find(j => j.id === jobId);
+        if (job) {
+            paint.populateEditJobForm(job);
+            paint.dialogs.openEditJob();
+        }
+    },
 
-async function searchAddressOnEagleView() {
-    try {
-        const address = (await navigator.clipboard.readText()).trim();
-        if (!address) {
-            alert("Clipboard is empty.");
+    handleDeleteJobClick(jobId) {
+        trackerState.removeJob(jobId);
+        this.persist();
+        this.refreshUI();
+    },
+
+    closeEditJobForm() {
+        paint.dialogs.closeEditJob();
+    },
+
+    /**
+     * FIX applied here too: the original never recomputed/redisplayed
+     * totalPoints on a status change, even though a Rework toggle directly
+     * affects the total (see trackerState.summateTotalPoints). Points could
+     * go stale until the next add/edit/delete. persist() + renderTotals()
+     * below close that gap without paying for a full table rebuild.
+     */
+    handleStatusChange(jobId, newStatus, selectEl) {
+        trackerState.updateJobStatus(jobId, newStatus);
+        this.persist();
+        paint.updateStatusColor(selectEl);
+        paint.renderTotals(trackerState.totalPoints, trackerState.computePPH());
+    },
+
+    // ---- reject flow ----
+
+    rejectJobForm() {
+        paint.showRejectPanel();
+        trackerState.isReject = true;
+    },
+
+    resetRejectionFormState() {
+        paint.hideRejectPanel();
+    },
+
+    // ---- clipboard / screenshot ----
+
+    async captureActiveTabAndTextToClipboard(plainTextPayload, htmlPayload) {
+        if (typeof chrome === "undefined" || !chrome.tabs) {
+            console.error("Context Error: Run within extension environment.");
+            return;
+        }
+        try {
+            const dataUrl = await new Promise((resolve, reject) => {
+                chrome.tabs.captureVisibleTab(null, { format: "png" }, (result) => {
+                    if (chrome.runtime.lastError) return reject(new Error(chrome.runtime.lastError.message));
+                    resolve(result);
+                });
+            });
+
+            const htmlWithImage = `
+                        ${htmlPayload}
+                        <br>
+                        <img src="${dataUrl}" style="max-width: 100%; height: auto; display: block; margin-top: 3px; border-radius: 4px;">
+                    `;
+
+            const textBlob = new Blob([plainTextPayload], { type: "text/plain" });
+            const htmlBlob = new Blob([htmlWithImage], { type: "text/html" });
+
+            await navigator.clipboard.write([
+                new ClipboardItem({ "text/plain": textBlob, "text/html": htmlBlob })
+            ]);
+        } catch (err) {
+            console.error("Clipboard Pipeline Fault:", err.message);
+            alert("Clipboard update failed: " + err.message);
+        }
+    },
+
+    copyToClipboard() {
+        const pointLink = trackerState.user?.pointsheetLink;
+        const rows = trackerState.jobs.map(j => [j.jobId, j.link, j.points, j.status].join("\t"));
+        navigator.clipboard.writeText(rows.join("\n"));
+        if (pointLink) window.open(pointLink, "popupWindow", "width=800,height=600,scrollbars=yes");
+    },
+
+    copyTSC() {
+        if (!trackerState.user) return;
+        let pastePayLoad = "";
+        const liveOvertimeValue = parseFloat(paint.dom.overtimeInputEl.value) || 0;
+        const workedLunchChecked = paint.dom.workedLunchEl.checked;
+        const tscLink = trackerState.user?.tscLink;
+
+        if (trackerState.user?.userShift == "Day") {
+            const shiftSchedule = [...CONFIG.dayShiftSchedule];
+
+            if (liveOvertimeValue > 0) {
+                const hours = Math.floor(liveOvertimeValue);
+                const minutes = Math.floor((liveOvertimeValue % 1) * 60);
+                const durationStr = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:00`;
+                const calculatedEndHour = 15 + hours;
+                const calculatedEndMin = 30 + minutes;
+                const endStr = `${calculatedEndHour.toString().padStart(2, "0")}:${calculatedEndMin.toString().padStart(2, "0")}:00`;
+
+                shiftSchedule.unshift({ start: "15:30:00", end: endStr, duration: durationStr, task: "TWISTER", cat: "Hipster" });
+            }
+
+            pastePayLoad = trackerState.compileTscPayload(shiftSchedule, { liveOvertimeValue, workedLunchChecked });
+            navigator.clipboard.writeText(pastePayLoad);
+        } else {
+            const baseDate = new Date();
+            const nextdate = new Date(baseDate);
+            baseDate.setDate(baseDate.getDate() - 1);
+
+            const day1str = baseDate.toLocaleDateString();
+            const day2str = nextdate.toLocaleDateString();
+            const shiftSchedule = CONFIG.nightShiftSchedule;
+
+            pastePayLoad = trackerState.compileTscPayload(shiftSchedule, {
+                liveOvertimeValue,
+                workedLunchChecked,
+                dateHandlerCb: (startHourStr) => {
+                    const startHour = parseInt(startHourStr.split(":")[0], 10);
+                    return (startHour == 0 || startHour < 12) ? day2str : day1str;
+                },
+            });
+            navigator.clipboard.writeText(pastePayLoad);
+            alert("TSC Copied to clipboard — Double check the TSC generated by the computer.");
+        }
+
+        if (tscLink) window.open(tscLink, "popupWindow", "width=1920,height=1080,scrollbars=yes");
+    },
+
+    /** Preserved from the original — defined there but not called anywhere I could find in this file. */
+    async writeRichLinkToClipboard(url) {
+        if (!url || !url.startsWith("http")) return;
+        try {
+            const htmlString = `<a href="${url}">${url}</a>`;
+            const textBlob = new Blob([url], { type: "text/plain" });
+            const htmlBlob = new Blob([htmlString], { type: "text/html" });
+            await navigator.clipboard.write([
+                new ClipboardItem({ "text/plain": textBlob, "text/html": htmlBlob })
+            ]);
+        } catch (err) {
+            console.error("Failed to automatically write rich text link:", err);
+        }
+    },
+
+    // ---- overtime form ----
+
+    openOvertimeForm() {
+        paint.dialogs.openOvertime();
+    },
+
+    confirmCopyOvertime() {
+        const tscLink = trackerState.user?.tscLink;
+        if (!trackerState.user) return;
+        this.copyTSC();
+        this.closeCopyOvertime();
+        if (tscLink) window.open(tscLink, "popupWindow", "scrollbars=yes");
+    },
+
+    closeCopyOvertime() {
+        paint.clearOvertimeForm();
+        paint.dialogs.closeOvertime();
+    },
+
+    // ---- user management ----
+
+    getNewUserInfo() {
+        const username = paint.dom.userNameEl?.value?.trim();
+        const techno = parseFloat(paint.dom.techNoEl?.value);
+        if (!username || Number.isNaN(techno)) return null;
+
+        return {
+            id: crypto.randomUUID(),
+            userName: username,
+            techNo: techno,
+            userShift: paint.dom.userShiftEl?.value || "",
+            date: new Date().toISOString().split("T")[0],
+            tscLink: paint.dom.tscLinkInputEl.value.trim(),
+            pointsheetLink: paint.dom.pointsheetLinkInputEl.value.trim(),
+        };
+    },
+
+    confirmAddUser() {
+        const createdUser = this.getNewUserInfo();
+        if (!createdUser) return;
+        if (isNaN(createdUser.techNo)) return;
+        if (createdUser.tscLink && !trackerState.isValidWebUrl(createdUser.tscLink)) {
+            alert("TSC link must be a valid http/https URL.");
+            return;
+        }
+        if (createdUser.pointsheetLink && !trackerState.isValidWebUrl(createdUser.pointsheetLink)) {
+            alert("Pointsheet link must be a valid http/https URL.");
             return;
         }
 
-        let tabs = await chrome.tabs.query({
-            url: "https://explorer-internal.eagleview.com/*"
+        trackerState.setUser(createdUser);
+        this.persist();
+        this.closeUserForm();
+        paint.dialogs.openAbout();
+        this.refreshUI();
+    },
+
+    closeUserForm() {
+        paint.dialogs.closeUser();
+    },
+
+    deleteUser() {
+        trackerState.clearUser();
+        this.persist();
+        this.refreshUI();
+        window.location.reload();
+    },
+
+    openEditUserForm() {
+        if (!trackerState.user) return;
+        paint.populateEditUserForm(trackerState.user);
+        paint.dialogs.openEditUser();
+    },
+
+    confirmEditAddUser() {
+        const parsedTechNo = parseFloat(paint.dom.eTechNoEl.value);
+        if (!paint.dom.eUserNameEl.value.trim() || isNaN(parsedTechNo)) {
+            alert("Please provide a valid Username and Tech Number.");
+            return;
+        }
+        if (paint.dom.eTscLinkInputEl.value && !trackerState.isValidWebUrl(paint.dom.eTscLinkInputEl.value)) {
+            alert("TSC link must be a valid http/https URL.");
+            return;
+        }
+        if (paint.dom.ePointsheetLinkInputEl.value && !trackerState.isValidWebUrl(paint.dom.ePointsheetLinkInputEl.value)) {
+            alert("Pointsheet link must be a valid http/https URL.");
+            return;
+        }
+
+        trackerState.patchUser({
+            userName: paint.dom.eUserNameEl.value.trim(),
+            techNo: parsedTechNo,
+            userShift: paint.dom.eUserShiftEl.value || "",
+            tscLink: paint.dom.eTscLinkInputEl.value.trim(),
+            pointsheetLink: paint.dom.ePointsheetLinkInputEl.value.trim(),
         });
+        this.persist();
+        paint.dialogs.closeEditUser();
+        alert("User Updated Succesfully");
+        this.refreshUI();
+    },
 
-        let targetTab;
+    closeEditUserForm() {
+        paint.dialogs.closeEditUser();
+    },
 
-        if (!tabs.length) {
-            const newWindow = await chrome.windows.create({
-                url: "https://explorer-internal.eagleview.com/index.php",
-                type: "popup",
+    // ---- history table bulk actions ----
+
+    deleteAllTable() {
+        trackerState.clearJobs();
+        this.persist();
+        this.refreshUI();
+    },
+
+    // ---- CSV export ----
+
+    exportToCSV() {
+        const headers = ["Link", "Job ID", "Points", "Status", "Date"];
+        const rows = trackerState.jobs.map(j => [j.link, j.jobId, j.points, j.status, j.date]);
+        const csv = [headers, ...rows].map(row => row.join(",")).join("\n");
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "roof-tracker/" + new Date().toLocaleDateString() + ".csv";
+        a.click();
+        URL.revokeObjectURL(url);
+    },
+
+    // ---- maps / eagleview / tabs ----
+
+    async searchWeb() {
+        const address = (await navigator.clipboard.readText()).trim();
+        if (!address) { alert("Clipboard Empty"); return; }
+
+        const sanitizedUrl = encodeURIComponent(address);
+        const targetUrl = `https://www.google.com/search?q=${sanitizedUrl}`;
+        const tabs = await chrome.tabs.query({ url: "https://www.google.com/search*" });
+
+        if (tabs.length > 0) {
+            const targetTab = tabs[0];
+            await chrome.tabs.update(targetTab.id, { url: targetUrl, active: true });
+            await chrome.windows.update(targetTab.windowId, { focused: true });
+        } else {
+            await chrome.windows.create({
+                url: targetUrl, type: "popup",
                 left: screenWidth - windowWidth,
                 top: windowWidth - Math.floor(windowWidth / 2),
-                width: windowWidth,
-                height: windowHeight
+                width: windowWidth, height: windowHeight,
+            });
+        }
+    },
+
+    async searchAddressOnEagleView() {
+        try {
+            const address = (await navigator.clipboard.readText()).trim();
+            if (!address) { alert("Clipboard is empty."); return; }
+
+            let tabs = await chrome.tabs.query({ url: "https://explorer-internal.eagleview.com/*" });
+            let targetTab;
+
+            if (!tabs.length) {
+                const newWindow = await chrome.windows.create({
+                    url: "https://explorer-internal.eagleview.com/index.php", type: "popup",
+                    left: screenWidth - windowWidth,
+                    top: windowWidth - Math.floor(windowWidth / 2),
+                    width: windowWidth, height: windowHeight,
+                });
+                targetTab = newWindow.tabs[0];
+            } else {
+                targetTab = tabs[0];
+            }
+
+            if (!targetTab) { console.error("No EagleView tab available."); return; }
+
+            await chrome.windows.update(targetTab.windowId, { focused: true });
+            await chrome.tabs.update(targetTab.id, { active: true });
+
+            await chrome.scripting.executeScript({
+                target: { tabId: targetTab.id, allFrames: true },
+                func: (address) => {
+                    function isVisible(el) {
+                        const rect = el.getBoundingClientRect();
+                        return (
+                            rect.width > 0 && rect.height > 0 &&
+                            getComputedStyle(el).display !== "none" &&
+                            getComputedStyle(el).visibility !== "hidden"
+                        );
+                    }
+
+                    const candidates = [
+                        ...document.querySelectorAll(".searchfieldpanel input, input[type='text'], input[type='search']")
+                    ].filter(isVisible);
+
+                    if (!candidates.length) {
+                        const searchIcon = document.querySelector(".search-icon, button[aria-label='Search']");
+                        if (searchIcon) {
+                            searchIcon.click();
+                            return { success: true, action: "Clicked search icon" };
+                        }
+                        return { success: false, reason: "No visible input or search icon found" };
+                    }
+
+                    let input = candidates[0];
+                    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
+
+                    input.focus();
+                    setter ? setter.call(input, address) : (input.value = address);
+
+                    input.dispatchEvent(new Event("input", { bubbles: true }));
+                    input.dispatchEvent(new Event("change", { bubbles: true }));
+
+                    ["keydown", "keypress", "keyup"].forEach(type =>
+                        input.dispatchEvent(new KeyboardEvent(type, {
+                            key: "Enter", code: "Enter", keyCode: 13, which: 13, bubbles: true
+                        }))
+                    );
+
+                    return { success: true, value: address, inputsFound: candidates.length };
+                },
+                args: [address],
+            });
+        } catch (err) {
+            console.error("EagleView Search Error:", err);
+        }
+    },
+
+    async openGMaps() {
+        try {
+            const rawClipboard = await navigator.clipboard.readText();
+            const cleanData = rawClipboard.trim();
+            if (!cleanData) { alert("Clipboard context is empty."); return; }
+
+            const sanitizedComponent = encodeURIComponent(cleanData);
+            const targetUrl = `https://www.google.com/maps/place/${sanitizedComponent}`;
+
+            const existingTabs = await chrome.tabs.query({ url: "https://www.google.com/maps/*" });
+            const exactMatchTabs = await chrome.tabs.query({ url: targetUrl });
+
+            if (exactMatchTabs.length > 0) {
+                const tab = exactMatchTabs[0];
+                await chrome.tabs.update(tab.id, { active: true });
+                await chrome.windows.update(tab.windowId, { focused: true });
+                return;
+            }
+
+            if (existingTabs.length > 0) {
+                const tab = existingTabs[0];
+                await chrome.tabs.update(tab.id, { url: targetUrl, active: true });
+                await chrome.windows.update(tab.windowId, { focused: true });
+                return;
+            }
+
+            await chrome.windows.create({
+                url: targetUrl, type: "popup",
+                left: screenWidth - windowWidth,
+                top: windowWidth - Math.floor(windowWidth / 2),
+                width: windowWidth, height: windowHeight,
             });
 
-            targetTab = newWindow.tabs[0];
-        } else {
-            targetTab = tabs[0];
+            trackerState.isWindowOpen = true;
+
+            const observer = new MutationObserver(() => {
+                const btn = document.querySelector("img[src*='thumbnail?panoid']")?.closest("button");
+                if (btn) { btn.click(); observer.disconnect(); }
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+        } catch (err) {
+            console.error("Extension Chrome Tabs API Fault:", err);
         }
+    },
 
-        if (!targetTab) {
-            console.error("No EagleView tab available.");
-            return;
-        }
+    async closeTabs() {
+        const queryUrls = ["https://apps.eagleview.com/measurementUi*", "https://www.google.com/search*"];
+        const existingTabs = await chrome.tabs.query({ url: queryUrls });
 
-        await chrome.windows.update(targetTab.windowId, { focused: true });
-        await chrome.tabs.update(targetTab.id, { active: true });
-
-        await chrome.scripting.executeScript({
-            target: { tabId: targetTab.id, allFrames: true },
-            func: (address) => {
-                function isVisible(el) {
-                    const rect = el.getBoundingClientRect();
-                    return (
-                        rect.width > 0 &&
-                        rect.height > 0 &&
-                        getComputedStyle(el).display !== "none" &&
-                        getComputedStyle(el).visibility !== "hidden"
-                    );
-                }
-
-                const candidates = [
-                    ...document.querySelectorAll(
-                        ".searchfieldpanel input, input[type='text'], input[type='search']"
-                    )
-                ].filter(isVisible);
-
-                if (!candidates.length) {
-                    const searchIcon = document.querySelector(".search-icon, button[aria-label='Search']");
-                    if (searchIcon) {
-                        searchIcon.click();
-                        return { success: true, action: "Clicked search icon" };
-                    }
-                    return { success: false, reason: "No visible input or search icon found" };
-                }
-
-                let input = candidates[0];
-                const setter = Object.getOwnPropertyDescriptor(
-                    HTMLInputElement.prototype,
-                    "value"
-                )?.set;
-
-                input.focus();
-                setter ? setter.call(input, address) : (input.value = address);
-
-                input.dispatchEvent(new Event("input", { bubbles: true }));
-                input.dispatchEvent(new Event("change", { bubbles: true }));
-
-                ["keydown", "keypress", "keyup"].forEach(type =>
-                    input.dispatchEvent(
-                        new KeyboardEvent(type, {
-                            key: "Enter",
-                            code: "Enter",
-                            keyCode: 13,
-                            which: 13,
-                            bubbles: true
-                        })
-                    )
-                );
-
-                return { success: true, value: address, inputsFound: candidates.length };
-            },
-            args: [address]
-        });
-
-    } catch (err) {
-        console.error("EagleView Search Error:", err);
-    }
-}
-
-async function openGMaps() {
-    try {
-        const rawClipboard = await navigator.clipboard.readText();
-        const cleanData = rawClipboard.trim();
-
-        if (!cleanData) {
-            alert("Clipboard context is empty.");
-            return;
-        }
-
-        const sanitizedComponent = encodeURIComponent(cleanData);
-        const targetUrl = `https://www.google.com/maps/place/${sanitizedComponent}`;
-
-        // 1. Find existing Google Maps tabs
-        const existingTabs = await chrome.tabs.query({ url: "https://www.google.com/maps/*" });
-        const exactMatchTabs = await chrome.tabs.query({ url: targetUrl });
-
-        // 2. If an exact match already exists → activate it
-        if (exactMatchTabs.length > 0) {
-            const tab = exactMatchTabs[0];
-            await chrome.tabs.update(tab.id, { active: true });
-            await chrome.windows.update(tab.windowId, { focused: true });
-            return;
-        }
-
-        // 3. If a Maps tab exists → reuse it
         if (existingTabs.length > 0) {
-            const tab = existingTabs[0];
-            await chrome.tabs.update(tab.id, { url: targetUrl, active: true });
-            await chrome.windows.update(tab.windowId, { focused: true });
+            const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            const tabsToClose = existingTabs.filter(t => t.id !== activeTab?.id);
+            await chrome.tabs.remove(tabsToClose.map(t => t.id));
+        }
+    },
+
+    // ---- shift toggle ----
+
+    toggleShift() {
+        if (!trackerState.shiftStart) {
+            const now = Date.now();
+            trackerState.startShift(now);
+            storage.saveShiftStart(now);
+            paint.setShiftButtonState(true);
+            alert("Shift started");
+            this.refreshUI();
             return;
         }
 
-        // 4. Otherwise → open a new popup window
-        await chrome.windows.create({
-            url: targetUrl,
-            type: "popup",
-            left: screenWidth - windowWidth,
-            top: windowWidth - Math.floor(windowWidth / 2),
-            width: windowWidth,
-            height: windowHeight
-        });
+        const hoursWorked = trackerState.endShift();
+        storage.clearShiftStart();
+        paint.setShiftButtonState(false);
+        alert(`Shift ended. Hours worked: ${hoursWorked.toFixed(2)}`);
+        this.refreshUI();
+    },
 
-        TrackerState.isWindowOpen = true;
+    // ---- event wiring ----
 
-        // 5. Auto-open Street View when thumbnail loads
-        const observer = new MutationObserver(() => {
-            const btn = document
-                .querySelector("img[src*='thumbnail?panoid']")
-                ?.closest("button");
+    _bindEvents() {
+        const dom = paint.dom;
 
-            if (btn) {
-                btn.click();
-                observer.disconnect();
+        dom.aboutIcon.addEventListener("click", () => paint.dialogs.openAbout());
+        dom.closeModalBtnEl.addEventListener("click", () => paint.dialogs.closeAbout());
+
+        dom.pointsContainer.addEventListener("click", (event) => {
+            const button = event.target.closest(".point-btn");
+            if (button) {
+                dom.pointsContainer.querySelectorAll(".point-btn").forEach(btn => btn.classList.remove("active"));
+                button.classList.add("active");
+                dom.pointsInput.value = button.dataset.category;
             }
         });
 
-        observer.observe(document.body, { childList: true, subtree: true });
+        dom.jobFormEl.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") this.confirmJob();
+        });
+        dom.jobIdInputEl.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") { event.preventDefault(); dom.addJobBtnEl.click(); }
+        });
+        dom.eJobFormEl.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") this.confirmEditJob();
+        });
 
-    } catch (err) {
-        console.error("Extension Chrome Tabs API Fault:", err);
-    }
-}
+        window.addEventListener("keydown", (event) => {
+            const key = event.key.toLowerCase();
+            if ((event.ctrlKey || event.metaKey) && key === "j") { event.preventDefault(); dom.searchWebBtnEl.click(); }
+        });
+        window.addEventListener("keydown", (event) => {
+            const key = event.key.toLowerCase();
+            if ((event.ctrlKey || event.metaKey) && key === "m") { event.preventDefault(); dom.gMapsBtnEl.click(); }
+        });
+        window.addEventListener("keydown", (event) => {
+            const key = event.key.toLowerCase();
+            if ((event.ctrlKey || event.metaKey) && key === "k") { event.preventDefault(); dom.cExplorerBtnEl.click(); }
+        });
+        window.addEventListener("keydown", (event) => {
+            const key = event.key.toLowerCase();
+            if ((event.ctrlKey || event.metaKey) && event.shiftKey && key === "x") { event.preventDefault(); dom.closeTabsBtnEl.click(); }
+        });
+        window.addEventListener("keydown", (event) => {
+            const key = event.key.toLowerCase();
+            if ((event.ctrlKey || event.metaKey) && key === "d") {
+                event.preventDefault();
+                dom.editUserBtnEl.style.display = "block";
+                dom.downloadBtnEl.style.display = "block";
+            }
+        });
+        window.addEventListener("keydown", (event) => {
+            if (event.key.toLowerCase() !== "p") return;
+            if ((event.ctrlKey || event.metaKey) && event.shiftKey) {
+                event.preventDefault();
+                if (trackerState.jobs.length === 0) return;
+                trackerState.markAllPassed();
+                this.persist();
+                this.refreshUI();
+            }
+        });
+        window.addEventListener("keydown", (event) => {
+            if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === "Enter") {
+                event.preventDefault();
+                this.rejectJobForm();
+            }
+        });
 
+        dom.addJobBtnEl.addEventListener("click", async () => {
+            try {
+                const clipboardText = await navigator.clipboard.readText();
+                const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+                dom.jobLinkEl.value = tab?.url || "";
+                if (clipboardText) {
+                    dom.jobIdInputEl.value = clipboardText.replace(/[^0-9]/g, "");
+                    this.openJobForm();
+                    dom.jobIdInputEl.focus();
+                }
+            } catch (err) {
+                console.error("Extension Clipboard Engine Failed:", err);
+                this.openJobForm();
+            }
+        });
 
-//VerifyLink
-function isValidWebUrl(string) {
-    try {
-        const url = new URL(string);
-        return url.protocol === "https:" || url.protocol === "http:";
-    } catch (_) {
-        return false;
-    }
-}
-//13. CLOSING TABS
-async function closeTabs() {
-    const queryUrls = ["https://apps.eagleview.com/measurementUi*",
-    "https://www.google.com/search*"];
-    
-    const existingTabs = await chrome.tabs.query({ url: queryUrls });
+        dom.rejectJobBtnEl.addEventListener("click", () => this.rejectJobForm());
 
-    if (existingTabs.length > 0) {
-        const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        const tabsToClose = existingTabs.filter(t => t.id !== activeTab?.id);
-        const tabIds = tabsToClose.map(t => t.id);
-        await chrome.tabs.remove(tabIds);
-    }
-}
+        dom.confirmJobBtnEl.addEventListener("click", () => this.confirmJob());
+        dom.cancelJobBtnEl.addEventListener("click", () => this.closeJobForm());
+        dom.exportBtnEl.addEventListener("click", () => this.exportToCSV());
+        dom.copyBtnEl.addEventListener("click", () => this.copyToClipboard());
+        dom.deleteAllBtnEl.addEventListener("click", () => this.deleteAllTable());
+        dom.editConfirmJobBtnEl.addEventListener("click", () => this.confirmEditJob());
+        dom.editCancelJobBtnEl.addEventListener("click", () => this.closeEditJobForm());
+        dom.copyTscBtnEl.addEventListener("click", () => this.copyTSC());
+        dom.cancelUserBtnEl.addEventListener("click", () => this.closeUserForm());
+        dom.editUserBtnEl.addEventListener("click", () => this.openEditUserForm());
+        dom.overtimeBtnEl.addEventListener("click", () => this.openOvertimeForm());
+        dom.copyOvertimeBtnEl.addEventListener("click", () => this.confirmCopyOvertime());
+        dom.closeOvertimeBtnEl.addEventListener("click", () => this.closeCopyOvertime());
+        dom.gMapsBtnEl.addEventListener("click", () => this.openGMaps());
+        dom.cExplorerBtnEl.addEventListener("click", () => this.searchAddressOnEagleView());
+        dom.confirmUserBtnEl.addEventListener("click", () => this.confirmAddUser());
+        dom.eConfirmUserBtnEl.addEventListener("click", () => this.confirmEditAddUser());
+        dom.eDeleteUserBtnEl.addEventListener("click", () => this.deleteUser());
+        dom.eCancelUserBtnEl.addEventListener("click", () => this.closeEditUserForm());
+        dom.searchWebBtnEl.addEventListener("click", () => this.searchWeb());
+        dom.closeTabsBtnEl.addEventListener("click", () => this.closeTabs());
+        dom.shiftToggleBtnEl.addEventListener("click", () => this.toggleShift());
+    },
+};
 
-//14. Start and End Shift
-function toggleShift() {
-    const btn = document.getElementById("shift-toggle-btn");
+// Kept in case popup.html still has an inline `onclick="rejectJobForm()"` referencing
+// this global directly (the original assigned it the same way). The real wiring is
+// the addEventListener call inside _bindEvents() above.
+window.rejectJobForm = () => logic.rejectJobForm();
 
-    // If shift is NOT running → start it
-    if (!TrackerState.shiftStart) {
-        const now = Date.now();
-
-        TrackerState.shiftStart = now;
-        localStorage.setItem("shiftStart", now);
-
-        btn.classList.add("active");
-        btn.textContent = "Shift Running";
-
-        alert("Shift started");
-        renderUI();
-        return;
-    }
-
-    // If shift IS running → end it
-    const shiftDurationMs = Date.now() - TrackerState.shiftStart;
-    const hoursWorked = shiftDurationMs / 1000 / 3600;
-
-    TrackerState.shiftStart = null;
-    localStorage.removeItem("shiftStart");
-
-    btn.classList.remove("active");
-    btn.textContent = "Start Shift";
-
-    alert(`Shift ended. Hours worked: ${hoursWorked.toFixed(2)}`);
-    renderUI();
-}
-
-function computePPH() {
-    if (!TrackerState.shiftStart) return "0.00";
-
-    const hoursWorked = (Date.now() - TrackerState.shiftStart) / 1000 / 3600;
-
-    // Prevent insane PPH at shift start
-    if (hoursWorked < (1 / 60)) { // less than 1 minute
-        return "0.00";
-    }
-    return (TrackerState.totalPoints / hoursWorked).toFixed(2);
-}
-
-// INIT & APP STARTUP
-function INIT() {
-    TrackerState.shiftStart = parseInt(localStorage.getItem("shiftStart")) || null;
-
-    const btn = document.getElementById("shift-toggle-btn");
-    if (TrackerState.shiftStart) {
-        btn.classList.add("active");
-        btn.textContent = "Shift Running";
-    }
-    TrackerState.user = savedData.user;
-    TrackerState.jobs = savedData.jobs;
-    renderUI();
-    jobIdInputEl.focus();
-}
-INIT();
+logic.init();
