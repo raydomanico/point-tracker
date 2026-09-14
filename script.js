@@ -1119,10 +1119,6 @@ const queryUrls = [
         dom.shiftToggleBtnEl.addEventListener("click", () => this.toggleShift());
     },
 };
-
-// Kept in case popup.html still has an inline `onclick="rejectJobForm()"` referencing
-// this global directly (the original assigned it the same way). The real wiring is
-// the addEventListener call inside _bindEvents() above.
 window.rejectJobForm = () => logic.rejectJobForm();
 
 logic.init();
