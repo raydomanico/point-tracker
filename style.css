@@ -1,20 +1,17 @@
 :root {
-/* Main Accent Vibrancy (BetterBugs Signature Neon Mint) */
---green: #00E699;         /* High-visibility active state green */
---blue: #2EB6FF;        /* Replaced warm blue with the clean electric cyan accent */
---red: #FF4D6D;           /* Crisp, high-contrast ruby red for errors/rejections */
 
-/* Layered Canvas Depth Architecture */
---bg: #0B0F17;            /* Deep obsidian/slate base workspace */
---surface: #141B27;       /* Primary UI Card Panels (History, Input Dock) */
---surface-2: #1E2635;     /* Dropdowns, Inner Input Fields, Active Buttons */
+--green: #00E699;      
+--blue: #2EB6FF;        
+--red: #FF4D6D;         
 
-/* Refined Dashboard Typography */
---text: #F1F5F9;          /* High contrast clean off-white */
---text-muted: #64748B;    /* Neutral steel gray for headers and metadata */
+--bg: #0B0F17;            
+--surface: #141B27;       
+--surface-2: #1E2635;     
 
-/* Structural Framing Borders */
---border: #242F41;        /* Low-intensity layout lines to prevent visual noise */
+--text: #F1F5F9;          
+--text-muted: #64748B;    
+
+--border: #242F41; 
 }
 * {
 box-sizing: border-box;
@@ -303,9 +300,9 @@ padding: 12px;
 color: var(--text);
 font-size: 0.9rem;
 outline: none;
-width: 100%;            /* Fills container safely */
-box-sizing: border-box; /* Crucial: includes padding inside the 100% width calculation */
-margin: 0;              /* Removes default or chaotic browser margins */
+width: 100%;           
+box-sizing: border-box; 
+margin: 0;             
 }
 
 dialog input:focus,
@@ -439,7 +436,6 @@ transform: scale(0.98); /* Tactile click feedback */
   HISTORY TABLE ACTION BUTTONS
   ========================================================================== */
 
-/* Target the container cells to center the buttons vertically and horizontally */
 #history-body td.cell-edit,
 #history-body td.cell-delete {
 text-align: center;
@@ -447,7 +443,7 @@ vertical-align: middle;
 padding: 6px;
 }
 
-/* Core shared reset and button properties */
+
 #history-body .action-btn {
 font-family: inherit;
 font-size: 0.8rem;
@@ -470,26 +466,26 @@ transform: scale(0.95);
 
 /* --- Edit Button Variation --- */
 #history-body .edit-btn {
-background-color: rgba(255, 159, 67, 0.15); /* Light blue tint */
+background-color: rgba(255, 159, 67, 0.15); 
 color: #ff9f43;
 border: 1px solid rgba(255, 159, 67, 0.3);
 }
 
 #history-body .edit-btn:hover {
 background-color: #ff9f43;
-color: #1e1e24; /* High contrast dark text on hover */
+color: #1e1e24;
 }
 
 /* --- Delete Button Variation --- */
 #history-body .delete-btn {
-background-color: rgba(238, 90, 36, 0.15); /* Light red/blue tint */
+background-color: rgba(238, 90, 36, 0.15);
 color: #ee5a24;
 border: 1px solid rgba(238, 90, 36, 0.3);
 }
 
 #history-body .delete-btn:hover {
 background-color: #ee5a24;
-color: #ffffff; /* High contrast white text on hover */
+color: #ffffff; 
 }
 #job-form .dialog-points{
 border: 2px solid var(--border);
@@ -498,7 +494,7 @@ padding: 1px 10px;
 color: var(--green);}
 
 #job-form .dialog-pts-btn input{
-border: none; /* Removes default inner input border */
+border: none; 
 outline: none;
 width: 100%;
 }
@@ -556,30 +552,29 @@ animation: pulse-red 3s infinite;
 font-weight: 700;
 }
 #user-form {
-flex-direction: column;  /* Stacks immediate children vertically */
-gap: 16px;              /* Standardized spacing between inputs */
-width: 100%;            /* Fills parent container safely */
+flex-direction: column; 
+gap: 16px;              
+width: 100%;            
 border: 2px solid var(--border);
 border-radius: 0.75rem;
-padding: 16px;          /* Increased padding for comfortable interior breathing room */
+padding: 16px;         
 color: var(--green);
 }
 
-/* Ensure all immediate children take up full horizontal space */
+
 #edit-user-form > * {
 width: 100%;
-display: block;         /* Normalizes inline labels to prevent horizontal layout collisions */
-
+display: block;        
 }
-/* Ensure all immediate children take up full horizontal space */
+
 #user-form > * {
 width: 100%;
-display: block;         /* Normalizes inline labels to prevent horizontal layout collisions */
+display: block;      
 
 }
-/* Production-grade styling for the inputs inside this specific form */
+
 #edit-user-form input, #user-form select{
-box-sizing: border-box; /* Includes padding within the width calculation */
+box-sizing: border-box; 
 width: 100%;
 padding: 12px;
 margin-top: 12px;
@@ -603,10 +598,10 @@ background-color: var(--text-muted);
 }
 #shortcut-header {
 display: grid;
-grid-template-columns: repeat(2, 1fr); /* 3 columns */
-grid-template-rows: repeat(2, auto);   /* 2 rows */
-gap: 12px;                             /* spacing between buttons */
-justify-items: stretch;                /* buttons fill their grid cell */
+grid-template-columns: repeat(2, 1fr); 
+grid-template-rows: repeat(2, auto);  
+gap: 12px;                             
+justify-items: stretch;              
 margin: 1rem 0;
 }
 
@@ -618,10 +613,10 @@ border-radius: 8px;
 cursor: pointer;
 }
 
-/* Special style for Search Web button */
+
 #closeTabs-btn {
-background: var(--red);   /* your neon red variable */
-color: #fff;              /* white text for contrast */
+background: var(--red);  
+color: #fff;             
 }
 
 
@@ -633,12 +628,12 @@ background-color: var(--blue);
 color: var(--surface);
 }
 #about-page {
-display: flex;              /* allows centering */
-align-items: center;        /* vertical center */
-justify-content: center;    /* horizontal center */
-width: 40px;                /* same size as other buttons */
+display: flex;              
+align-items: center;       
+justify-content: center;    
+width: 40px;              
 height: 40px;
-border-radius: 50%;         /* makes it circular */
+border-radius: 50%;        
 background: var(--surface-2);
 color: var(--text-muted);
 font-size: 1.2rem;
@@ -647,13 +642,12 @@ position: relative;
 transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
 }
 
-/* Hover effect */
+
 #about-page:hover {
 background: var(--blue);
 color: #fff;
 transform: scale(1.1);
 }
-
 
 
 #close-modal {
@@ -680,13 +674,12 @@ outline: 1px solid var(--text);
 }
 #top-actions {
 display: flex;
-justify-content: center;   /* center group horizontally */
+justify-content: center;
 align-items: center;
 gap: 16px;
 margin: 1rem 0;
 }
 
-/* Shared style for all top buttons */
 .top-btn {
 display: flex;
 align-items: center;
@@ -729,12 +722,12 @@ border: 1px solid var(--border);
 transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-/* Show tooltip on hover */
+
 .top-btn:hover::after {
 opacity: 1;
 transform: translateX(-50%) translateY(4px);
 }
-/* Base style for the label */
+
 #overtime-form label {
 display: flex;
 align-items: center;
@@ -743,7 +736,6 @@ font-weight: 500;
 cursor: pointer;
 }
 
-/* Hide the native checkbox */
 #lunch-ot-input {
 appearance: none;
 -webkit-appearance: none;
@@ -760,23 +752,23 @@ cursor: pointer;
 transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-/* Checkmark style */
+
 #lunch-ot-input::before {
 content: "";
 width: 12px;
 height: 12px;
 transform: scale(0);
 transition: transform 0.2s ease-in-out;
-background-color: var(--green); /* green fill */
+background-color: var(--green); 
 clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 20%, 80% 0, 43% 62%);
 }
 
-/* When checked */
+
 #lunch-ot-input:checked::before {
 transform: scale(1);
 }
 
-/* Hover effect */
+
 #lunch-ot-input:hover {
 border-color: var(--blue);
 }

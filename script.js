@@ -1,5 +1,5 @@
 // ============================================================================
-// CONFIG & CONSTANTS — shared static data, not part of any of the 4 objects.
+// CONFIG
 // ============================================================================
 const CONFIG = {
     version: "2.0.0",
@@ -29,28 +29,17 @@ const windowWidth = Math.round(screen.availWidth / 3);
 const windowHeight = Math.round(screen.availHeight / 1.5);
 
 
-// ============================================================================
-// 1. trackerState — pure data model + transitions.
-// HARD RULE: nothing in this object touches `document`, `localStorage`, or
-// `chrome.*`. If a method here ever needs a form value or a browser API
-// result, that value must be PASSED IN by logic — never read directly.
-// ============================================================================
+// 1. trackerState 
 const trackerState = {
     user: null,
     jobs: [],
     totalPoints: 0,
     currentEditId: null,
     isReject: false,
-    isWindowOpen: false, // set by openGMaps in the original code but never read back anywhere — dead state, kept for parity.
     shiftStart: null,
-    lastConfirmTime: null, // NOTE: preserved from the original `let lastConfirmTime = TrackerState.shiftStart`,
-                            // which evaluated to null at load time. That means the very first job logged in a
-                            // session still gets a huge timeElapsed (Date.now() - null). Not something I changed —
-                            // flagging it here since it was invisible before, buried in a loose module-level `let`.
 
+    
     // ---- job CRUD ----
-
-    /** Shapes a new job record from already-collected plain values. No DOM, no chrome.tabs — logic gathers those first. */
     buildJobRecord({ jobId, link, points, status, date }) {
         return { id: crypto.randomUUID(), jobId, link, points, status, date };
     },
@@ -90,13 +79,6 @@ const trackerState = {
         return sum;
     },
 
-    /** Returns elapsed minutes since the last confirmed job, and resets the marker. */
-    markJobConfirmed() {
-        const elapsedMinutes = (Date.now() - this.lastConfirmTime) / 1000 / 60;
-        this.lastConfirmTime = Date.now();
-        return elapsedMinutes;
-    },
-
     // ---- user ----
 
     setUser(user) {
@@ -127,7 +109,7 @@ const trackerState = {
     computePPH() {
         if (!this.shiftStart) return "0.00";
         const hoursWorked = (Date.now() - this.shiftStart) / 1000 / 3600;
-        if (hoursWorked < (1 / 60)) return "0.00"; // guard against absurd PPH in the first minute
+        if (hoursWorked < (1 / 60)) return "0.00"; 
         return (this.totalPoints / hoursWorked).toFixed(2);
     },
 
@@ -146,11 +128,7 @@ const trackerState = {
         }
     },
 
-    /**
-     * Pure TSC payload builder. liveOvertimeValue / workedLunchChecked are
-     * PARAMETERS now, not direct reads of overtimeInputEl.value /
-     * workedLunchEl.checked like the original — that's the DOM-decoupling fix.
-     */
+
     compileTscPayload(shiftScheduleArray, { liveOvertimeValue = 0, workedLunchChecked = false, dateHandlerCb } = {}) {
         const breakSlots = shiftScheduleArray.filter(s => s.task === "BREAK");
         const secondBreak = breakSlots[1];
@@ -182,12 +160,8 @@ const trackerState = {
     },
 };
 
+// 2. storage 
 
-// ============================================================================
-// 2. storage — persistence only. No knowledge of trackerState, no DOM.
-// Every call is wrapped, since the original let a corrupted JSON.parse or a
-// quota-exceeded setItem throw uncaught.
-// ============================================================================
 const storage = {
     saveAll({ jobs, totalPoints, user }) {
         try {
@@ -228,6 +202,7 @@ const storage = {
         }
     },
 
+
     clearShiftStart() {
         try {
             localStorage.removeItem("shiftStart");
@@ -246,13 +221,9 @@ const storage = {
 };
 
 
-// ============================================================================
+
 // 3. paint — DOM writes only. No CONFIG, no trackerState, no storage, no
-// chrome.* calls. Never uses innerHTML — every node is createElement/textContent,
-// so job/user data can never be interpreted as markup no matter its source.
-// Click handlers are passed IN as a `handlers` object; paint calls them with
-// plain ids and never imports or calls a `logic` function by name.
-// ============================================================================
+
 const paint = {
     dom: {
         jobIdInputEl: document.getElementById("job-id-input"),
@@ -485,10 +456,9 @@ const paint = {
 };
 
 
-// ============================================================================
-// 4. logic — the only object that touches trackerState + storage + paint +
-// chrome.*/clipboard/window APIs. Owns every event listener.
-// ============================================================================
+
+// 4. logic
+
 const logic = {
 
     init() {
@@ -503,10 +473,6 @@ const logic = {
         this.refreshUI();
         paint.dom.jobIdInputEl.focus();
 
-        // Consolidated from two separate, timing-fragile checks in the original
-        // (a DOMContentLoaded listener that read TrackerState.user before INIT()
-        // had populated it, plus INIT() itself). trackerState.user is guaranteed
-        // loaded by this point, so this single check is reliable either way.
         if (!trackerState.user) paint.dialogs.openUser();
     },
 
@@ -565,7 +531,7 @@ const logic = {
                 status: paint.dom.jobStatusEl.value,
                 date: new Date().toLocaleDateString(),
             });
-            newJob.timeElapsed = trackerState.markJobConfirmed();
+
 
             trackerState.addJob(newJob);
             this.persist();
@@ -580,10 +546,6 @@ const logic = {
 
             if (!trackerState.validateJobId(rawJobId)) { alert("Invalid job Id. Please try again"); return; }
 
-            // FIX applied here: rawLink is a user-editable field, not a locked-in
-            // value — the original interpolated it straight into an href inside
-            // an HTML string bound for the clipboard with no validation at all.
-            // Now it's checked against isValidWebUrl before it ever touches HTML.
             const safeLink = trackerState.isValidWebUrl(rawLink) ? rawLink : "";
 
             const plainTextData = `${rawJobId}\nLink: ${rawLink}\n${rejectReason}`;
@@ -633,13 +595,6 @@ const logic = {
         paint.dialogs.closeEditJob();
     },
 
-    /**
-     * FIX applied here too: the original never recomputed/redisplayed
-     * totalPoints on a status change, even though a Rework toggle directly
-     * affects the total (see trackerState.summateTotalPoints). Points could
-     * go stale until the next add/edit/delete. persist() + renderTotals()
-     * below close that gap without paying for a full table rebuild.
-     */
     handleStatusChange(jobId, newStatus, selectEl) {
         trackerState.updateJobStatus(jobId, newStatus);
         this.persist();
@@ -739,27 +694,12 @@ const logic = {
                 },
             });
             navigator.clipboard.writeText(pastePayLoad);
-            alert("TSC Copied to clipboard — Double check the TSC generated by the computer.");
-        }
 
+        }
+            alert("TSC Copied to clipboard — Double check the TSC generated by the computer.");
+            alert("Modify when necessary. Check the Tracker for any DOWNTIME, MEETINGS, D2M, SARANA Projects, etc.");
         if (tscLink) window.open(tscLink, "popupWindow", "width=1920,height=1080,scrollbars=yes");
     },
-
-    /** Preserved from the original — defined there but not called anywhere I could find in this file. */
-    async writeRichLinkToClipboard(url) {
-        if (!url || !url.startsWith("http")) return;
-        try {
-            const htmlString = `<a href="${url}">${url}</a>`;
-            const textBlob = new Blob([url], { type: "text/plain" });
-            const htmlBlob = new Blob([htmlString], { type: "text/html" });
-            await navigator.clipboard.write([
-                new ClipboardItem({ "text/plain": textBlob, "text/html": htmlBlob })
-            ]);
-        } catch (err) {
-            console.error("Failed to automatically write rich text link:", err);
-        }
-    },
-
     // ---- overtime form ----
 
     openOvertimeForm() {
@@ -877,8 +817,8 @@ const logic = {
     // ---- CSV export ----
 
     exportToCSV() {
-        const headers = ["Link", "Job ID", "Points", "Status", "Date"];
-        const rows = trackerState.jobs.map(j => [j.link, j.jobId, j.points, j.status, j.date]);
+        const headers = ["Link", "Job ID", "Points", "Status", "Date", "Time Elapsed"];
+        const rows = trackerState.jobs.map(j => [j.link, j.jobId, j.points, j.status, j.date, j.timeElapsed]);
         const csv = [headers, ...rows].map(row => row.join(",")).join("\n");
         const blob = new Blob([csv], { type: "text/csv" });
         const url = URL.createObjectURL(blob);
@@ -924,8 +864,8 @@ const logic = {
             if (!tabs.length) {
                 const newWindow = await chrome.windows.create({
                     url: "https://explorer-internal.eagleview.com/index.php", type: "popup",
-                    left: screenWidth - windowWidth,
-                    top: windowWidth - Math.floor(windowWidth / 2),
+                        left: screenWidth - windowWidth,
+                        top: windowWidth - Math.floor(windowWidth / 2),
                     width: windowWidth, height: windowHeight,
                 });
                 targetTab = newWindow.tabs[0];
@@ -1033,7 +973,13 @@ const logic = {
     },
 
     async closeTabs() {
-        const queryUrls = ["https://apps.eagleview.com/measurementUi*", "https://www.google.com/search*"];
+const queryUrls = [
+  "https://apps.eagleview.com/measurementUi*",
+  "https://www.google.com/search*",
+  "https://www.zillow.com/homes/*",
+  "https://www.redfin.com/*",
+  "https://www.realtor.com/realestateandhomes-search/*",
+];
         const existingTabs = await chrome.tabs.query({ url: queryUrls });
 
         if (existingTabs.length > 0) {

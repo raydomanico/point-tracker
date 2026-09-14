@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "MeasureFlow™",
   "version": "1.0.0",
-  "description": "Productivity Tool to boost workflows: Automating reports, generating TSC and manually tracking job's points, time taken to complete and it's status. Helping Workers to focus on more complex and revenue-generating tasks ",
+  "description": "MeasureFlow streamiline workflow operatiions with precision tools",
   "permissions": [
     "storage",
     "clipboardWrite",
@@ -19,8 +19,10 @@
   "https://www.google.com/maps/*",
   "https://explorer-internal.eagleview.com/*",
   "https://apps.eagleview.com/measurementUi*",
-  "https://www.google.com/search*"
-
+  "https://www.google.com/search*",
+  "https://www.zillow.com/homes/*",
+  "https://www.redfin.com/*",
+  "https://www.realtor.com/realestateandhomes-search/*"
 ]
 
 
