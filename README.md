@@ -19,13 +19,14 @@ Built for EagleView roof measurement tracking.
 5. Use Copy button to paste history into Google Sheets
 
 ## Keyboard shortcuts
-
-- Enter — submit job ID
-  -Ctrl + D to display hidden Download Button and Edit/Delete User Info Button
-- Ctrl + M - directly opens Google Maps with copied Address
-- Ctrl + K - directly opens Connect Explorer with copied Address
-- CTrl + Shift + Enter on extension to directly open Reject Form
-  -Ctrl + Shift + P to change all status to Passed for fater Editing
+Enter → Press Enter to directly open the Add Job Form
+Ctrl/⌘ + J → Search Web
+Ctrl/⌘ + M → Open Google Maps
+Ctrl/⌘ + K → Open ConnectExplorer
+Ctrl/⌘ + D → Show Edit User + Download
+Ctrl/⌘ + Shift + P → Mark All Jobs Passed (sets every job’s status to "Passed")
+Ctrl/⌘ + Shift + Enter → Open Reject Job Form Directly
+Ctrl/⌘ + Shift + X → Close All Measuring Tabs, Google Search tabs, and zillow,realtor,redfin sites all at once,Except for current one
 
 ## Data storage
 
