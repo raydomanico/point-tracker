@@ -412,9 +412,12 @@ color: #fff;
 .btn-download {
 display: none;
 align-items: center;
+margin-top: 10px;
 justify-content: center;
-    background-color: #48d18e; 
-color: #ffffff;
+background-color: rgba(255, 159, 67, 0.15); 
+color: #ff9f43;
+border: 1px solid rgba(255, 159, 67, 0.3);
+
 padding: 12px 24px;
 font-weight: 600;
 text-decoration: none;
@@ -426,8 +429,8 @@ box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .btn-download:hover {
-background-color: #3cb879;
-}
+background-color: var(--blue);
+color: var(--text);}
 
 .btn-download:active {
 transform: scale(0.98); /* Tactile click feedback */
@@ -587,6 +590,9 @@ outline: none;
 }
 #edit-user{
 display:none;
+background-color: rgba(255, 159, 67, 0.15); 
+color: #ff9f43;
+border: 1px solid rgba(255, 159, 67, 0.3);
 }
 #create,#app-version{
 color: var(--text-muted);
