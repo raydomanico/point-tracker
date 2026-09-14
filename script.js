@@ -853,7 +853,20 @@ const logic = {
         }
     },
 
+    waitForTab(tabId){
+        return new Promise (resolve => {
+        const listener = (id , info) =>{
+            if(id ===tabId && info.status ==="complete"){
+                chrome.tabs.onUpdated.removeListener(listener);
+                resolve();
+            }
+        }
+        chrome.tabs.onUpdated.addListener(listener);
+    });
+},
+    
     async searchAddressOnEagleView() {
+
         try {
             const address = (await navigator.clipboard.readText()).trim();
             if (!address) { alert("Clipboard is empty."); return; }
@@ -869,8 +882,11 @@ const logic = {
                     width: windowWidth, height: windowHeight,
                 });
                 targetTab = newWindow.tabs[0];
+                await this.waitForTab(targetTab.id)
+
             } else {
                 targetTab = tabs[0];
+                
             }
 
             if (!targetTab) { console.error("No EagleView tab available."); return; }
@@ -878,8 +894,9 @@ const logic = {
             await chrome.windows.update(targetTab.windowId, { focused: true });
             await chrome.tabs.update(targetTab.id, { active: true });
 
+
             await chrome.scripting.executeScript({
-                target: { tabId: targetTab.id, allFrames: true },
+                target: { tabId: targetTab.id},
                 func: (address) => {
                     function isVisible(el) {
                         const rect = el.getBoundingClientRect();
