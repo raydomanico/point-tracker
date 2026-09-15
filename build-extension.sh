@@ -7,7 +7,7 @@ rm -rf ./dist-ext
 mkdir ./dist-ext
 set -e
 # 3. Copy your live development assets straight into the staging area
-cp index.html script.js style.css icon.png manifest.json ./dist-ext/
+cp index.html script.js style.css icon.png manifest.json 
 
 # 4. Create a clean flat ZIP without folder nesting using the -j (junk paths) flag
 zip -j roof-tracker-extension.zip ./dist-ext/*
