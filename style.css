@@ -51,9 +51,7 @@ padding: 10px;
 overflow-x:scroll;
 overflow-y: auto;
 }
-.pph-value {
-font-size: 2.25rem;
-}
+
 }
 #page_container {
 display: flex;
@@ -150,11 +148,11 @@ padding: 20px;
     background: transparent;
 }
 .bottom-btn:hover {
-background: var(--bg);
+background: transparent;
 color:var(--text-muted);
-transform: scale(1.1);
+transform: scale(1.2);
 outline: none;
-transition: background-color 0.2s ease, transform 0.3s ease;
+transition: transform 0.3s ease;
 }
 /* Tooltip styling */
 .bottom-btn::after {
@@ -171,6 +169,7 @@ font-size: 0.75rem;
 white-space: nowrap;
 opacity: 0;
 pointer-events: none;
+transition: transform 0.3s ease;
 
 
 }
@@ -391,7 +390,7 @@ margin-top: .5rem;
 }
 .point-btn:hover {
 background-color:var(--text-muted);
-border-color: var(--green);
+
 }
 
 /* Active state when a button is selected */
@@ -747,9 +746,7 @@ transition: color 0.2s ease;
 #close-modal:hover {
 color: var(--red)
 }
-.button{
-border: 1px solid transparent; 
-}
+
 button:hover{
 outline: 1px solid var(--text-muted);
 
