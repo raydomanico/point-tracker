@@ -8,6 +8,7 @@
 --surface: #141B27;       
 --surface-2: #1E2635;     
 
+--bg-nav:#0F172A;
 --text: #F1F5F9;          
 --text-muted: #64748B;    
 
@@ -145,14 +146,58 @@ background: var(--surface);
 border-radius: 12px;
 padding: 20px;
 }
+.bottom-btn{
+    background: transparent;
+}
+.bottom-btn:hover {
+background: var(--bg);
+color:var(--text-muted);
+transform: scale(1.1);
+outline: none;
+transition: background-color 0.2s ease, transform 0.3s ease;
+}
+/* Tooltip styling */
+.bottom-btn::after {
+content: attr(data-tooltip);
+position: absolute;
+left: -10%;
+bottom:90%;
+transform: translateX(-50%);
+background: transparent;
+color: var(--text);
+padding: 10px 10px;
+border-radius: 6px;
+font-size: 0.75rem;
+white-space: nowrap;
+opacity: 0;
+pointer-events: none;
 
+
+}
+
+.bottom-btn:hover::after {
+opacity: 1;
+border: none;
+transform: translateX(-50%) translateY(4px);
+}
 #history-header {
 display: flex;
 align-items: center;
 gap: 12px;
-margin-bottom: 16px;
+margin: 0 -20px -20px;
+padding: 14px 20px;
+height: 50px;
+position: sticky;
+bottom: 0;
+  background: linear-gradient(180deg,var(--bg-nav), #0B0F17 100%); 
+border-top: 1px solid var(--border);
+border-radius: 0 0 12px 12px;
+ box-shadow: 0 -2px 8px rgba(0,0,0,0.4);
+z-index: 5;
 }
-
+#history-header button svg {
+  margin-right: 6px;
+}
 #history-header h3 {
 flex: 1;
 font-size: 0.75rem;
@@ -160,26 +205,44 @@ text-transform: uppercase;
 letter-spacing: 2px;
 color: var(--text-muted);
 }
+/* Total Points*/
+.points-value {
+  font-weight: 700;
+  color: var(--green);    
+  font-size: 1.1rem;   
+  text-shadow: 0 0 6px rgba(0, 230, 153, 0.2);
+}
+
 
 #export-btn {
-background: var(--surface-2);
+
 color: var(--text);
-border: 1px solid var(--border);
+border:none;
 border-radius: 8px;
 padding: 8px 12px;
 font-size: 0.8rem;
-cursor: pointer;
+cursor: pointer;    
 }
 
-.copy-btn {
-background: var(--blue);
-color: var(--surface-2);
+#copy-btn {
+
+color: var(--text);
+border:none;
+border-radius: 8px;
+padding: 8px 12px;
+font-size: 0.8rem;
+cursor: pointer;    
+
+}
+#delete-all-btn {
+
+color: var(--text);
 border: none;
 border-radius: 8px;
 padding: 8px 12px;
 font-size: 0.8rem;
-font-weight: 600;
 cursor: pointer;
+
 }
 .overtime-btn {
 background: var(--red);
@@ -191,6 +254,7 @@ font-size: 0.8rem;
 font-weight: 600;
 cursor: pointer;
 }
+
 .sitemap-btn {
 background: var(--green);
 color: var(--text);
@@ -202,16 +266,7 @@ font-weight: 600;
 cursor: pointer;
 }
 
-.delete-all-btn {
-background: var(--red);
-color: var(--text);
-border: none;
-border-radius: 8px;
-padding: 8px 12px;
-font-size: 0.8rem;
-font-weight: 600;
-cursor: pointer;
-}
+
 
 /* Table */
 #history-table {
@@ -589,7 +644,7 @@ font-family: inherit;
 outline: none;
 }
 #edit-user{
-display:none;
+display:none;       
 background-color: rgba(255, 159, 67, 0.15); 
 color: #ff9f43;
 border: 1px solid rgba(255, 159, 67, 0.3);
@@ -603,35 +658,56 @@ background-color: var(--text-muted);
 
 }
 #shortcut-header {
-display: grid;
-grid-template-columns: repeat(2, 1fr); 
-grid-template-rows: repeat(2, auto);  
-gap: 12px;                             
-justify-items: stretch;              
-margin: 1rem 0;
+  display: flex;
+  justify-content: space-between;   /* spreads buttons evenly */
+  align-items: center;
+  gap: 16px;
+  margin: 1rem 0;
+  padding: 12px 16px;
+  background: var(--surface);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
 }
 
 #shortcut-header button {
+    flex:1;
 max-width: 190px;
 padding: 12px;
 font-weight: 600;
 border-radius: 8px;
 cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.15s ease, filter 0.2s ease;
 }
 
+#shortcut-header button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+/* Individual button accents */
+#gMaps-btn {
+  background: var(--green);
+  color: var(--surface-2);
+}
+
+#cExplorer-btn {
+  background: var(--blue);
+  color: var(--surface-2);
+}
+
+#searchWeb-btn {
+  background: var(--blue);
+  color: var(--surface-2);
+}
 
 #closeTabs-btn {
-background: var(--red);  
-color: #fff;             
-}
-
-
-#gMaps-btn{
-color: var(--surface)
-}
-#searchWeb-btn{
-background-color: var(--blue);
-color: var(--surface);
+  background: var(--red);
+  color: #fff;
 }
 #about-page {
 display: flex;              
@@ -675,7 +751,7 @@ color: var(--red)
 border: 1px solid transparent; 
 }
 button:hover{
-outline: 1px solid var(--text);
+outline: 1px solid var(--text-muted);
 
 }
 #top-actions {
@@ -795,4 +871,13 @@ box-shadow: 0 0 15px #48d18e;
 
 .author-name{
     color:var(--text-muted)
+}
+.save-rld-btn{
+    padding: 10px 20px;
+border-radius: 8px;
+background:var(--blue);
+color: white;
+font-weight: bold;
+transition: 0.3s ease;
+border: none;
 }

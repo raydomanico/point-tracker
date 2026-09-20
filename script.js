@@ -73,6 +73,7 @@ const trackerState = {
         for (let i = 0; i < this.jobs.length; i++) {
             if (this.jobs[i].points == 0 || isNaN(this.jobs[i].points)) continue;
             if (this.jobs[i].status == "Rework") continue;
+            if (this.jobs[i].status == "Open") continue;
             sum += this.jobs[i].points;
         }
         this.totalPoints = sum;
@@ -294,6 +295,7 @@ const paint = {
         eConfirmUserBtnEl: document.getElementById("e-confirm-user-btn"),
         eDeleteUserBtnEl: document.getElementById("e-delete-user-btn"),
         eCancelUserBtnEl: document.getElementById("e-cancel-user-btn"),
+        saveRldBtnEl: document.getElementById("save-rld-btn"),
     },
 
     // ---- job table rendering ----
@@ -386,7 +388,7 @@ const paint = {
     },
 
     renderTotals(total, pph) {
-        this.dom.totalPointsEl.textContent = "Total Points:" + total;
+        this.dom.totalPointsEl.innerHTML = `Total Points: <span class="points-value">${total}</span>`;
         this.dom.estPphDpEl.textContent = pph;
     },
 
@@ -1005,7 +1007,82 @@ const queryUrls = [
             await chrome.tabs.remove(tabsToClose.map(t => t.id));
         }
     },
+    async saveReloadPage() {
 
+        try {
+
+            let tabs = await chrome.tabs.query({ url: "https://apps.eagleview.com/measurementUi/*" });
+            let targetTab;
+
+            if (!tabs.length) {
+                const newWindow = await chrome.windows.create({
+                    url: "https://explorer-internal.eagleview.com/index.php", type: "popup",
+                        left: screenWidth - windowWidth,
+                        top: windowWidth - Math.floor(windowWidth / 2),
+                    width: windowWidth, height: windowHeight,
+                });
+                targetTab = newWindow.tabs[0];
+                await this.waitForTab(targetTab.id)
+
+            } else {
+                targetTab = tabs[0];
+                
+            }
+
+            if (!targetTab) { console.error("No EagleView tab available."); return; }
+
+            await chrome.windows.update(targetTab.windowId, { focused: true });
+            await chrome.tabs.update(targetTab.id, { active: true });
+
+
+            await chrome.scripting.executeScript({
+                target: { tabId: targetTab.id},
+                func: (address) => {
+                    function isVisible(el) {
+                        const rect = el.getBoundingClientRect();
+                        return (
+                            rect.width > 0 && rect.height > 0 &&
+                            getComputedStyle(el).display !== "none" &&
+                            getComputedStyle(el).visibility !== "hidden"
+                        );
+                    }
+
+                    const candidates = [
+                        ...document.querySelectorAll(".searchfieldpanel input, input[type='text'], input[type='search']")
+                    ].filter(isVisible);
+
+                    if (!candidates.length) {
+                        const searchIcon = document.querySelector(".search-icon, button[aria-label='Search']");
+                        if (searchIcon) {
+                            searchIcon.click();
+                            return { success: true, action: "Clicked search icon" };
+                        }
+                        return { success: false, reason: "No visible input or search icon found" };
+                    }
+
+                    let input = candidates[0];
+                    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
+
+                    input.focus();
+                    setter ? setter.call(input, address) : (input.value = address);
+
+                    input.dispatchEvent(new Event("input", { bubbles: true }));
+                    input.dispatchEvent(new Event("change", { bubbles: true }));
+
+                    ["keydown", "keypress", "keyup"].forEach(type =>
+                        input.dispatchEvent(new KeyboardEvent(type, {
+                            key: "Enter", code: "Enter", keyCode: 13, which: 13, bubbles: true
+                        }))
+                    );
+
+                    return { success: true, value: address, inputsFound: candidates.length };
+                },
+                args: [address],
+            });
+        } catch (err) {
+            console.error("EagleView Search Error:", err);
+        }
+    },
     // ---- shift toggle ----
 
     toggleShift() {
@@ -1025,7 +1102,7 @@ const queryUrls = [
         alert(`Shift ended. Hours worked: ${hoursWorked.toFixed(2)}`);
         this.refreshUI();
     },
-
+   
     // ---- event wiring ----
 
     _bindEvents() {
@@ -1111,7 +1188,7 @@ const queryUrls = [
         });
 
         dom.rejectJobBtnEl.addEventListener("click", () => this.rejectJobForm());
-
+        dom.saveRldBtnEl.addEventListener("click", () => this.saveReloadPage())
         dom.confirmJobBtnEl.addEventListener("click", () => this.confirmJob());
         dom.cancelJobBtnEl.addEventListener("click", () => this.closeJobForm());
         dom.exportBtnEl.addEventListener("click", () => this.exportToCSV());

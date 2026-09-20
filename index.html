@@ -21,6 +21,7 @@
   </button>
 </div>
 <button id="shift-toggle-btn" class="shift-btn">Start Shift</button>
+<button id="save-rld-btn" class="save-rld-btn"> Save Reload</button>
 
 
 <dialog id="about-modal">
@@ -195,13 +196,7 @@
 
 
     <div id="history-container">
-        <div id="history-header">
-            <h3>Work History</h3>
-            <h4 id="total-points">Total Points:</h4>
-            <button id="export-btn">Export CSV</button>
-            <button id="copy-btn" class="copy-btn">Copy</button>
-            <button id="delete-all-btn" class="delete-all-btn">Delete All</button>
-        </div>
+
         <table id="history-table">
             <thead>
                 <tr>
@@ -223,5 +218,12 @@
 
 <p id="create">2026 MeasureFlow&trade;</p>
 <p id="app-version">v1.0.0</p>
+        <div id="history-header">
+            
+            <h3 id="total-points">Total Points:</h3>
+            <button data-tooltip="Download Point Sheet" id="export-btn" class="bottom-btn" ><svg width="15px" height="15px" viewBox="0 0 0.375 0.375" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M0.188 0.026a0.011 0.011 0 0 1 0.011 0.011v0.173l0.056 -0.056a0.011 0.011 0 1 1 0.016 0.016l-0.075 0.075a0.011 0.011 0 0 1 -0.016 0l-0.075 -0.075a0.011 0.011 0 1 1 0.016 -0.016L0.176 0.21V0.038a0.011 0.011 0 0 1 0.011 -0.011M0.063 0.25a0.013 0.013 0 0 1 0.013 0.013V0.3c0 0.014 0.011 0.025 0.025 0.025h0.175A0.025 0.025 0 0 0 0.3 0.3v-0.038a0.013 0.013 0 0 1 0.025 0V0.3c0 0.028 -0.022 0.05 -0.05 0.05H0.1A0.05 0.05 0 0 1 0.05 0.3v-0.038a0.013 0.013 0 0 1 0.013 -0.013"/></svg></button>
+            <button data-tooltip="Copy Point Sheet" id="copy-btn" class="bottom-btn" ><svg width="15px" height="15px"viewBox="0 0 0.4 0.4" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="m0.1 0.1 0.025 -0.025h0.135L0.35 0.165V0.35l-0.025 0.025H0.125l-0.025 -0.025zm0.225 0.075 -0.075 -0.075H0.125v0.25h0.2z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M0.075 0.025 0.05 0.05v0.25l0.025 0.025V0.05h0.16l-0.025 -0.025z"/></svg></button>
+            <button data-tooltip="Delete Table" id="delete-all-btn" class="bottom-btn" ><svg width="15px" height="15px" viewBox="0 0 0.69 0.69" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M0.202 0.115A0.058 0.058 0 0 1 0.26 0.058h0.173A0.058 0.058 0 0 1 0.49 0.115v0.058h0.115a0.03 0.03 0 1 1 0 0.058H0.575L0.55 0.58a0.058 0.058 0 0 1 -0.06 0.053H0.2A0.058 0.058 0 0 1 0.143 0.58L0.117 0.23H0.087a0.03 0.03 0 0 1 0 -0.058h0.115zm0.058 0.058h0.173V0.115H0.26zM0.175 0.23l0.025 0.345h0.29L0.515 0.23zm0.113 0.058a0.031 0.031 0 0 1 0.03 0.03v0.173a0.03 0.03 0 1 1 -0.058 0V0.317A0.031 0.031 0 0 1 0.29 0.288m0.115 0a0.031 0.031 0 0 1 0.03 0.03v0.173a0.03 0.03 0 1 1 -0.058 0V0.317A0.031 0.031 0 0 1 0.407 0.288"/></svg></button>
+        </div>
 </body>
 </html>
