@@ -3,6 +3,7 @@
 --green: #00E699;      
 --blue: #2EB6FF;        
 --red: #FF4D6D;         
+--orange:#ff9f43;
 
 --bg: #0B0F17;            
 --surface: #141B27;       
@@ -18,12 +19,14 @@
 box-sizing: border-box;
 margin: 0;
 padding: 0;
- outline: 1px solid red; 
+scroll-behavior: smooth;
+
+
 }
 
 body {
 width: 450px;
-padding: 24px;
+height: auto;
 background: #0F172A;
 color: #F8FAFC;
 font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -33,26 +36,22 @@ overflow-x:hidden;
 overflow-y: auto;
 
 }
-/* Triggers automatically when the window width drops below 500px */
-@media screen and (max-width: 500px) {
 .cell-link, 
 .cell-date{
-        display: none !important;
+        display: none;
     }
-    
 
 table {
 width: 100%;
 table-layout: fixed;
 
-}
+
 
 
 }
 #page_container {
 display: flex;
-flex-direction: column;
-gap: 24px;
+
 }
 
 h1 {
@@ -62,18 +61,19 @@ display: flex;
 justify-content: center;
 
 }
+
 /* PPH Section */
 #pph-container {
-display: flex;
+display: none;
 flex-direction: column;
-align-items: center;
+align-items:flex-start;
 justify-content: center;
 gap: 4px;
 background: var(--surface);
 border: 1px solid var(--border);
 border-radius: 12px;
-padding: 20px 24px;
-margin: 1.25rem 0;
+padding: 15px 20px;
+margin: 1.5rem 1.5rem;
 }
 
 .pph-header {
@@ -85,14 +85,14 @@ gap: 8px;
 
 .pph-label {
 font-size: 0.72rem;
-font-weight: 600;
+font-weight: 400;
 text-transform: uppercase;
 letter-spacing: 2px;
 color: var(--text-muted);
 }
 
 .pph-value {
-font-size: 3rem;
+font-size: 2.5rem;
 font-weight: 700;
 line-height: 1;
 letter-spacing: -0.02em;
@@ -107,41 +107,65 @@ letter-spacing: 1px;
 color: var(--text-muted);
 }
 
+
 #input-container {
 display: flex;
-gap: 8px;
+justify-content: center;
 }
 
 #job-id-input {
 flex: 1;
-background: var(--surface);
+background: transparent;
 border: none;
 border-radius: 8px;
-padding: 10px 12px;
+padding: 8px;
 color: var(--text);
-font-size: 0.9rem;
+font-size: 1rem;
 outline: none;
 width: 300px;
+
+
 }
 
 #add-job-btn {
 background: var(--green);
-color: #0f0f0f;
+color: var(--text);
 border: none;
-border-radius: 8px;
+border-radius:0px 8px 8px 0px;
 padding: 10px 20px;
-font-weight: 600;
+margin-top:-7px;
+margin-bottom:-1px;
+margin-right:-10px;
 cursor: pointer;
-}
+  border-left: 1px solid #242F41; 
 
+}
+#add-job-btn:hover {
+background: var(--blue);
+border: none;
+outline:0 ;
+}
+#add-job-btn::after {
+background: var(--green);
+}
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+}
 /* History */
 #history-container {
+margin-top: 16px;
 background: var(--surface);
 border-radius: 12px;
-padding: 20px;
+border: 1px solid var(--surface);
+
 }
 .bottom-btn{
     background: transparent;
+
 }
 .bottom-btn:hover {
 background: transparent;
@@ -178,8 +202,8 @@ transform: translateX(-50%) translateY(4px);
 #history-header {
 display: flex;
 align-items: center;
-gap: 12px;
-margin: 0 -20px -20px;
+gap: 8px;
+width: 100%;
 padding: 14px 20px;
 height: 50px;
 position: sticky;
@@ -190,9 +214,7 @@ border-radius: 0 0 12px 12px;
  box-shadow: 0 -2px 8px rgba(0,0,0,0.4);
 z-index: 5;
 }
-#history-header button svg {
-  margin-right: 6px;
-}
+
 #history-header h3 {
 flex: 1;
 font-size: 0.75rem;
@@ -205,7 +227,7 @@ color: var(--text-muted);
   font-weight: 700;
   color: var(--green);    
   font-size: 1.1rem;   
-  text-shadow: 0 0 6px rgba(0, 230, 153, 0.2);
+  text-shadow: 0 0 6px rgba(0, 230, 153, 0.1);
 }
 
 
@@ -493,18 +515,19 @@ transform: scale(0.98); /* Tactile click feedback */
 #history-body td.cell-delete {
 text-align: center;
 vertical-align: middle;
-padding: 6px;
+width: 80px;
+
 }
 
-
+#history-header button svg {
+  margin-right: 6px;
+}
 #history-body .action-btn {
 font-family: inherit;
 font-size: 0.8rem;
 font-weight: 600;
 letter-spacing: 0.3px;
-padding: 5px 10px;
 border: none;
-margin: .75rem;
 border-radius: 4px;
 cursor: pointer;
 width: 65px; /* Fixed width keeps columns perfectly uniform across rows */
@@ -568,7 +591,7 @@ padding: 1px 10px;
 color: var(--blue)}
 
 .dialog-id{
-border: 2px solid var(--border);
+border: 3px solid var(--border);
 border-radius: .75rem;
 padding: 1px 10px;
 color: var(--green);
@@ -576,7 +599,7 @@ color: var(--green);
 
 }
 .dialog-id:has(#job-id-input:focus) {
-border: 2px solid var(--border);
+border: 3px solid var(--border);
 border-color: var(--blue);
 border-radius: .75rem;
 padding: 1px 10px;
@@ -677,6 +700,7 @@ cursor: pointer;
   cursor: pointer;
   border: none;
   transition: transform 0.15s ease, filter 0.2s ease;
+ opacity:.9;
 }
 
 #shortcut-header button:hover {
@@ -696,111 +720,174 @@ cursor: pointer;
 }
 
 #searchWeb-btn {
-  background: var(--blue);
+  background: var(--orange);
   color: var(--surface-2);
 }
 
 #closeTabs-btn {
   background: var(--red);
-  color: #fff;
-}
-#about-page {
-display: flex;              
-align-items: center;       
-justify-content: center;    
-width: 40px;              
-height: 40px;
-border-radius: 50%;        
-background: var(--surface-2);
-color: var(--text-muted);
-font-size: 1.2rem;
-cursor: pointer;
-position: relative;
-transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
-}
-
-
-#about-page:hover {
-background: var(--blue);
-color: #fff;
-transform: scale(1.1);
-}
-
-
-#close-modal {
-background: transparent;
-border: none;
-font-size: 1rem;
-color: var(--text-muted);
-cursor: pointer;
-position: absolute;
-top: 12px;
-right: 12px;
-transition: color 0.2s ease;
-}
-
-#close-modal:hover {
-color: var(--red)
-}
-
-button:hover{
-outline: 1px solid var(--text-muted);
-
+  color: var(--surface-2);
 }
 #top-actions {
-display: flex;
-justify-content: flex-end;
-align-items: center;
-gap: 16px;
-margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: var(--bg-nav);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  gap: 8px;
+}
+
+/* Shift button lives INSIDE top-actions on the LEFT */
+#shift-toggle-btn,
+.shift-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  padding: 0 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  white-space: nowrap;
+  width: auto;
+  margin: 0;
+  border-radius: 6px;
+   transition: border-color 0.15s, color 0.15s, background 0.15s, transform 0.2s ease;
+}
+
+#shift-toggle-btn:hover,
+.shift-btn:hover {
+  border-color: var(--green);
+  color: var(--green);
+  background: rgba(0,230,153,0.06);
+  outline: none;
+  transform: none;
+  filter: none;
+}
+
+#shift-toggle-btn.active,
+.shift-btn.active {
+  border-color: var(--green);
+  color: var(--text);
+  background: linear-gradient(180deg, var(--green), transparent);
+  opacity: .8;
+}
+
+/* When shift is active and hovered — signals it can be stopped */
+#shift-toggle-btn.active:hover,
+.shift-btn.active:hover {
+  border-color: var(--green);
+  color: var(--text);
+  background: linear-gradient(180deg, var(--red),transparent);
+  opacity: .8;
+   transition: border-color 0.15s, color 0.35s, background 0.15s, transform 0.2s ease-in-out;
+
+}
+
+/* Right side icon group */
+#top-actions .top-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .top-btn {
-display: flex;
-align-items: center;
-justify-content: center;
-width: 40px;
-height: 40px;
-border-radius: 50%;
-background: var(--surface-2);
-color: var(--text);
-font-size: 1.2rem;
-cursor: pointer;
-position: relative;
-border: 1px solid var(--border);
-transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 15px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  position: relative;
 }
 
-/* Hover effect */
 .top-btn:hover {
-background: var(--blue);
-color: #fff;
-transform: scale(1.1);
+  border-color: var(--border);
+  color: var(--text);
+  background: var(--surface);
+  outline: none;
+  transform: none;
 }
 
-/* Tooltip styling */
+/* Tooltip */
 .top-btn::after {
-content: attr(data-tooltip);
-position: absolute;
-bottom: -32px;
-left: 50%;
-transform: translateX(-50%);
-background: var(--surface);
-color: var(--text);
-padding: 6px 10px;
-border-radius: 6px;
-font-size: 0.75rem;
-white-space: nowrap;
-opacity: 0;
-pointer-events: none;
-border: 1px solid var(--border);
-transition: opacity 0.2s ease, transform 0.2s ease;
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--surface-2);
+  color: var(--text);
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 10px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  border: 1px solid var(--border);
+  transition: opacity 0.15s;
+  z-index: 20;
 }
-
 
 .top-btn:hover::after {
-opacity: 1;
-transform: translateX(-50%) translateY(4px);
+  opacity: 1;
+}
+
+#about-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 15px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  position: relative;
+}
+
+#about-page:hover {
+  border-color: var(--border);
+  color: var(--text);
+  background: var(--surface);
+  outline: none;
+  transform: none;
+}
+#close-modal {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background-color: transparent;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+#close-modal:hover {
+  background-color: var(--red);
+  color: var(--text);
+  transform: scale(1.02);
 }
 
 #overtime-form label {
@@ -847,30 +934,53 @@ transform: scale(1);
 #lunch-ot-input:hover {
 border-color: var(--blue);
 }
+#save-rld-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 15px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  position: relative;
+}
 .shift-btn {
-padding: 10px 20px;
-border-radius: 8px;
-background: #444;
-color: white;
-font-weight: bold;
-transition: 0.3s ease;
-border: none;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;              /* compact width */
+  height: 32px;
+  margin: 5px;
+  border: 1px solid var(--border);
+  border-radius: 16px;       /* pill shape */
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .shift-btn.active {
-background: #48d18e;
-box-shadow: 0 0 15px #48d18e;
+  background: var(--green);  
+  opacity: .65; /* accent when active */
+  color: #fff;
 }
+.shift-btn.active:hover {
+ background: var(--red);  
+ opacity: .8;
+}
+
+
 
 .author-name{
     color:var(--text-muted)
 }
-.save-rld-btn{
-    padding: 10px 20px;
-border-radius: 8px;
-background:var(--blue);
-color: white;
-font-weight: bold;
-transition: 0.3s ease;
-border: none;
-}
+
+

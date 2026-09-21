@@ -249,6 +249,8 @@ const paint = {
         closeTabsBtnEl: document.getElementById("closeTabs-btn"),
         workedLunchEl: document.getElementById("lunch-ot-input"),
         estPphDpEl: document.getElementById("est-pph-dp"),
+        pphContainerEl: document.getElementById("pph-container"),
+
 
         openEditUserFormEl: document.getElementById("edit-user-form"),
         eTechNoEl: document.getElementById("e-tech-no"),
@@ -394,7 +396,8 @@ const paint = {
 
     setShiftButtonState(isRunning) {
         this.dom.shiftToggleBtnEl.classList.toggle("active", isRunning);
-        this.dom.shiftToggleBtnEl.textContent = isRunning ? "Shift Running" : "Start Shift";
+        this.dom.shiftToggleBtnEl.textContent = isRunning ? "End Shift?" : "Start Shift";
+        this.dom.pphContainerEl.style.display= "flex";
     },
 
     // ---- form population (write-only: data -> fields) ----
@@ -1091,8 +1094,9 @@ const queryUrls = [
             trackerState.startShift(now);
             storage.saveShiftStart(now);
             paint.setShiftButtonState(true);
-            alert("Shift started");
-            this.refreshUI();
+            alert("Shift started"); 
+            window.open('https://microsourcing.microstatus.com/#/Login', "PopupWindow");
+            
             return;
         }
 
@@ -1101,6 +1105,7 @@ const queryUrls = [
         paint.setShiftButtonState(false);
         alert(`Shift ended. Hours worked: ${hoursWorked.toFixed(2)}`);
         this.refreshUI();
+                window.open('https://microsourcing.microstatus.com/#/Login', 'PopupWIndow');
     },
    
     // ---- event wiring ----

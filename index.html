@@ -9,19 +9,18 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="page-container">
 <div id="top-actions">
-  <button id="about-page" class="top-btn" data-tooltip="About Page">ⓘ</button>
+  <button id="shift-toggle-btn" class="shift-btn">Start Shift</button>
 
-  <button id="copy-tsc-btn" class="top-btn" data-tooltip="Copy Team Shift Chart 📋">
-    📋
-  </button>
-
-  <button id="overtime-btn" class="top-btn" data-tooltip="Add Overtime Hours ⏱️">
-    ⏱️
-  </button>
+  <div class="top-actions-right">
+    <button id="about-page" class="top-btn" data-tooltip="About MeasureFlow"><svg width="22px" height="22px" viewBox="0 0 0.6 0.6" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><title/><g fill="currentColor" fill-rule="evenodd" id="页面-1" stroke="none" stroke-width="1"><g id="导航图标" transform="translate(-175 -207)"><g id="编组" transform="translate(175 207)"><path fill="#FFFFFF" fill-opacity="0.01" fill-rule="nonzero" height="24" id="矩形" width="24" x="0" y="0" d="M0 0H0.6V0.6H0V0z"/><path d="M0.229 0.54a0.25 0.25 0 0 1 -0.109 -0.066 0.075 0.075 0 0 0 -0.065 -0.123A0.251 0.251 0 0 1 0.061 0.225H0.063a0.075 0.075 0 0 0 0.067 -0.108 0.25 0.25 0 0 1 0.103 -0.058 0.075 0.075 0 0 0 0.134 0 0.25 0.25 0 0 1 0.103 0.058A0.075 0.075 0 0 0 0.539 0.225a0.251 0.251 0 0 1 0.006 0.125 0.075 0.075 0 0 0 -0.065 0.123 0.25 0.25 0 0 1 -0.109 0.066 0.075 0.075 0 0 0 -0.143 0Z" id="路径" stroke="#212121" stroke-linejoin="round" stroke-width="0.037500000000000006"/><path d="M0.3 0.388a0.088 0.088 0 1 0 0 -0.175 0.088 0.088 0 0 0 0 0.175Z" id="路径" stroke="#212121" stroke-linejoin="round" stroke-width="0.037500000000000006"/></g></g></g></svg></button>
+    <button id="copy-tsc-btn" class="top-btn" data-tooltip="Copy TSC"><svg fill="currentColor" width="22px" height="22px" viewBox="0 0 0.66 0.66" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M0.33 0.632C0.163 0.632 0.028 0.497 0.028 0.33S0.163 0.028 0.33 0.028s0.302 0.135 0.302 0.302 -0.135 0.302 -0.302 0.302m0 -0.055a0.247 0.247 0 1 0 0 -0.495 0.247 0.247 0 0 0 0 0.495m0.028 -0.275h0.11v0.055h-0.165V0.165h0.055z"/></svg></button>
+    <button id="overtime-btn" class="top-btn" data-tooltip="Overtime hours">⏱<svg width="22px" height="22px" viewBox="0 0 1.32 1.32" version="1" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 48 48"><path fill="currentColor" d="M0.33 1.1V0.55h0.88v0.55c0 0.061 -0.05 0.11 -0.11 0.11H0.44c-0.061 0 -0.11 -0.05 -0.11 -0.11"/><path fill="#78909C" d="M1.21 0.44v0.165H0.33v-0.165c0 -0.061 0.05 -0.11 0.11 -0.11h0.66c0.061 0 0.11 0.05 0.11 0.11"/><g fill="#37474F"><path cx="37" cy="16" r="3" d="M1.1 0.44A0.083 0.083 0 0 1 1.018 0.522A0.083 0.083 0 0 1 0.935 0.44A0.083 0.083 0 0 1 1.1 0.44z"/><path cx="20" cy="16" r="3" d="M0.632 0.44A0.083 0.083 0 0 1 0.55 0.522A0.083 0.083 0 0 1 0.468 0.44A0.083 0.083 0 0 1 0.632 0.44z"/></g><g fill="#B0BEC5"><path d="M1.018 0.275c-0.03 0 -0.055 0.025 -0.055 0.055v0.11c0 0.03 0.025 0.055 0.055 0.055s0.055 -0.025 0.055 -0.055v-0.11c0 -0.03 -0.025 -0.055 -0.055 -0.055"/><path d="M0.55 0.275c-0.03 0 -0.055 0.025 -0.055 0.055v0.11c0 0.03 0.025 0.055 0.055 0.055s0.055 -0.025 0.055 -0.055v-0.11c0 -0.03 -0.025 -0.055 -0.055 -0.055"/></g><path x="32" y="34" fill="#90A4AE" width="4" height="4" d="M0.88 0.935H0.99V1.045H0.88V0.935z"/><path x="26" y="34" fill="#90A4AE" width="4" height="4" d="M0.715 0.935H0.825V1.045H0.715V0.935z"/><path x="20" y="34" fill="#90A4AE" width="4" height="4" d="M0.55 0.935H0.66V1.045H0.55V0.935z"/><path x="32" y="28" fill="#90A4AE" width="4" height="4" d="M0.88 0.77H0.99V0.88H0.88V0.77z"/><path x="26" y="28" fill="#90A4AE" width="4" height="4" d="M0.715 0.77H0.825V0.88H0.715V0.77z"/><path x="20" y="28" fill="#90A4AE" width="4" height="4" d="M0.55 0.77H0.66V0.88H0.55V0.77z"/><path fill="#F44336" cx="16" cy="15" r="12" d="M0.77 0.412A0.33 0.33 0 0 1 0.44 0.743A0.33 0.33 0 0 1 0.11 0.412A0.33 0.33 0 0 1 0.77 0.412z"/><path fill="#eee" cx="16" cy="15" r="9" d="M0.688 0.412A0.247 0.247 0 0 1 0.44 0.66A0.247 0.247 0 0 1 0.193 0.412A0.247 0.247 0 0 1 0.688 0.412z"/><path x="15" y="8" width="2" height="7" d="M0.412 0.22H0.468V0.412H0.412V0.22z"/><path x="16.9" y="14.2" transform="rotate(135 17.9 16.9)" width="1.9" height="5.4" d="M0.465 0.39H0.517V0.539H0.465V0.39z"/><path cx="16" cy="15" r="1.5" d="M0.481 0.412A0.041 0.041 0 0 1 0.44 0.454A0.041 0.041 0 0 1 0.399 0.412A0.041 0.041 0 0 1 0.481 0.412z"/></svg></button>
+    <button id="save-rld-btn" class="top-btn" data-tooltip="Save and Reload Page"><svg width="22px" height="22px" viewBox="0 0 0.412 0.412" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M0.124 0.399v-0.083a0.028 0.028 0 0 1 0.028 -0.028h0.11a0.028 0.028 0 0 1 0.028 0.028v0.083m0.083 0h-0.33a0.028 0.028 0 0 1 -0.028 -0.028v-0.33a0.028 0.028 0 0 1 0.028 -0.028h0.236a0.028 0.028 0 0 1 0.019 0.008l0.094 0.094a0.028 0.028 0 0 1 0.008 0.019V0.371a0.028 0.028 0 0 1 -0.028 0.028Z" stroke="#000000" stroke-width="0.0275"/></svg></button>
+  </div>
 </div>
-<button id="shift-toggle-btn" class="shift-btn">Start Shift</button>
-<button id="save-rld-btn" class="save-rld-btn"> Save Reload</button>
+
 
 
 <dialog id="about-modal">
@@ -57,10 +56,11 @@
     </div>
 
 <div id="shortcut-header">
-<button id="gMaps-btn" class="sitemap-btn">Open GMaps</button>
-<button id="cExplorer-btn" class="sitemap-btn">Open CExplorer</button>
-<button id="searchWeb-btn" class="sitemap-btn">Search Web</button>
-<button id="closeTabs-btn" class="sitemap-btn">Close Tabs</button>
+<button id="gMaps-btn" class="sitemap-btn"><svg width="20px" height="20px" viewBox="0 0 24 24" role="img" xmlns="http://www.w3.org/2000/svg"><title>Google Maps icon</title><path d="M19.527 4.799c1.212 2.608.937 5.678-.405 8.173-1.101 2.047-2.744 3.74-4.098 5.614-.619.858-1.244 1.75-1.669 2.727-.141.325-.263.658-.383.992-.121.333-.224.673-.34 1.008-.109.314-.236.684-.627.687h-.007c-.466-.001-.579-.53-.695-.887-.284-.874-.581-1.713-1.019-2.525-.51-.944-1.145-1.817-1.79-2.671L19.527 4.799zM8.545 7.705l-3.959 4.707c.724 1.54 1.821 2.863 2.871 4.18.247.31.494.622.737.936l4.984-5.925-.029.01c-1.741.601-3.691-.291-4.392-1.987a3.377 3.377 0 0 1-.209-.716c-.063-.437-.077-.761-.004-1.198l.001-.007zM5.492 3.149l-.003.004c-1.947 2.466-2.281 5.88-1.117 8.77l4.785-5.689-.058-.05-3.607-3.035zM14.661.436l-3.838 4.563a.295.295 0 0 1 .027-.01c1.6-.551 3.403.15 4.22 1.626.176.319.323.683.377 1.045.068.446.085.773.012 1.22l-.003.016 3.836-4.561A8.382 8.382 0 0 0 14.67.439l-.009-.003zM9.466 5.868L14.162.285l-.047-.012A8.31 8.31 0 0 0 11.986 0a8.439 8.439 0 0 0-6.169 2.766l-.016.018 3.665 3.084z"/></svg>Open GMaps</button>
+<button id="cExplorer-btn" class="sitemap-btn"><?xml version="1.0" encoding="utf-8"?><svg width="20px" height="20px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="#000000"><path d="M9.00885 6.99103L11.0333 11.0332L6.99114 9.00874L4.96666 4.96655L9.00885 6.99103ZM9.43541 9.4353L8.48072 7.51916L6.56458 6.56447L7.51926 8.48062L9.43541 9.4353Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M13.9795 8.5C13.739 11.4149 11.4149 13.739 8.49999 13.9795V13H7.49999V13.9795C4.57233 13.7379 2.24067 11.3945 2.0175 8.46167H3V7.46167H2.02382C2.28141 4.56475 4.59788 2.25996 7.49999 2.02054V3H8.49999V2.02054C11.4149 2.26101 13.739 4.5851 13.9795 7.5H13V8.5H13.9795ZM8 15C11.866 15 15 11.866 15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 11.866 4.13401 15 8 15Z"/></svg>Open CExplorer</button>
+<button id="searchWeb-btn" class="sitemap-btn"><?xml version="1.0" encoding="utf-8"?><svg fill="#000000" width="20px" height="20px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3.51211712,15 L8.17190229,15 C8.05949197,14.0523506 8,13.0444554 8,12 C8,10.9555446 8.05949197,9.94764942 8.17190229,9 L3.51211712,9 C3.18046266,9.93833678 3,10.9480937 3,12 C3,13.0519063 3.18046266,14.0616632 3.51211712,15 L3.51211712,15 Z M3.93551965,16 C5.12590433,18.3953444 7.35207678,20.1851177 10.0280093,20.783292 C9.24889451,19.7227751 8.65216136,18.0371362 8.31375067,16 L3.93551965,16 L3.93551965,16 Z M20.4878829,15 C20.8195373,14.0616632 21,13.0519063 21,12 C21,10.9480937 20.8195373,9.93833678 20.4878829,9 L15.8280977,9 C15.940508,9.94764942 16,10.9555446 16,12 C16,13.0444554 15.940508,14.0523506 15.8280977,15 L20.4878829,15 L20.4878829,15 Z M20.0644804,16 L15.6862493,16 C15.3478386,18.0371362 14.7511055,19.7227751 13.9719907,20.783292 C16.6479232,20.1851177 18.8740957,18.3953444 20.0644804,16 L20.0644804,16 Z M9.18440269,15 L14.8155973,15 C14.9340177,14.0623882 15,13.0528256 15,12 C15,10.9471744 14.9340177,9.93761183 14.8155973,9 L9.18440269,9 C9.06598229,9.93761183 9,10.9471744 9,12 C9,13.0528256 9.06598229,14.0623882 9.18440269,15 L9.18440269,15 Z M9.3349823,16 C9.85717082,18.9678295 10.9180729,21 12,21 C13.0819271,21 14.1428292,18.9678295 14.6650177,16 L9.3349823,16 L9.3349823,16 Z M3.93551965,8 L8.31375067,8 C8.65216136,5.96286383 9.24889451,4.27722486 10.0280093,3.21670804 C7.35207678,3.81488234 5.12590433,5.60465556 3.93551965,8 L3.93551965,8 Z M20.0644804,8 C18.8740957,5.60465556 16.6479232,3.81488234 13.9719907,3.21670804 C14.7511055,4.27722486 15.3478386,5.96286383 15.6862493,8 L20.0644804,8 L20.0644804,8 Z M9.3349823,8 L14.6650177,8 C14.1428292,5.03217048 13.0819271,3 12,3 C10.9180729,3 9.85717082,5.03217048 9.3349823,8 L9.3349823,8 Z M12,22 C6.4771525,22 2,17.5228475 2,12 C2,6.4771525 6.4771525,2 12,2 C17.5228475,2 22,6.4771525 22,12 C22,17.5228475 17.5228475,22 12,22 Z"/></svg>Search Web</button>
+<button id="closeTabs-btn" class="sitemap-btn"><?xml version="1.0" encoding="utf-8"?><svg fill="#000000" width="20px" height="20px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M512 0C229.232 0 0 229.232 0 512c0 282.784 229.232 512 512 512 282.784 0 512-229.216 512-512C1024 229.232 794.784 0 512 0zm0 961.008c-247.024 0-448-201.984-448-449.01 0-247.024 200.976-448 448-448s448 200.977 448 448-200.976 449.01-448 449.01zm181.008-630.016c-12.496-12.496-32.752-12.496-45.248 0L512 466.752l-135.76-135.76c-12.496-12.496-32.752-12.496-45.264 0-12.496 12.496-12.496 32.752 0 45.248L466.736 512l-135.76 135.76c-12.496 12.48-12.496 32.769 0 45.249 12.496 12.496 32.752 12.496 45.264 0L512 557.249l135.76 135.76c12.496 12.496 32.752 12.496 45.248 0 12.496-12.48 12.496-32.769 0-45.249L557.248 512l135.76-135.76c12.512-12.512 12.512-32.768 0-45.248z"/></svg>Close Tabs</button>
+
 <dialog id="overtime-form">
     <input id="overtime-input" type="number" placeholder="Input EOT Hours(e.g .5,1,2.5)">
 <label for="lunch-ot-input">
@@ -71,14 +71,16 @@
 </dialog>
 <button id="edit-user" class="delete-all-btn">Edit User Account</button>
 </div>
-
-    <div id="input-container">
-        <fieldset class="dialog-id">
-            <legend>Job ID</legend>
-        <input id="job-id-input" inputmode="numeric" placeholder="Press 'Enter' or Click 'Add' " readonly>
-        
-        </fieldset><button id="add-job-btn">Add</button>
+<div id="input-container">
+  <fieldset class="dialog-id">
+    <legend>Job ID</legend>
+    <div class="input-wrapper">
+      <input id="job-id-input" inputmode="numeric" placeholder="Press 'Enter' or Click '+'" readonly>
+      <button id="add-job-btn"><svg fill="#000000" width="35px" height="35px" viewBox="0 0 27.5 27.5" xmlns="http://www.w3.org/2000/svg"><path d="M23.54 1.1H3.905q-1.155 0 -1.98 0.825t-0.825 1.98v19.635q0 1.155 0.825 1.98t1.98 0.825h19.635q1.155 0 1.98 -0.825t0.825 -1.98V3.905q0 -1.155 -0.825 -1.98t-1.98 -0.825M20.735 15.125H15.125v5.61H12.32V15.125H6.71V12.32h5.61V6.71h2.805v5.61h5.61z"/></svg></button>
     </div>
+  </fieldset>
+</div>
+
 
     
     <dialog id="job-form">
@@ -225,5 +227,6 @@
             <button data-tooltip="Copy Point Sheet" id="copy-btn" class="bottom-btn" ><svg width="15px" height="15px"viewBox="0 0 0.4 0.4" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="m0.1 0.1 0.025 -0.025h0.135L0.35 0.165V0.35l-0.025 0.025H0.125l-0.025 -0.025zm0.225 0.075 -0.075 -0.075H0.125v0.25h0.2z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M0.075 0.025 0.05 0.05v0.25l0.025 0.025V0.05h0.16l-0.025 -0.025z"/></svg></button>
             <button data-tooltip="Delete Table" id="delete-all-btn" class="bottom-btn" ><svg width="15px" height="15px" viewBox="0 0 0.69 0.69" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M0.202 0.115A0.058 0.058 0 0 1 0.26 0.058h0.173A0.058 0.058 0 0 1 0.49 0.115v0.058h0.115a0.03 0.03 0 1 1 0 0.058H0.575L0.55 0.58a0.058 0.058 0 0 1 -0.06 0.053H0.2A0.058 0.058 0 0 1 0.143 0.58L0.117 0.23H0.087a0.03 0.03 0 0 1 0 -0.058h0.115zm0.058 0.058h0.173V0.115H0.26zM0.175 0.23l0.025 0.345h0.29L0.515 0.23zm0.113 0.058a0.031 0.031 0 0 1 0.03 0.03v0.173a0.03 0.03 0 1 1 -0.058 0V0.317A0.031 0.031 0 0 1 0.29 0.288m0.115 0a0.031 0.031 0 0 1 0.03 0.03v0.173a0.03 0.03 0 1 1 -0.058 0V0.317A0.031 0.031 0 0 1 0.407 0.288"/></svg></button>
         </div>
+    </div>
 </body>
 </html>
