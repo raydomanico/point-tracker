@@ -1013,22 +1013,24 @@ const queryUrls = [
     async saveReloadPage() {
 
         try {
-
-            let tabs = await chrome.tabs.query({ url: "https://apps.eagleview.com/measurementUi/*" });
+            let queryTab={ active: true, currentWindow: true };
+            let tabs = await chrome.tabs.query(queryTab);
             let targetTab;
 
             if (!tabs.length) {
-                const newWindow = await chrome.windows.create({
-                    url: "https://explorer-internal.eagleview.com/index.php", type: "popup",
-                        left: screenWidth - windowWidth,
-                        top: windowWidth - Math.floor(windowWidth / 2),
-                    width: windowWidth, height: windowHeight,
-                });
-                targetTab = newWindow.tabs[0];
-                await this.waitForTab(targetTab.id)
+              alert("No Measuring Tab available.")
+              return;
 
+              
             } else {
                 targetTab = tabs[0];
+                let targetPrefix = "https://apps.eagleview.com/measurementUi";
+                if(targetTab.url && targetTab.url.startsWith(targetPrefix)){
+                   
+                }else{
+                                  alert("No Measuring Tab available.");
+                                  return;
+                }
                 
             }
 
@@ -1037,10 +1039,9 @@ const queryUrls = [
             await chrome.windows.update(targetTab.windowId, { focused: true });
             await chrome.tabs.update(targetTab.id, { active: true });
 
-
             await chrome.scripting.executeScript({
                 target: { tabId: targetTab.id},
-                func: (address) => {
+                func: () => {
                     function isVisible(el) {
                         const rect = el.getBoundingClientRect();
                         return (
@@ -1051,39 +1052,21 @@ const queryUrls = [
                     }
 
                     const candidates = [
-                        ...document.querySelectorAll(".searchfieldpanel input, input[type='text'], input[type='search']")
+                        ...document.querySelectorAll(" img[alt='save']")
                     ].filter(isVisible);
 
-                    if (!candidates.length) {
-                        const searchIcon = document.querySelector(".search-icon, button[aria-label='Search']");
-                        if (searchIcon) {
-                            searchIcon.click();
-                            return { success: true, action: "Clicked search icon" };
-                        }
-                        return { success: false, reason: "No visible input or search icon found" };
-                    }
+if(candidates.length===0){
+return{success:false, reason:"No Visible save icon found"}
+}
+const saveIcon=candidates[0];
+    saveIcon.click();
+        setTimeout(() => {window.location.reload();}, 1200);
+        return{success:true, action:"Save Icon Clicked"}
+},
 
-                    let input = candidates[0];
-                    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
-
-                    input.focus();
-                    setter ? setter.call(input, address) : (input.value = address);
-
-                    input.dispatchEvent(new Event("input", { bubbles: true }));
-                    input.dispatchEvent(new Event("change", { bubbles: true }));
-
-                    ["keydown", "keypress", "keyup"].forEach(type =>
-                        input.dispatchEvent(new KeyboardEvent(type, {
-                            key: "Enter", code: "Enter", keyCode: 13, which: 13, bubbles: true
-                        }))
-                    );
-
-                    return { success: true, value: address, inputsFound: candidates.length };
-                },
-                args: [address],
             });
         } catch (err) {
-            console.error("EagleView Search Error:", err);
+            console.error("Save Reload Error:", err);
         }
     },
     // ---- shift toggle ----
