@@ -1052,7 +1052,7 @@ const queryUrls = [
                     }
 
                     const candidates = [
-                        ...document.querySelectorAll(" img[alt='save']")
+                        ...document.querySelectorAll(" img[alt='save button']")
                     ].filter(isVisible);
 
 if(candidates.length===0){
