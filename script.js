@@ -255,14 +255,18 @@ const paint = {
         openEditUserFormEl: document.getElementById("edit-user-form"),
         eTechNoEl: document.getElementById("e-tech-no"),
         eTscLinkInputEl: document.getElementById("e-tsc-link"),
+        eUserTeamsLinkEl: document.getElementById("edit-job-link"),
         eUserNameEl: document.getElementById("e-username"),
         eUserShiftEl: document.getElementById("e-user-shift"),
         ePointsheetLinkInputEl: document.getElementById("e-pointsheet-link"),
 
+
         techNoEl: document.getElementById("tech-no"),
         userNameEl: document.getElementById("user-name"),
+        userTeamsLinkInputEL: document.getElementById("teams-link"),
         userShiftEl: document.getElementById("user-shift"),
         dialogStatusEl: document.querySelector(".dialog-status"),
+
 
         jobLinkEl: document.getElementById("job-link"),
         jobPointsEl: document.getElementById("job-points"),
@@ -559,7 +563,8 @@ const logic = {
             await this.captureActiveTabAndTextToClipboard(plainTextData, htmlData);
 
             this.closeJobForm();
-            window.location.href = "msteams://teams.microsoft.com/l/launch";
+            window.location.href = trackerState.user.userTeamsLink;
+            console.log(trackerState.user.userTeamsLink);
         }
     },
 
@@ -738,6 +743,7 @@ const logic = {
             userShift: paint.dom.userShiftEl?.value || "",
             date: new Date().toISOString().split("T")[0],
             tscLink: paint.dom.tscLinkInputEl.value.trim(),
+            userTeamsLink: paint.dom.userTeamsLinkInputEL.value.trim(),
             pointsheetLink: paint.dom.pointsheetLinkInputEl.value.trim(),
         };
     },
@@ -753,6 +759,17 @@ const logic = {
         if (createdUser.pointsheetLink && !trackerState.isValidWebUrl(createdUser.pointsheetLink)) {
             alert("Pointsheet link must be a valid http/https URL.");
             return;
+        }
+        if (createdUser.userTeamsLink && !trackerState.isValidWebUrl(createdUser.userTeamsLink)) {
+            alert("MSTeams link must be a valid http/https URL.");
+            return;
+        }
+        if(createdUser.userTeamsLink){
+            const updatedLink =utils.modifyLink(createdUser.userTeamsLink,{
+                modify:(url) => url.replace(/^https:\/\//, "msteams://"),
+                append:"/l/launch",
+}); 
+ createdUser.userTeamsLink = updatedLink;
         }
 
         trackerState.setUser(createdUser);
@@ -793,7 +810,17 @@ const logic = {
             alert("Pointsheet link must be a valid http/https URL.");
             return;
         }
-
+     if (paint.dom.eUserTeamsLinkEl.value && !trackerState.isValidWebUrl(paint.dom.eUserTeamsLinkEl.value )) {
+            alert("MS Teams link must be a valid http/https URL.");
+            return;
+        }
+          if(paint.dom.eUserTeamsLinkEl.value){
+            const updatedLink =utils.modifyLink(paint.dom.eUserTeamsLinkEl.value,{
+                modify:(url) => url.replace(/^https:\/\//, "msteams://"),
+                append:"/l/launch",
+}); 
+ paint.dom.eUserTeamsLinkEl.value = updatedLink;
+        }
         trackerState.patchUser({
             userName: paint.dom.eUserNameEl.value.trim(),
             techNo: parsedTechNo,
@@ -810,6 +837,8 @@ const logic = {
     closeEditUserForm() {
         paint.dialogs.closeEditUser();
     },
+    
+
 
     // ---- history table bulk actions ----
 
@@ -1201,6 +1230,35 @@ const saveIcon=candidates[0];
         dom.shiftToggleBtnEl.addEventListener("click", () => this.toggleShift());
     },
 };
+
+const utils ={
+        /**
+ * Flexible link modifier
+ * @param {string} linkInput - The original user input link
+ * @param {Object} options - Modification options
+ * @param {string} [options.prepend] - String to prepend
+ * @param {string} [options.append] - String to append
+ * @param {Function} [options.modify] - Custom modifier function
+ * @returns {string} - Modified link
+ */
+    modifyLink(linkInput,{prepend = "",append="",modify=null }={})
+    { if(!linkInput||typeof linkInput !== "string" )return"";
+    let result = linkInput.trim();
+    if(prepend){
+        result = prepend +result;
+    }
+    if(append){
+        result = result +append;
+    }
+    if (typeof modify ==="function"){
+        result= modify(result);
+    }
+        
+        return result;
+},
+
+};
+
 window.rejectJobForm = () => logic.rejectJobForm();
 
 logic.init();
