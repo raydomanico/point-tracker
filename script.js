@@ -255,7 +255,7 @@ const paint = {
         openEditUserFormEl: document.getElementById("edit-user-form"),
         eTechNoEl: document.getElementById("e-tech-no"),
         eTscLinkInputEl: document.getElementById("e-tsc-link"),
-        eUserTeamsLinkEl: document.getElementById("edit-job-link"),
+        eUserTeamsLinkEl: document.getElementById("e-teams-link"),
         eUserNameEl: document.getElementById("e-username"),
         eUserShiftEl: document.getElementById("e-user-shift"),
         ePointsheetLinkInputEl: document.getElementById("e-pointsheet-link"),
@@ -263,7 +263,7 @@ const paint = {
 
         techNoEl: document.getElementById("tech-no"),
         userNameEl: document.getElementById("user-name"),
-        userTeamsLinkInputEL: document.getElementById("teams-link"),
+        userTeamsLinkEL: document.getElementById("teams-link"),
         userShiftEl: document.getElementById("user-shift"),
         dialogStatusEl: document.querySelector(".dialog-status"),
 
@@ -418,6 +418,7 @@ const paint = {
         this.dom.eTechNoEl.value = user.techNo || "";
         this.dom.eUserShiftEl.value = user.userShift || "";
         this.dom.eTscLinkInputEl.value = user.tscLink || "";
+        this.dom.eUserTeamsLinkEl.value = user.userTeamsLink || "";
         this.dom.ePointsheetLinkInputEl.value = user.pointsheetLink || "";
     },
 
@@ -743,7 +744,7 @@ const logic = {
             userShift: paint.dom.userShiftEl?.value || "",
             date: new Date().toISOString().split("T")[0],
             tscLink: paint.dom.tscLinkInputEl.value.trim(),
-            userTeamsLink: paint.dom.userTeamsLinkInputEL.value.trim(),
+            userTeamsLink: paint.dom.userTeamsLinkEL.value.trim(),
             pointsheetLink: paint.dom.pointsheetLinkInputEl.value.trim(),
         };
     },
@@ -814,22 +815,26 @@ const logic = {
             alert("MS Teams link must be a valid http/https URL.");
             return;
         }
-          if(paint.dom.eUserTeamsLinkEl.value){
+    if(paint.dom.eUserTeamsLinkEl.value){
             const updatedLink =utils.modifyLink(paint.dom.eUserTeamsLinkEl.value,{
                 modify:(url) => url.replace(/^https:\/\//, "msteams://"),
                 append:"/l/launch",
 }); 
+
  paint.dom.eUserTeamsLinkEl.value = updatedLink;
+
         }
         trackerState.patchUser({
             userName: paint.dom.eUserNameEl.value.trim(),
             techNo: parsedTechNo,
             userShift: paint.dom.eUserShiftEl.value || "",
-            tscLink: paint.dom.eTscLinkInputEl.value.trim(),
+            userTeamsLink: paint.dom.eUserTeamsLinkEl.value || "",
+            tscLink: paint.dom.eTscLinkInputEl.value.trim() ||"",
             pointsheetLink: paint.dom.ePointsheetLinkInputEl.value.trim(),
         });
         this.persist();
         paint.dialogs.closeEditUser();
+console.log(trackerState.user.userTeamsLink);
         alert("User Updated Succesfully");
         this.refreshUI();
     },
